@@ -1,4 +1,4 @@
-package server
+package main
 
 import "os"
 import "net"
@@ -145,8 +145,7 @@ loop:
 		}
 
 		if len(this.clients) >= this.maxclients {
-			msg := lib.NewMaxClientsReached(client.RemoteAddr())
-			_ = msg.Write(client)
+			client.Write([]uint8{lib.MTMaxClientsReached})
 			client.Close()
 			continue loop
 		}
@@ -169,7 +168,9 @@ func (this *Server) process(conn *net.TCPConn) {
 
 	// Make sure we have a relevant connection. Eg: it sends us the 'Magic
 	// handshake'. if not, it's likely a connection that made a wrong turn
-	// somewhere and doesn't belong here.
+	// somewhere and doesn't belong here. Portscanners have a tendency to
+	// get into this situation. They bombard us with a range of standard
+	// service requests in the hopes of getting a useful response.
 	if _, err = conn.Read(in); err != nil {
 		this.Error("%s %v", conn.RemoteAddr(), err)
 		return

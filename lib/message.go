@@ -57,8 +57,8 @@ func ReadMessage(r io.Reader, sender net.Addr) (msg Message, err os.Error) {
 		return
 	}
 
-	if mb, ok := Messages[data[0]]; ok {
-		msg = mb(sender)
+	if builder, ok := Messages[data[0]]; ok {
+		msg = builder(sender)
 		err = msg.Read(r)
 		return
 	}

@@ -1,4 +1,4 @@
-package client
+package main
 
 import "os"
 import "net"
@@ -10,12 +10,14 @@ type Client struct {
 	Messages chan lib.Message
 	conn     *net.TCPConn
 	rwm      *sync.RWMutex
+	secure   bool
 }
 
-func NewClient() *Client {
+func NewClient(secure bool) *Client {
 	c := new(Client)
-	c.Messages = make(chan lib.Message, 32)
+	c.Messages = make(chan lib.Message, 8)
 	c.rwm = new(sync.RWMutex)
+	c.secure = secure
 	return c
 }
 

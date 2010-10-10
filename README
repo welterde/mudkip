@@ -8,9 +8,24 @@ So far it's pretty generic and not really specific to a MUD. It's just a TCP
 based client/server setup. I would rather have this bit done properly before I
 start with the game logic.
 
-Check out server/server_test.go and client/client_test.go for working
-network examples. Run the server example first, then the client to have it
-connect to the server.
+Check out server/main.go and client/main.go for working network examples. Run
+the server first, then the client to have it connect to the server. Both require
+that you supply a config file in the commandline. Run them without any arguments
+to see the help on getting things started. To connect the client to the server,
+you will obviously have to give them both the same IP/port to work with.
+
+================================================================================
+ USAGE
+================================================================================
+
+To get this project up and running, follow the steps below. This package has a
+dependency on my ini-file parser package. You can get it from it's git repo at
+http://github.com/jteeuwen/go-pkg-ini
+ 
+ $ cd /path/to/codedir
+ $ git clone http://github.com/jteeuwen/mudkip.git
+ $ cd mudkip
+ $ make
 
 ================================================================================
  LICENSE

@@ -1,6 +1,6 @@
 include $(GOROOT)/src/Make.inc
 
-TARG = mudkip/server
-GOFILES = client.go errors.go server.go 
+TARG = mudkips
+GOFILES = main.go config.go net/*.go
 
-include $(GOROOT)/src/Make.pkg
+include $(GOROOT)/src/Make.cmd
