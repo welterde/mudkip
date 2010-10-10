@@ -50,10 +50,10 @@ func init() {
 }
 
 func ReadMessage(r io.Reader, sender net.Addr) (msg Message, err os.Error) {
-	data := make([]byte, 128)
+	data := make([]byte, 1)
 
 	// Read message type
-	if _, err = r.Read(data[0:1]); err != nil {
+	if _, err = r.Read(data); err != nil {
 		return
 	}
 
