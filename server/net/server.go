@@ -7,6 +7,8 @@ import "time"
 import "log"
 import "io"
 import "fmt"
+import "crypto/tls"
+import "crypto/rand"
 import "mudkip/lib"
 
 const (
@@ -23,7 +25,7 @@ const (
 )
 
 type Server struct {
-	Messages      chan lib.Message
+	messages      chan lib.Message
 	log           *log.Logger
 	secure        bool
 	conn          *net.TCPListener
@@ -40,7 +42,7 @@ func NewServer(logtarget io.Writer, secure bool, maxclients, clienttimeout int) 
 	s.rwm = new(sync.RWMutex)
 	s.secure = secure
 	s.clients = make(map[string]*Client)
-	s.Messages = make(chan lib.Message, 32)
+	s.messages = make(chan lib.Message, 32)
 	s.clientclosed = make(chan net.Addr)
 	s.maxclients = maxclients
 	s.clienttimeout = clienttimeout
@@ -55,7 +57,8 @@ func (this *Server) GetClient(id string) *Client {
 	return nil
 }
 
-func (this *Server) IsSecure() bool { return this.secure }
+func (this *Server) Messages() <-chan lib.Message { return this.messages }
+func (this *Server) IsSecure() bool               { return this.secure }
 
 func (this *Server) Close() {
 	this.Info("Shutting down...")
@@ -66,7 +69,7 @@ func (this *Server) Close() {
 		}
 	}
 
-	close(this.Messages)
+	close(this.messages)
 
 	if this.conn != nil {
 		this.rwm.Lock()
@@ -113,7 +116,7 @@ func (this *Server) clean() {
 		select {
 		case addr = <-this.clientclosed:
 			if addr != nil {
-				this.Messages <- lib.NewClientDisconnected(addr)
+				this.messages <- lib.NewClientDisconnected(addr)
 				this.rwm.Lock()
 
 				id = addr.String()
@@ -158,10 +161,21 @@ loop:
 
 func (this *Server) process(conn *net.TCPConn) {
 	var err os.Error
+	var endpoint io.ReadWriteCloser
+
+	if this.secure {
+		// FIXME: Half-arsed SSL implementation. Does not verify certificate.
+		cf := new(tls.Config)
+		cf.Rand = rand.Reader
+		cf.Time = time.Nanoseconds
+		endpoint = tls.Client(conn, cf)
+	} else {
+		endpoint = conn
+	}
 
 	// Send server version. Client can decide if it supports this server
 	// version. If not, it should close the connection and go away.
-	if _, err = conn.Write([]uint8{lib.MTServerVersion, ServerVersion}); err != nil {
+	if _, err = endpoint.Write([]uint8{lib.MTServerVersion, ServerVersion}); err != nil {
 		this.Error("%s %v", conn.RemoteAddr(), err)
 		return
 	}
@@ -173,7 +187,7 @@ func (this *Server) process(conn *net.TCPConn) {
 	// somewhere and doesn't belong here. Portscanners have a tendency to
 	// get into this situation. They bombard us with a range of standard
 	// service requests in the hopes of getting a useful response.
-	if _, err = conn.Read(in); err != nil {
+	if _, err = endpoint.Read(in); err != nil {
 		this.Error("%s %v", conn.RemoteAddr(), err)
 		return
 	}
@@ -185,7 +199,7 @@ func (this *Server) process(conn *net.TCPConn) {
 
 	// Connection is relevant. We need to create a proper Client instance and
 	// get rid of any clients from this source we already have. This can happen
-	// when the client has disconnected/timed out for wwhatever reason and wants
+	// when the client has disconnected/timed out for whatever reason and wants
 	// to resume its session.
 	id := conn.RemoteAddr().String()
 
@@ -196,19 +210,21 @@ func (this *Server) process(conn *net.TCPConn) {
 		return
 	}
 
+	conn.SetKeepAlive(true)
+	conn.SetTimeout(int64(this.clienttimeout) * 6e10)
+
 	// If client already exists, we have a reconnect. Close the old one.
 	if _, ok := this.clients[id]; ok {
 		this.clients[id].Close()
 	}
 
-	conn.SetTimeout(int64(this.clienttimeout) * 6e10)
-
 	// Store new client.
-	client := newClient(conn, this.clientclosed, this.Messages)
+	client := newClient(endpoint, conn.RemoteAddr(), this.clientclosed, this.messages)
+
 	this.rwm.Lock()
 	this.clients[id] = client
 	this.rwm.Unlock()
-	this.Messages <- lib.NewClientConnected(conn.RemoteAddr())
+	this.messages <- lib.NewClientConnected(conn.RemoteAddr())
 
 	// Let's get this show on the road!
 	go client.Run()

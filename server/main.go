@@ -20,10 +20,12 @@ func main() {
 	var msg lib.Message
 	var sig signal.Signal
 
+	incoming := srv.Messages()
+
 loop:
 	for {
 		select {
-		case msg = <-srv.Messages:
+		case msg = <-incoming:
 			go handleMessage(srv, msg)
 
 		case sig = <-signal.Incoming:
@@ -35,7 +37,7 @@ loop:
 			}
 		}
 
-		if closed(srv.Messages) || closed(signal.Incoming) {
+		if closed(incoming) || closed(signal.Incoming) {
 			break loop
 		}
 	}

@@ -2,15 +2,19 @@ package main
 
 import "os"
 import "net"
+import "io"
 import "sync"
 import "time"
+import "crypto/tls"
+import "crypto/rand"
 import "mudkip/lib"
 
 type Client struct {
 	Messages chan lib.Message
-	conn     *net.TCPConn
+	conn     io.ReadWriteCloser
 	rwm      *sync.RWMutex
 	secure   bool
+	addr     net.Addr
 }
 
 func NewClient(secure bool) *Client {
@@ -40,24 +44,38 @@ func (this *Client) Open(addr string) (err os.Error) {
 		return
 	}
 
-	var tcpaddr *net.TCPAddr
-	if tcpaddr, err = net.ResolveTCPAddr(addr); err != nil {
+	if this.addr, err = net.ResolveTCPAddr(addr); err != nil {
 		return
 	}
+
+	var tcp *net.TCPConn
+	if tcp, err = net.DialTCP("tcp", nil, this.addr.(*net.TCPAddr)); err != nil {
+		return
+	}
+
+	tcp.SetTimeout(12e10) // 2 minutes
 
 	this.rwm.Lock()
-	if this.conn, err = net.DialTCP("tcp", nil, tcpaddr); err != nil {
-		this.rwm.Unlock()
-		return
-	}
-	this.rwm.Unlock()
+	this.addr = tcp.RemoteAddr()
 
-	this.conn.SetTimeout(12e10) // 2 minutes
+	if this.secure {
+		// FIXME: Half-arsed SSL implementation. Does not verify certificate.
+		cf := new(tls.Config)
+		cf.Rand = rand.Reader
+		cf.Time = time.Nanoseconds
+		this.conn = tls.Client(tcp, cf)
+	} else {
+		this.conn = tcp
+	}
+
+	this.rwm.Unlock()
 
 	// Announce that we are a relevant connection. eg: we are here to use the
 	// mudkip server and not just some random connection which made a wrong
 	// turn somewhere.
-	this.conn.Write([]byte("MUDKIP"))
+	if _, err = this.conn.Write([]byte("MUDKIP")); err != nil {
+		return
+	}
 
 	go this.poll()
 	return
@@ -74,7 +92,7 @@ func (this *Client) poll() {
 	var msg lib.Message
 
 	for this.conn != nil {
-		if msg, err = lib.ReadMessage(this.conn, this.conn.RemoteAddr()); err != nil {
+		if msg, err = lib.ReadMessage(this.conn, this.addr); err != nil {
 			this.Close()
 			return
 		}
