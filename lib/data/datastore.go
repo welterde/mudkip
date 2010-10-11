@@ -14,7 +14,7 @@ type DataStore interface {
 }
 
 // Represents a function which initializes a new instance of a given datastore
-// imlpementation.
+// implementation.
 type StoreBuilder func() DataStore
 
 // This map contains all registered datastores.
@@ -33,6 +33,8 @@ func RegisterStore(name string, builder StoreBuilder) {
 // Fetch a datastore by the given name. Returns nil if none of the given name
 // exists.
 func GetStore(name string) DataStore {
+	storelock.Lock()
+	defer storelock.Unlock()
 	if build, ok := stores[strings.ToLower(name)]; ok {
 		return build()
 	}

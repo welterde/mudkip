@@ -9,9 +9,7 @@ func init() {
 
 type Store struct{}
 
-func New() lib.DataStore {
-	return new(Store)
-}
+func New() lib.DataStore { return new(Store) }
 
 func (this *Store) Open(params map[string]string) (err os.Error) {
 	return

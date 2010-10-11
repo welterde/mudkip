@@ -8,12 +8,30 @@ Adding a new driver is relatively easy:
 
 * Add a new directory for your driver implementation in mudkip/data/.
   Eg: mudkip/data/mydriver
-* Add the appropriate code for the implementation, using any of the existing
-  ones as a template/guide. Be sure to use the lib.RegisterStore() function
-  as is demonstrated in the other datastores.
+
+* Add the appropriate code for the implementation, using mudkip/data/template/*
+  as a template/guide.
+
 * Add your package to mudkip/data/makefile, so it will be included in the build
-  process.
+  process. Take note that it should be added to all 3 rules (all, clean and 
+  test). For example: 
+ 
+ 	all:
+ 		...
+		make -C mydriver install
+	
+	clean:
+		...
+		make -C mydriver clean
+	
+	test:
+		...
+		make -C mydriver test
+
+
 * Edit mudkip/server/datastores.go. Add the import for your own driver to the
   list: import _ "mudkip/mydriver". This ensures the init() code is run and the
   driver is available for use.
+
 * Rebuild the entire project.
+
