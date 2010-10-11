@@ -1,15 +1,12 @@
-package mongo
+package store
 
 import "os"
 import "mudkip/lib"
 
-func init() {
-	// Hook up the build method for this store.
-	lib.SetDataStore(New)
-}
-
 type Store struct{}
 
+// This function name + signature is mandatory. We call it from the server to
+// create a new Datastore instance.
 func New() lib.DataStore { return new(Store) }
 
 func (this *Store) Open(params map[string]string) (err os.Error) {

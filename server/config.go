@@ -2,7 +2,6 @@ package main
 
 import "os"
 import "ini"
-import _ "mudkip/store"
 
 type Config struct {
 	ListenAddr    string

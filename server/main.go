@@ -1,9 +1,10 @@
 package main
 
+import "fmt"
 import "os"
 import "os/signal"
 import "mudkip/lib"
-import "fmt"
+import "mudkip/store"
 
 func main() {
 	var err os.Error
@@ -21,7 +22,6 @@ func main() {
 	srv.Info("Max clients: %d", cfg.MaxClients)
 	srv.Info("Client timeout: %d minute(s)", cfg.ClientTimeout)
 	srv.Info("Secure connection: %v", cfg.Secure)
-	srv.Info("Using datastore: %T", lib.GetStore())
 
 	var msg lib.Message
 	var sig signal.Signal
@@ -75,12 +75,7 @@ func getConfig() (cfg *Config, ds lib.DataStore) {
 		os.Exit(0)
 	}
 
-	if len(cfg.Datastore) == 0 {
-		fmt.Fprint(os.Stderr, "Missing datastore driver name in config file.\n")
-		os.Exit(1)
-	}
-
-	if ds = lib.GetStore(); ds == nil {
+	if ds = store.New(); ds == nil {
 		fmt.Fprintf(os.Stderr, "Server has been built without datastore support. Cannot continue.\n")
 		os.Exit(1)
 	}

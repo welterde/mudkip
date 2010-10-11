@@ -1,4 +1,4 @@
-package mydriver
+package store
 
 import "testing"
 
