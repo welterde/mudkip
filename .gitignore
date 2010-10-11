@@ -1,3 +1,7 @@
 *.ini
 *.log
-ssl/*
+*fuse_hidden*
+*.crt
+*.csr
+*.key
+*.key.org
