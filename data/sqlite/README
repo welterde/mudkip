@@ -1,0 +1,5 @@
+This is the Mudkip Sqlite3 datastore implementation.
+It relies on Russ Cox's gosqlite package. You can get it from:
+
+	http://code.google.com/p/gosqlite/
+

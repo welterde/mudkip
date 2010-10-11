@@ -1,0 +1,5 @@
+These packages are implementations of the Mudkip lib.Datastore interface.
+You can specify a particular one to use for your Mudkip server in the server
+config file.
+
+These are works in progress and will likely change as the game develops.

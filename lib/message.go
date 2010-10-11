@@ -15,6 +15,7 @@ const (
 	MTClientConnected
 	MTClientDisconnected
 	MTLogin
+	MTRegister
 
 	// Custom message types should start here: MTMax, MTMax+1, MTMax+2 etc.
 	// There is room for 200 custom message types.
@@ -47,6 +48,7 @@ func init() {
 	Messages[MTClientConnected] = func(s net.Addr) Message { return NewClientConnected(s) }
 	Messages[MTClientDisconnected] = func(s net.Addr) Message { return NewClientDisconnected(s) }
 	Messages[MTLogin] = func(s net.Addr) Message { return NewLogin(s) }
+	Messages[MTRegister] = func(s net.Addr) Message { return NewRegister(s) }
 }
 
 func ReadMessage(r io.Reader, sender net.Addr) (msg Message, err os.Error) {

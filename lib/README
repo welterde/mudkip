@@ -1,0 +1,6 @@
+This is the Mudkip core library.
+
+It contains message types used by both server and clients, as well as the
+actualy game world structure and datastore interface.
+
+

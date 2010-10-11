@@ -1,0 +1,5 @@
+This is the Mudkip MongoDB datastore implementation.
+It depends on the GomongoDB driver by chbug. You can find it at:
+
+	http://github.com/chbug/gomongo
+
