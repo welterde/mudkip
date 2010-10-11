@@ -13,18 +13,13 @@ A template config file looks like this:
 
 ---------------------[ start of file ]------------------------------------------
 [data]
-; The value for 'driver' should be any of the supported driver names:
-; sqlite, mysql, mongo
-; 
-; Any additional values needed to create a valid connection to the db of
-; your choice, should be appended in this section as key/value pairs.
+; Any values needed to create a valid connection to the db of your choice,
+; should be added in this section as key/value pairs.
 ; For example:
-; driver = mysql
 ; user = bob
 ; pass = 1234
 ; dbname = mudkipz
 ; dbhost = 127.0.0.1
-driver = 
 
 [net]
 ; Address should be in the format ip:port. It can be in IPv4 and IPv6 format.

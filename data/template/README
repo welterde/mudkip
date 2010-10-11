@@ -1,6 +1,6 @@
 This is a template/example implementation of the mudkip lib.DataStore interface.
 
-Use this as a guide for creating your own drive.
+Use this as a guide for creating your own driver.
 
 This one should not be included in the build process. It is merely here for
 documentation purposes.

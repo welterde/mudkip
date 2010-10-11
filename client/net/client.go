@@ -4,13 +4,12 @@ import "os"
 import "net"
 import "io"
 import "sync"
-import "time"
 import "strings"
 import "crypto/tls"
 import "mudkip/lib"
 
 type Client struct {
-	Messages chan lib.Message
+	messages chan lib.Message
 	conn     io.ReadWriteCloser
 	rwm      *sync.RWMutex
 	addr     net.Addr
@@ -19,23 +18,26 @@ type Client struct {
 
 func NewClient(config *Config) *Client {
 	c := new(Client)
-	c.Messages = make(chan lib.Message, 8)
+	c.messages = make(chan lib.Message, 8)
 	c.rwm = new(sync.RWMutex)
 	c.config = config
 	return c
 }
 
+func (this *Client) Messages() <-chan lib.Message { return this.messages }
+
 // Close the client and it's associated connections.
 func (this *Client) Close() {
-	close(this.Messages)
+	if !closed(this.messages) {
+		close(this.messages)
+	}
 
+	this.rwm.Lock()
 	if this.conn != nil {
-		this.rwm.Lock()
 		this.conn.Close()
 		this.conn = nil
-		this.rwm.Unlock()
-		time.Sleep(1e9)
 	}
+	this.rwm.Unlock()
 
 	this.rwm.Lock()
 	this.config = nil
@@ -80,7 +82,8 @@ func (this *Client) Open() (err os.Error) {
 		this.addr = this.conn.(*net.TCPConn).RemoteAddr()
 		this.rwm.Unlock()
 
-		this.conn.(*net.TCPConn).SetTimeout(12e10) // 2 minutes
+	//	this.conn.(*net.TCPConn).SetKeepAlive(true)
+	//	this.conn.(*net.TCPConn).SetTimeout(12e10)
 	}
 
 	// Announce that we are a relevant connection. eg: we are here to use the
@@ -110,11 +113,11 @@ func (this *Client) poll() {
 			return
 		}
 
-		if closed(this.Messages) {
+		if closed(this.messages) {
 			this.Close()
 			return
 		}
 
-		this.Messages <- msg
+		this.messages <- msg
 	}
 }

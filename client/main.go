@@ -23,10 +23,12 @@ func main() {
 	var msg lib.Message
 	var sig signal.Signal
 
+	incoming := client.Messages()
+
 loop:
 	for {
 		select {
-		case msg = <-client.Messages:
+		case msg = <-incoming:
 			go handleMessage(client, msg)
 
 		case sig = <-signal.Incoming:
@@ -38,7 +40,7 @@ loop:
 			}
 		}
 
-		if closed(client.Messages) || closed(signal.Incoming) {
+		if closed(incoming) || closed(signal.Incoming) {
 			return
 		}
 	}

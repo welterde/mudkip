@@ -34,17 +34,18 @@ func (this *Client) Send(msg lib.Message) (err os.Error) {
 func (this *Client) Run() {
 	var err os.Error
 	var msg lib.Message
+	var ok bool
 
 	for this.conn != nil {
 		if msg, err = lib.ReadMessage(this.conn, this.addr); err != nil {
-			if err != os.EOF {
+			if _, ok = err.(*net.OpError); ok || err == os.EOF {
+				this.Close()
+				return
+			} else {
 				em := lib.NewError(this.addr)
 				em.FromError(err)
 				em.Write(this.conn)
 				continue
-			} else {
-				this.Close()
-				return
 			}
 		}
 

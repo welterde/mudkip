@@ -2,8 +2,7 @@ package main
 
 import "os"
 import "ini"
-import "strings"
-import "mudkip/lib"
+import _ "mudkip/store"
 
 type Config struct {
 	ListenAddr    string
@@ -13,10 +12,7 @@ type Config struct {
 	MaxClients    int
 	LogFile       string
 	ClientTimeout int
-	Datastore     struct {
-		Driver string
-		Params map[string]string
-	}
+	Datastore     map[string]string
 }
 
 func NewConfig() *Config {
@@ -26,6 +22,7 @@ func NewConfig() *Config {
 	c.ClientTimeout = 2
 	c.ServerCert = "/path/to/cert.pem"
 	c.ServerKey = "/path/to/key.pem"
+	c.Datastore = make(map[string]string)
 	return c
 }
 
@@ -50,16 +47,13 @@ func (this *Config) Load(file string) (err os.Error) {
 		return
 	}
 
-	this.Datastore.Driver = data.S("driver", "")
-	if len(data.Pairs) <= 1 {
+	if len(data.Pairs) == 0 {
 		return
 	}
 
-	this.Datastore.Params = make(map[string]string)
+	this.Datastore = make(map[string]string)
 	for k, v := range data.Pairs {
-		if k != "driver" {
-			this.Datastore.Params[k] = v
-		}
+		this.Datastore[k] = v
 	}
 	return
 }
@@ -81,21 +75,15 @@ func (this *Config) Save(file string) (err os.Error) {
 	cfg.Set("net", "maxclients", this.MaxClients)
 	cfg.Set("net", "clienttimeout", this.ClientTimeout)
 
-	cfg.AddComment("data", "The value for 'driver' should be any of the supported driver names: ")
-	cfg.AddComment("data", strings.Join(lib.ListStores(), ", "))
-	cfg.AddComment("data", "")
-	cfg.AddComment("data", "Any additional values needed to create a valid connection to the db of")
-	cfg.AddComment("data", "your choice, should be appended in this section as key/value pairs.")
+	cfg.AddComment("data", "Any values needed to create a valid connection to the db of your choice,")
+	cfg.AddComment("data", "should be added in this section as key/value pairs.")
 	cfg.AddComment("data", "For example:")
-	cfg.AddComment("data", "  driver = mysql")
 	cfg.AddComment("data", "  user = bob")
 	cfg.AddComment("data", "  pass = 1234")
 	cfg.AddComment("data", "  dbname = mudkipz")
 	cfg.AddComment("data", "  dbhost = 127.0.0.1")
 
-	cfg.Set("data", "driver", this.Datastore.Driver)
-
-	for k, v := range this.Datastore.Params {
+	for k, v := range this.Datastore {
 		cfg.Set("data", k, v)
 	}
 

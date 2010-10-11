@@ -25,6 +25,13 @@ http://github.com/jteeuwen/go-pkg-ini
  $ cd /path/to/codedir
  $ git clone http://github.com/jteeuwen/mudkip.git
  $ cd mudkip
+
+Optionally, modify the main makefile to set the appropriate DATASTORE value.
+This value indicates which database driver to compile into the server. We opt to
+make this choice at compile time to reduce the server binary size. There is no
+need to have the unused drivers in there. All the drivers compile to a package
+named mudkip/store.a. This is also why we can build only one of them.
+
  $ make
 
 ================================================================================

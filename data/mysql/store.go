@@ -4,7 +4,8 @@ import "os"
 import "mudkip/lib"
 
 func init() {
-	lib.RegisterStore("mysql", New)
+	// Hook up the build method for this store.
+	lib.SetDataStore(New)
 }
 
 type Store struct{}
