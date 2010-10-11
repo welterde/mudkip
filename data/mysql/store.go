@@ -3,6 +3,10 @@ package mysql
 import "os"
 import "mudkip/lib"
 
+func init() {
+	lib.RegisterStore("mysql", New)
+}
+
 type Store struct{}
 
 func New() lib.DataStore {

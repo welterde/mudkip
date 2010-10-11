@@ -3,6 +3,10 @@ package sqlite
 import "os"
 import "mudkip/lib"
 
+func init() {
+	lib.RegisterStore("sqlite", New)
+}
+
 type Store struct{}
 
 func New() lib.DataStore {

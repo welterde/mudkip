@@ -3,6 +3,10 @@ package mongo
 import "os"
 import "mudkip/lib"
 
+func init() {
+	lib.RegisterStore("mongo", New)
+}
+
 type Store struct{}
 
 func New() lib.DataStore {

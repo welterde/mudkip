@@ -117,11 +117,6 @@ func (this *Server) Open() (err os.Error) {
 		this.rwm.Unlock()
 	}
 
-	this.Info("Listening on: %s", this.conn.Addr())
-	this.Info("Max clients: %d", this.config.MaxClients)
-	this.Info("Client timeout: %d minute(s)", this.config.ClientTimeout)
-	this.Info("Secure connection: %v", this.config.Secure)
-
 	go this.poll()
 	go this.clean()
 	return
