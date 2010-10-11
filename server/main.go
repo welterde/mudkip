@@ -87,6 +87,11 @@ func getConfig() (cfg *Config, ds lib.DataStore) {
 		os.Exit(1)
 	}
 
+	if err = ds.Open(cfg.Datastore.Params); err != nil {
+		fmt.Fprintf(os.Stderr, "%v\n", err)
+		os.Exit(1)
+	}
+
 	return
 }
 
