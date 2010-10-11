@@ -14,6 +14,16 @@ that you supply a config file in the commandline. Run them without any arguments
 to see the help on getting things started. To connect the client to the server,
 you will obviously have to give them both the same IP/port to work with.
 
+The mudkip server can listen on a secure socket using TLS/SSL. This means we
+have to specify a Key file and certificate file in the server config if secure
+is set to true. For testing purposes, we can generate a self-signed key file
+and certificate. Check out the following website for a rundown on how this
+works: http://www.akadia.com/services/ssh_test_certificate.html
+
+The mudkip client also supports SSL connections. No certificate/key files are
+needed here. All we need to do to enable SSL connectivity, is set the 'secure'
+value to true in the client config file.
+
 ================================================================================
  USAGE
 ================================================================================
