@@ -10,12 +10,10 @@ import "fmt"
 const MaxServerVersion = 1
 
 func main() {
-	cfg := parseArgs()
-
 	var err os.Error
 
-	client := NewClient(cfg.Secure)
-	if err = client.Open(cfg.Server); err != nil {
+	client := NewClient(parseConfig())
+	if err = client.Open(); err != nil {
 		fmt.Fprintf(os.Stderr, "%v\n", err)
 		os.Exit(1)
 	}
@@ -46,7 +44,7 @@ loop:
 	}
 }
 
-func parseArgs() (cfg *Config) {
+func parseConfig() (cfg *Config) {
 	var err os.Error
 	var cfgfile string
 

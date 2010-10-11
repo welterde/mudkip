@@ -18,8 +18,8 @@ func NewConfig() *Config {
 	c.MaxClients = 32
 	c.Secure = false
 	c.ClientTimeout = 2
-	c.ServerCert = "cert.pem"
-	c.ServerKey = "key.pem"
+	c.ServerCert = "/path/to/cert.pem"
+	c.ServerKey = "/path/to/key.pem"
 	return c
 }
 
@@ -32,8 +32,8 @@ func (this *Config) Load(file string) (err os.Error) {
 	this.LogFile = cfg.S("misc", "logfile", "")
 	this.ListenAddr = cfg.S("net", "address", "")
 	this.Secure = cfg.B("net", "secure", false)
-	this.ServerCert = cfg.S("net", "servercert", "cert.pem")
-	this.ServerKey = cfg.S("net", "serverkey", "key.pem")
+	this.ServerCert = cfg.S("net", "servercert", "/path/to/cert.pem")
+	this.ServerKey = cfg.S("net", "serverkey", "/path/to/key.pem")
 	this.MaxClients = cfg.I("net", "maxclients", 32)
 	this.ClientTimeout = cfg.I("net", "clienttimeout", 2)
 	return

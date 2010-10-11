@@ -13,15 +13,15 @@ type Client struct {
 	Messages chan lib.Message
 	conn     io.ReadWriteCloser
 	rwm      *sync.RWMutex
-	secure   bool
 	addr     net.Addr
+	config   *Config
 }
 
-func NewClient(secure bool) *Client {
+func NewClient(config *Config) *Client {
 	c := new(Client)
 	c.Messages = make(chan lib.Message, 8)
 	c.rwm = new(sync.RWMutex)
-	c.secure = secure
+	c.config = config
 	return c
 }
 
@@ -36,22 +36,27 @@ func (this *Client) Close() {
 		this.rwm.Unlock()
 		time.Sleep(1e9)
 	}
+
+	this.rwm.Lock()
+	this.config = nil
+	this.rwm.Unlock()
 }
 
 // Open a connection to the specified server address.
-func (this *Client) Open(addr string) (err os.Error) {
+func (this *Client) Open() (err os.Error) {
 	if this.conn != nil {
 		return
 	}
 
-	if this.secure {
+	if this.config.Secure {
 		this.rwm.Lock()
-		if this.conn, err = tls.Dial("tcp", "", addr); err != nil {
+		if this.conn, err = tls.Dial("tcp", "", this.config.Server); err != nil {
 			this.rwm.Unlock()
 			return
 		}
 		this.rwm.Unlock()
 
+		addr := this.config.Server
 		if idx := strings.LastIndex(addr, ":"); idx != -1 {
 			if idx > strings.LastIndex(addr, "]") { // ipv6
 				addr = addr[0:idx]
@@ -67,7 +72,7 @@ func (this *Client) Open(addr string) (err os.Error) {
 		this.rwm.Unlock()
 	} else {
 		this.rwm.Lock()
-		if this.conn, err = net.Dial("tcp", "", addr); err != nil {
+		if this.conn, err = net.Dial("tcp", "", this.config.Server); err != nil {
 			this.rwm.Unlock()
 			return
 		}
