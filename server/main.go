@@ -11,7 +11,7 @@ func main() {
 
 	var err os.Error
 
-	srv := NewServer(log, cfg.Secure, cfg.MaxClients)
+	srv := NewServer(log, cfg.Secure, cfg.MaxClients, cfg.ClientTimeout)
 	if err = srv.Open(cfg.ListenAddr); err != nil {
 		fmt.Fprintf(os.Stderr, "%v\n", err)
 		os.Exit(1)

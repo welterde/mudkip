@@ -8,7 +8,7 @@ type ClientDisconnected struct {
 	sender net.Addr
 }
 
-func NewClientDisconnected(sender net.Addr) Message {
+func NewClientDisconnected(sender net.Addr) *ClientDisconnected {
 	m := new(ClientDisconnected)
 	m.sender = sender
 	return m

@@ -9,7 +9,7 @@ type ServerVersion struct {
 	Version uint8
 }
 
-func NewServerVersion(sender net.Addr) Message {
+func NewServerVersion(sender net.Addr) *ServerVersion {
 	m := new(ServerVersion)
 	m.sender = sender
 	return m

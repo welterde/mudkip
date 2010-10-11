@@ -65,7 +65,8 @@ func (this *Client) Open(addr string) (err os.Error) {
 
 // Send a message to the server.
 func (this *Client) Send(msg lib.Message) (err os.Error) {
-	return msg.Write(this.conn)
+	err = msg.Write(this.conn)
+	return
 }
 
 func (this *Client) poll() {

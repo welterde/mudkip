@@ -9,11 +9,12 @@ import "os"
 // uint8 values. 0-54 is reserved for internal use. The rest can be assigned as
 // custom Message types.
 const (
-	MTServerVersion uint8 = iota
+	MTError uint8 = iota
+	MTServerVersion
 	MTMaxClientsReached
 	MTClientConnected
 	MTClientDisconnected
-	MTQuit
+	MTLogin
 
 	// Custom message types should start here: MTMax, MTMax+1, MTMax+2 etc.
 	// There is room for 200 custom message types.
@@ -32,21 +33,20 @@ type Message interface {
 // message. It is identified by its Message ID.
 type MessageBuilder func(sender net.Addr) Message
 
-var ErrUnknownMessage os.Error
 
 // This contains handlers for processing of various messages. You should add
 // your own message types to this map if you want them to be processed.
 var Messages map[uint8]MessageBuilder
 
 func init() {
-	ErrUnknownMessage = os.NewError("Unknown message type")
 	Messages = make(map[uint8]MessageBuilder)
 
-	Messages[MTServerVersion] = NewServerVersion
-	Messages[MTMaxClientsReached] = NewMaxClientsReached
-	Messages[MTClientConnected] = NewClientConnected
-	Messages[MTClientDisconnected] = NewClientDisconnected
-	Messages[MTQuit] = NewQuit
+	Messages[MTError] = func(s net.Addr) Message { return NewError(s) }
+	Messages[MTServerVersion] = func(s net.Addr) Message { return NewServerVersion(s) }
+	Messages[MTMaxClientsReached] = func(s net.Addr) Message { return NewMaxClientsReached(s) }
+	Messages[MTClientConnected] = func(s net.Addr) Message { return NewClientConnected(s) }
+	Messages[MTClientDisconnected] = func(s net.Addr) Message { return NewClientDisconnected(s) }
+	Messages[MTLogin] = func(s net.Addr) Message { return NewLogin(s) }
 }
 
 func ReadMessage(r io.Reader, sender net.Addr) (msg Message, err os.Error) {

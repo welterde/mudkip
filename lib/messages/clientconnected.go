@@ -8,7 +8,7 @@ type ClientConnected struct {
 	sender net.Addr
 }
 
-func NewClientConnected(sender net.Addr) Message {
+func NewClientConnected(sender net.Addr) *ClientConnected {
 	m := new(ClientConnected)
 	m.sender = sender
 	return m

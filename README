@@ -19,7 +19,7 @@ you will obviously have to give them both the same IP/port to work with.
 ================================================================================
 
 To get this project up and running, follow the steps below. This package has a
-dependency on my ini-file parser package. You can get it from it's git repo at
+dependency on my ini-file parser package. You can get it from its git repo at
 http://github.com/jteeuwen/go-pkg-ini
  
  $ cd /path/to/codedir

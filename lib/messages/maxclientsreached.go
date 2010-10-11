@@ -8,7 +8,7 @@ type MaxClientsReached struct {
 	sender net.Addr
 }
 
-func NewMaxClientsReached(sender net.Addr) Message {
+func NewMaxClientsReached(sender net.Addr) *MaxClientsReached {
 	m := new(MaxClientsReached)
 	m.sender = sender
 	return m

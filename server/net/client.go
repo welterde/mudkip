@@ -25,17 +25,26 @@ func newClient(conn *net.TCPConn, closing chan net.Addr, messages chan lib.Messa
 
 // Send a message to the server.
 func (this *Client) Send(msg lib.Message) (err os.Error) {
-	return msg.Write(this.conn)
+	err = msg.Write(this.conn)
+	return
 }
 
+// Run client
 func (this *Client) Run() {
 	var err os.Error
 	var msg lib.Message
 
 	for this.conn != nil {
 		if msg, err = lib.ReadMessage(this.conn, this.conn.RemoteAddr()); err != nil {
-			this.Close()
-			return
+			if err != os.EOF {
+				em := lib.NewError(this.conn.RemoteAddr())
+				em.Errno = lib.ErrToInt(err)
+				em.Write(this.conn)
+				continue
+			} else {
+				this.Close()
+				return
+			}
 		}
 
 		if closed(this.messages) {

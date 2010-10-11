@@ -53,7 +53,7 @@ func handleMessage(client *Client, msg lib.Message) {
 
 		if tt.Version > MaxServerVersion {
 			fmt.Fprint(os.Stderr, "This client appears to be outdated. We recommend you update it to reflect the latest server version.\n")
-			client.Close() // Unsupported.
+			client.Close()
 		}
 
 	case *lib.MaxClientsReached:

@@ -10,8 +10,6 @@ import "fmt"
 import "mudkip/lib"
 
 const (
-	ClientTimeout = 2 // minutes
-
 	// This should be the very first 6 bytes we receive on a new connection.
 	// It allows us to filter out unrelated connections.
 	ServerName = "MUDKIP"
@@ -25,17 +23,18 @@ const (
 )
 
 type Server struct {
-	Messages     chan lib.Message
-	log          *log.Logger
-	secure       bool
-	conn         *net.TCPListener
-	rwm          *sync.RWMutex
-	clients      map[string]*Client
-	clientclosed chan net.Addr
-	maxclients   int
+	Messages      chan lib.Message
+	log           *log.Logger
+	secure        bool
+	conn          *net.TCPListener
+	rwm           *sync.RWMutex
+	clients       map[string]*Client
+	clientclosed  chan net.Addr
+	maxclients    int
+	clienttimeout int
 }
 
-func NewServer(logtarget io.Writer, secure bool, maxclients int) *Server {
+func NewServer(logtarget io.Writer, secure bool, maxclients, clienttimeout int) *Server {
 	s := new(Server)
 	s.log = log.New(logtarget, nil, "", log.Ldate|log.Ltime|log.Lmicroseconds)
 	s.rwm = new(sync.RWMutex)
@@ -44,6 +43,7 @@ func NewServer(logtarget io.Writer, secure bool, maxclients int) *Server {
 	s.Messages = make(chan lib.Message, 32)
 	s.clientclosed = make(chan net.Addr)
 	s.maxclients = maxclients
+	s.clienttimeout = clienttimeout
 	return s
 }
 
@@ -96,6 +96,8 @@ func (this *Server) Open(addr string) (err os.Error) {
 
 	this.Info("Listening on: %v", this.conn.Addr())
 	this.Info("Max clients: %d", this.maxclients)
+	this.Info("Client timeout: %d minute(s)", this.clienttimeout)
+	this.Info("Secure connection: %v", this.secure)
 
 	go this.poll()
 	go this.clean()
@@ -199,7 +201,7 @@ func (this *Server) process(conn *net.TCPConn) {
 		this.clients[id].Close()
 	}
 
-	conn.SetTimeout(ClientTimeout * 6e10)
+	conn.SetTimeout(int64(this.clienttimeout) * 6e10)
 
 	// Store new client.
 	client := newClient(conn, this.clientclosed, this.Messages)
