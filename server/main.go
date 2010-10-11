@@ -24,7 +24,7 @@ loop:
 	for {
 		select {
 		case msg = <-srv.Messages:
-			go handle(srv, msg)
+			go handleMessage(srv, msg)
 
 		case sig = <-signal.Incoming:
 			if unix, ok := sig.(signal.UnixSignal); ok {
@@ -41,16 +41,6 @@ loop:
 	}
 
 	srv.Close()
-}
-
-func handle(sev *Server, msg lib.Message) {
-	switch tt := msg.(type) {
-	case *lib.ClientConnected:
-		fmt.Printf("Client connected: %s\n", msg.Sender())
-
-	case *lib.ClientDisconnected:
-		fmt.Printf("Client disconnected: %s\n", msg.Sender())
-	}
 }
 
 func parseArgs() (cfg *Config, log *os.File) {

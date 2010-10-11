@@ -38,7 +38,7 @@ func (this *Client) Run() {
 		if msg, err = lib.ReadMessage(this.conn, this.conn.RemoteAddr()); err != nil {
 			if err != os.EOF {
 				em := lib.NewError(this.conn.RemoteAddr())
-				em.Errno = lib.ErrToInt(err)
+				em.FromError(err)
 				em.Write(this.conn)
 				continue
 			} else {

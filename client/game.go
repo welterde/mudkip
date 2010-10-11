@@ -7,7 +7,7 @@ import "mudkip/lib"
 func handleMessage(client *Client, msg lib.Message) {
 	switch tt := msg.(type) {
 	case *lib.Error:
-		fmt.Fprintf(os.Stderr, "Error: %v\n", lib.IntToErr(tt.Errno))
+		fmt.Fprintf(os.Stderr, "Error: %v\n", tt.ToError())
 
 	case *lib.ServerVersion:
 		fmt.Fprintf(os.Stdout, "Mudkip Version %d\n", tt.Version)

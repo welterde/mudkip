@@ -17,7 +17,7 @@ var (
 	ErrInvalidPassword = os.NewError("Password can not exceed 50 bytes")
 )
 
-func ErrToInt(err os.Error) uint8 {
+func errToInt(err os.Error) uint8 {
 	switch err {
 	case ErrUnknownMessage:
 		return EUnknownMessage
@@ -29,7 +29,7 @@ func ErrToInt(err os.Error) uint8 {
 	return EUnknownError
 }
 
-func IntToErr(errno uint8) os.Error {
+func intToErr(errno uint8) os.Error {
 	switch errno {
 	case EUnknownMessage:
 		return ErrUnknownMessage
