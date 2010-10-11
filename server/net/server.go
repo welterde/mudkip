@@ -32,6 +32,7 @@ type Server struct {
 	rwm          *sync.RWMutex
 	clients      map[string]*Client
 	clientclosed chan net.Addr
+	tlsconf      *tls.Config
 }
 
 func NewServer(cfg *Config) *Server {
@@ -100,12 +101,14 @@ func (this *Server) Open() (err os.Error) {
 	this.rwm.Unlock()
 
 	if this.config.Secure {
-		cfg := new(tls.Config)
-		cfg.Rand = rand.Reader
-		cfg.Time = time.Nanoseconds
+		this.tlsconf = new(tls.Config)
+		this.tlsconf.Rand = rand.Reader
+		this.tlsconf.Time = time.Nanoseconds
+		this.tlsconf.AuthenticateClient = false
+		this.tlsconf.ServerName = "xff.homedns.org"
+		this.tlsconf.Certificates = make([]tls.Certificate, 1)
 
-		cfg.Certificates = make([]tls.Certificate, 1)
-		if cfg.Certificates[0], err = tls.LoadX509KeyPair(
+		if this.tlsconf.Certificates[0], err = tls.LoadX509KeyPair(
 			this.config.ServerCert,
 			this.config.ServerKey,
 		); err != nil {
@@ -113,7 +116,7 @@ func (this *Server) Open() (err os.Error) {
 		}
 
 		this.rwm.Lock()
-		this.conn = tls.NewListener(this.conn, cfg)
+		this.conn = tls.NewListener(this.conn, this.tlsconf)
 		this.rwm.Unlock()
 	}
 
@@ -165,8 +168,16 @@ loop:
 		}
 
 		if len(this.clients) >= this.config.MaxClients {
-			client.Write([]uint8{lib.MTMaxClientsReached})
-			client.Close()
+			var endpoint io.ReadWriteCloser
+
+			if this.config.Secure {
+				endpoint = tls.Client(client, this.tlsconf)
+			} else {
+				endpoint = client
+			}
+
+			endpoint.Write([]uint8{lib.MTMaxClientsReached})
+			endpoint.Close()
 			continue loop
 		}
 
@@ -179,11 +190,7 @@ func (this *Server) process(conn net.Conn) {
 	var endpoint io.ReadWriteCloser
 
 	if this.config.Secure {
-		// FIXME: Half-arsed SSL implementation. Does not verify certificate.
-		cf := new(tls.Config)
-		cf.Rand = rand.Reader
-		cf.Time = time.Nanoseconds
-		endpoint = tls.Client(conn, cf)
+		endpoint = tls.Client(conn, this.tlsconf)
 	} else {
 		endpoint = conn
 	}

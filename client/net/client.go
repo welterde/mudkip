@@ -51,13 +51,6 @@ func (this *Client) Open() (err os.Error) {
 	}
 
 	if this.config.Secure {
-		this.rwm.Lock()
-		if this.conn, err = tls.Dial("tcp", "", this.config.Server); err != nil {
-			this.rwm.Unlock()
-			return
-		}
-		this.rwm.Unlock()
-
 		addr := this.config.Server
 		if idx := strings.LastIndex(addr, ":"); idx != -1 {
 			if idx > strings.LastIndex(addr, "]") { // ipv6
@@ -65,13 +58,20 @@ func (this *Client) Open() (err os.Error) {
 			}
 		}
 
-		if err = this.conn.(*tls.Conn).VerifyHostname(addr); err != nil {
-			return err
+		this.rwm.Lock()
+		if this.conn, err = tls.Dial("tcp", "", this.config.Server); err != nil {
+			this.rwm.Unlock()
+			return
 		}
 
-		this.rwm.Lock()
-		this.addr = this.conn.(*tls.Conn).RemoteAddr()
+		this.addr = this.conn.(*net.TCPConn).RemoteAddr()
 		this.rwm.Unlock()
+
+		if !this.config.AcceptInvalidCert {
+			if err = this.conn.(*tls.Conn).VerifyHostname(addr); err != nil {
+				return err
+			}
+		}
 	} else {
 		this.rwm.Lock()
 		if this.conn, err = net.Dial("tcp", "", this.config.Server); err != nil {
@@ -81,9 +81,6 @@ func (this *Client) Open() (err os.Error) {
 
 		this.addr = this.conn.(*net.TCPConn).RemoteAddr()
 		this.rwm.Unlock()
-
-	//	this.conn.(*net.TCPConn).SetKeepAlive(true)
-	//	this.conn.(*net.TCPConn).SetTimeout(12e10)
 	}
 
 	// Announce that we are a relevant connection. eg: we are here to use the
