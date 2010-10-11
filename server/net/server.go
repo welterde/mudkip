@@ -5,7 +5,6 @@ import "net"
 import "sync"
 import "time"
 import "log"
-import "io"
 import "fmt"
 import "crypto/tls"
 import "crypto/rand"
@@ -65,9 +64,13 @@ func (this *Server) GetClient(id string) *Client {
 	return nil
 }
 
+// Channel yielding incoming messages
 func (this *Server) Messages() <-chan lib.Message { return this.messages }
-func (this *Server) IsSecure() bool               { return this.config.Secure }
 
+// Tells us if we are running an SSL connection or not.
+func (this *Server) IsSecure() bool { return this.config.Secure }
+
+// Close the server. Shuts down client connections and the listening socket.
 func (this *Server) Close() {
 	this.Info("Shutting down...")
 
@@ -79,15 +82,19 @@ func (this *Server) Close() {
 
 	close(this.messages)
 
+	this.rwm.Lock()
 	if this.conn != nil {
-		this.rwm.Lock()
 		this.conn.Close()
 		this.conn = nil
 		this.rwm.Unlock()
 		time.Sleep(1e9)
+		return
 	}
+
+	this.rwm.Unlock()
 }
 
+// Open the server and start listening
 func (this *Server) Open() (err os.Error) {
 	if this.conn != nil {
 		return
@@ -104,8 +111,6 @@ func (this *Server) Open() (err os.Error) {
 		this.tlsconf = new(tls.Config)
 		this.tlsconf.Rand = rand.Reader
 		this.tlsconf.Time = time.Nanoseconds
-		this.tlsconf.AuthenticateClient = false
-		this.tlsconf.ServerName = "xff.homedns.org"
 		this.tlsconf.Certificates = make([]tls.Certificate, 1)
 
 		if this.tlsconf.Certificates[0], err = tls.LoadX509KeyPair(
@@ -152,6 +157,7 @@ func (this *Server) clean() {
 	}
 }
 
+// Poll for incoming connections
 func (this *Server) poll() {
 	var err os.Error
 	var client net.Conn
@@ -168,16 +174,8 @@ loop:
 		}
 
 		if len(this.clients) >= this.config.MaxClients {
-			var endpoint io.ReadWriteCloser
-
-			if this.config.Secure {
-				endpoint = tls.Client(client, this.tlsconf)
-			} else {
-				endpoint = client
-			}
-
-			endpoint.Write([]uint8{lib.MTMaxClientsReached})
-			endpoint.Close()
+			client.Write([]uint8{lib.MTMaxClientsReached})
+			client.Close()
 			continue loop
 		}
 
@@ -185,19 +183,13 @@ loop:
 	}
 }
 
+// Process client connection
 func (this *Server) process(conn net.Conn) {
 	var err os.Error
-	var endpoint io.ReadWriteCloser
-
-	if this.config.Secure {
-		endpoint = tls.Client(conn, this.tlsconf)
-	} else {
-		endpoint = conn
-	}
 
 	// Send server version. Client can decide if it supports this server
 	// version. If not, it should close the connection and go away.
-	if _, err = endpoint.Write([]uint8{lib.MTServerVersion, ServerVersion}); err != nil {
+	if _, err = conn.Write([]uint8{lib.MTServerVersion, ServerVersion}); err != nil {
 		this.Error("%s %v", conn.RemoteAddr(), err)
 		return
 	}
@@ -209,7 +201,7 @@ func (this *Server) process(conn net.Conn) {
 	// somewhere and doesn't belong here. Portscanners have a tendency to
 	// get into this situation. They bombard us with a range of standard
 	// service requests in the hopes of getting a useful response.
-	if _, err = endpoint.Read(in); err != nil {
+	if _, err = conn.Read(in); err != nil {
 		this.Error("%s %v", conn.RemoteAddr(), err)
 		return
 	}
@@ -241,7 +233,7 @@ func (this *Server) process(conn net.Conn) {
 	}
 
 	// Store new client.
-	client := newClient(endpoint, conn.RemoteAddr(), this.clientclosed, this.messages)
+	client := newClient(conn, this.clientclosed, this.messages)
 
 	this.rwm.Lock()
 	this.clients[id] = client
