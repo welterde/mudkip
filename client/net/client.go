@@ -5,8 +5,8 @@ import "net"
 import "io"
 import "sync"
 import "time"
+import "strings"
 import "crypto/tls"
-import "crypto/rand"
 import "mudkip/lib"
 
 type Client struct {
@@ -44,31 +44,39 @@ func (this *Client) Open(addr string) (err os.Error) {
 		return
 	}
 
-	if this.addr, err = net.ResolveTCPAddr(addr); err != nil {
-		return
-	}
-
-	var tcp *net.TCPConn
-	if tcp, err = net.DialTCP("tcp", nil, this.addr.(*net.TCPAddr)); err != nil {
-		return
-	}
-
-	tcp.SetTimeout(12e10) // 2 minutes
-
-	this.rwm.Lock()
-	this.addr = tcp.RemoteAddr()
-
 	if this.secure {
-		// FIXME: Half-arsed SSL implementation. Does not verify certificate.
-		cf := new(tls.Config)
-		cf.Rand = rand.Reader
-		cf.Time = time.Nanoseconds
-		this.conn = tls.Client(tcp, cf)
-	} else {
-		this.conn = tcp
-	}
+		this.rwm.Lock()
+		if this.conn, err = tls.Dial("tcp", "", addr); err != nil {
+			this.rwm.Unlock()
+			return
+		}
+		this.rwm.Unlock()
 
-	this.rwm.Unlock()
+		if idx := strings.LastIndex(addr, ":"); idx != -1 {
+			if idx > strings.LastIndex(addr, "]") { // ipv6
+				addr = addr[0:idx]
+			}
+		}
+
+		if err = this.conn.(*tls.Conn).VerifyHostname(addr); err != nil {
+			return err
+		}
+
+		this.rwm.Lock()
+		this.addr = this.conn.(*tls.Conn).RemoteAddr()
+		this.rwm.Unlock()
+	} else {
+		this.rwm.Lock()
+		if this.conn, err = net.Dial("tcp", "", addr); err != nil {
+			this.rwm.Unlock()
+			return
+		}
+
+		this.addr = this.conn.(*net.TCPConn).RemoteAddr()
+		this.rwm.Unlock()
+
+		this.conn.(*net.TCPConn).SetTimeout(12e10) // 2 minutes
+	}
 
 	// Announce that we are a relevant connection. eg: we are here to use the
 	// mudkip server and not just some random connection which made a wrong

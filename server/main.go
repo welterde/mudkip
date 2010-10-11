@@ -6,13 +6,10 @@ import "mudkip/lib"
 import "fmt"
 
 func main() {
-	cfg, log := parseArgs()
-	defer log.Close()
-
 	var err os.Error
 
-	srv := NewServer(log, cfg.Secure, cfg.MaxClients, cfg.ClientTimeout)
-	if err = srv.Open(cfg.ListenAddr); err != nil {
+	srv := NewServer(getConfig())
+	if err = srv.Open(); err != nil {
 		fmt.Fprintf(os.Stderr, "%v\n", err)
 		os.Exit(1)
 	}
@@ -45,7 +42,7 @@ loop:
 	srv.Close()
 }
 
-func parseArgs() (cfg *Config, log *os.File) {
+func getConfig() (cfg *Config) {
 	var err os.Error
 	var cfgfile string
 
@@ -65,11 +62,8 @@ func parseArgs() (cfg *Config, log *os.File) {
 			fmt.Fprintf(os.Stderr, "%v\n", err)
 			os.Exit(1)
 		}
-		os.Exit(0)
-	}
 
-	if log, err = os.Open(cfg.LogFile, os.O_RDWR|os.O_CREATE|os.O_APPEND, 0); err != nil {
-		log = os.Stdout
+		os.Exit(0)
 	}
 
 	return

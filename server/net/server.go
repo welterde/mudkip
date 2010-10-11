@@ -25,27 +25,34 @@ const (
 )
 
 type Server struct {
-	messages      chan lib.Message
-	log           *log.Logger
-	secure        bool
-	conn          *net.TCPListener
-	rwm           *sync.RWMutex
-	clients       map[string]*Client
-	clientclosed  chan net.Addr
-	maxclients    int
-	clienttimeout int
+	config       *Config
+	messages     chan lib.Message
+	log          *log.Logger
+	conn         net.Listener
+	rwm          *sync.RWMutex
+	clients      map[string]*Client
+	clientclosed chan net.Addr
 }
 
-func NewServer(logtarget io.Writer, secure bool, maxclients, clienttimeout int) *Server {
+func NewServer(cfg *Config) *Server {
 	s := new(Server)
+	s.config = cfg
+
+	var logtarget *os.File
+	if cfg.LogFile != "" {
+		var err os.Error
+		if logtarget, err = os.Open(cfg.LogFile, os.O_RDWR|os.O_CREATE|os.O_APPEND, 0); err != nil {
+			logtarget = os.Stdout
+		}
+	} else {
+		logtarget = os.Stdout
+	}
+
 	s.log = log.New(logtarget, nil, "", log.Ldate|log.Ltime|log.Lmicroseconds)
 	s.rwm = new(sync.RWMutex)
-	s.secure = secure
 	s.clients = make(map[string]*Client)
 	s.messages = make(chan lib.Message, 32)
 	s.clientclosed = make(chan net.Addr)
-	s.maxclients = maxclients
-	s.clienttimeout = clienttimeout
 	return s
 }
 
@@ -58,7 +65,7 @@ func (this *Server) GetClient(id string) *Client {
 }
 
 func (this *Server) Messages() <-chan lib.Message { return this.messages }
-func (this *Server) IsSecure() bool               { return this.secure }
+func (this *Server) IsSecure() bool               { return this.config.Secure }
 
 func (this *Server) Close() {
 	this.Info("Shutting down...")
@@ -80,27 +87,40 @@ func (this *Server) Close() {
 	}
 }
 
-func (this *Server) Open(addr string) (err os.Error) {
+func (this *Server) Open() (err os.Error) {
 	if this.conn != nil {
 		return
 	}
 
-	var tcpaddr *net.TCPAddr
-	if tcpaddr, err = net.ResolveTCPAddr(addr); err != nil {
-		return
-	}
-
 	this.rwm.Lock()
-	if this.conn, err = net.ListenTCP("tcp", tcpaddr); err != nil {
+	if this.conn, err = net.Listen("tcp", this.config.ListenAddr); err != nil {
 		this.rwm.Unlock()
 		return
 	}
 	this.rwm.Unlock()
 
-	this.Info("Listening on: %v", this.conn.Addr())
-	this.Info("Max clients: %d", this.maxclients)
-	this.Info("Client timeout: %d minute(s)", this.clienttimeout)
-	this.Info("Secure connection: %v", this.secure)
+	if this.config.Secure {
+		cfg := new(tls.Config)
+		cfg.Rand = rand.Reader
+		cfg.Time = time.Nanoseconds
+
+		cfg.Certificates = make([]tls.Certificate, 1)
+		if cfg.Certificates[0], err = tls.LoadX509KeyPair(
+			this.config.ServerCert,
+			this.config.ServerKey,
+		); err != nil {
+			return
+		}
+
+		this.rwm.Lock()
+		this.conn = tls.NewListener(this.conn, cfg)
+		this.rwm.Unlock()
+	}
+
+	this.Info("Listening on: %s", this.conn.Addr())
+	this.Info("Max clients: %d", this.config.MaxClients)
+	this.Info("Client timeout: %d minute(s)", this.config.ClientTimeout)
+	this.Info("Secure connection: %v", this.config.Secure)
 
 	go this.poll()
 	go this.clean()
@@ -136,11 +156,11 @@ func (this *Server) clean() {
 
 func (this *Server) poll() {
 	var err os.Error
-	var client *net.TCPConn
+	var client net.Conn
 
 loop:
 	for this.conn != nil {
-		if client, err = this.conn.AcceptTCP(); err != nil {
+		if client, err = this.conn.Accept(); err != nil {
 			if this.conn == nil {
 				return
 			}
@@ -149,7 +169,7 @@ loop:
 			continue loop
 		}
 
-		if len(this.clients) >= this.maxclients {
+		if len(this.clients) >= this.config.MaxClients {
 			client.Write([]uint8{lib.MTMaxClientsReached})
 			client.Close()
 			continue loop
@@ -159,11 +179,11 @@ loop:
 	}
 }
 
-func (this *Server) process(conn *net.TCPConn) {
+func (this *Server) process(conn net.Conn) {
 	var err os.Error
 	var endpoint io.ReadWriteCloser
 
-	if this.secure {
+	if this.config.Secure {
 		// FIXME: Half-arsed SSL implementation. Does not verify certificate.
 		cf := new(tls.Config)
 		cf.Rand = rand.Reader
@@ -210,8 +230,8 @@ func (this *Server) process(conn *net.TCPConn) {
 		return
 	}
 
-	conn.SetKeepAlive(true)
-	conn.SetTimeout(int64(this.clienttimeout) * 6e10)
+	//conn.SetKeepAlive(true)
+	conn.SetTimeout(int64(this.config.ClientTimeout) * 6e10)
 
 	// If client already exists, we have a reconnect. Close the old one.
 	if _, ok := this.clients[id]; ok {

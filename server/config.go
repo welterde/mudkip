@@ -6,6 +6,8 @@ import "ini"
 type Config struct {
 	ListenAddr    string
 	Secure        bool
+	ServerCert    string
+	ServerKey     string
 	MaxClients    int
 	LogFile       string
 	ClientTimeout int
@@ -16,6 +18,8 @@ func NewConfig() *Config {
 	c.MaxClients = 32
 	c.Secure = false
 	c.ClientTimeout = 2
+	c.ServerCert = "cert.pem"
+	c.ServerKey = "key.pem"
 	return c
 }
 
@@ -28,6 +32,8 @@ func (this *Config) Load(file string) (err os.Error) {
 	this.LogFile = cfg.S("misc", "logfile", "")
 	this.ListenAddr = cfg.S("net", "address", "")
 	this.Secure = cfg.B("net", "secure", false)
+	this.ServerCert = cfg.S("net", "servercert", "cert.pem")
+	this.ServerKey = cfg.S("net", "serverkey", "key.pem")
 	this.MaxClients = cfg.I("net", "maxclients", 32)
 	this.ClientTimeout = cfg.I("net", "clienttimeout", 2)
 	return
@@ -41,9 +47,13 @@ func (this *Config) Save(file string) (err os.Error) {
 	cfg.AddComment("net", "  address = 127.0.0.1:54321")
 	cfg.AddComment("net", "  address = [::1]:54321")
 	cfg.AddComment("net", "  address = :54321")
+	cfg.AddComment("net", "")
+	cfg.AddComment("net", "servercert and serverkey must be set when secure = true")
 
 	cfg.Set("net", "address", this.ListenAddr)
 	cfg.Set("net", "secure", this.Secure)
+	cfg.Set("net", "servercert", this.ServerCert)
+	cfg.Set("net", "serverkey", this.ServerKey)
 	cfg.Set("net", "maxclients", this.MaxClients)
 	cfg.Set("net", "clienttimeout", this.ClientTimeout)
 
