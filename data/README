@@ -3,3 +3,17 @@ You can specify a particular one to use for your Mudkip server in the server
 config file.
 
 These are works in progress and will likely change as the game develops.
+
+Adding a new driver is relatively easy:
+
+* Add a new directory for your driver implementation in mudkip/data/.
+  Eg: mudkip/data/mydriver
+* Add the appropriate code for the implementation, using any of the existing
+  ones as a template/guide. Be sure to use the lib.RegisterStore() function
+  as is demonstrated in the other datastores.
+* Add your package to mudkip/data/makefile, so it will be included in the build
+  process.
+* Edit mudkip/server/datastores.go. Add the import for your own driver to the
+  list: import _ "mudkip/mydriver". This ensures the init() code is run and the
+  driver is available for use.
+* Rebuild the entire project.
