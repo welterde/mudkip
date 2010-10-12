@@ -1,6 +1,6 @@
 These packages are implementations of the Mudkip lib.Datastore interface.
-You can specify a particular one to use for your Mudkip server in the server
-config file.
+Which one will be used depends on the DATASTORE variable in the main mudkip
+makefile. It determines which datastore driver is compiled into the server.
 
 These are works in progress and will likely change as the game develops.
 
@@ -10,7 +10,7 @@ Adding a new driver is relatively easy:
   Eg: mudkip/data/mydriver
 
 * Add the appropriate code for the implementation, using mudkip/data/template/*
-  as a template/guide.
+  as a template/guide. Also read through mudkip/data/STRUCTURE.
 
 * Set the DATASTORE variable in mudkip/makefile to the name of your driver dir.
   Eg: DATASTORE = mydriver

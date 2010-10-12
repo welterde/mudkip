@@ -37,6 +37,29 @@ func NewContext(cfg *Config) *Context {
 	return c
 }
 
+func (this *Context) HandleMessage(msg lib.Message) {
+	id := msg.Sender().String()
+
+	switch tt := msg.(type) {
+	case *lib.ClientConnected:
+		this.Info("Client connected: %s", id)
+
+		this.lock.Lock()
+		this.users[id] = NewUser(this.config.Datastore)
+		this.lock.Unlock()
+
+	case *lib.ClientDisconnected:
+		this.Info("Client disconnected: %s", id)
+
+		this.lock.Lock()
+		if _, ok := this.users[id]; ok {
+			this.users[id].Dispose()
+			this.users[id] = nil, false
+		}
+		this.lock.Unlock()
+	}
+}
+
 func (this *Context) Dispose() {
 	this.Info("Shutting down...")
 
@@ -47,21 +70,9 @@ func (this *Context) Dispose() {
 		this.server.Close()
 		this.server = nil
 	}
-}
 
-func (this *Context) HandleMessage(msg lib.Message) {
-	switch tt := msg.(type) {
-	case *lib.ClientConnected:
-		this.Info("Client connected: %s", msg.Sender())
-		this.lock.Lock()
-
-		this.lock.Unlock()
-
-	case *lib.ClientDisconnected:
-		this.Info("Client disconnected: %s", msg.Sender())
-		this.lock.Lock()
-
-		this.lock.Unlock()
+	for _, usr := range this.users {
+		usr.Dispose()
 	}
 }
 

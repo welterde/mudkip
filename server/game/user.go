@@ -1,20 +1,18 @@
 package main
 
-import "os"
 import "mudkip/lib"
 import "mudkip/store"
 
 type User struct {
-	PeerId string
-	DbId   uint16
-	Data   lib.DataStore
+	Id   uint16
+	Data lib.DataStore
 }
 
-func NewUser(peerid string, dsparams map[string]string) (v *User, err os.Error) {
-	v = new(User)
-	v.PeerId = peerid
+func NewUser(dsparams map[string]string) *User {
+	v := new(User)
 	v.Data = store.New()
-	return v, v.Data.Open(dsparams)
+	v.Data.Open(dsparams)
+	return v
 }
 
 func (this *User) Dispose() {

@@ -1,0 +1,55 @@
+
+Document version: 0.1
+
+This file provides an extensive overview of the Mudkip game structure. It is
+intended to be used as a guide on how to design the data model for the
+particular datastore we implement. We will describe the individual types of
+objects we use in the game and how they relate to eachother.
+
+================================================================================
+ PREFACE
+================================================================================
+
+* Unless otherwise noted, all numeric values should be encoded in LITTLE ENDIAN
+  order.
+
+* All strings are UTF-8 encoded.
+
+
+================================================================================
+ OBJECT
+================================================================================
+
+Each object in a Mudkip world can be represented in minimal form with only 4
+fields. While specific object types can have more fields, these 4 are present in
+all of them. Mudkip uses the lib.Object interface to define these. Every object
+type in the game implements this interface. These fields are as follows:
+
+ ID
+   This is a 16 bit unsigned integer which uniquely identifies this particular
+   object. We can not have more than 1 of this ID in the datastore.
+
+ TYPE
+   This is an 8 bit unsigned integer which describes the type of object. This
+   value is used to determine how to (de)serialize the object, as it will tell
+   you which fields this object contains in addition to the ID, TYPE, NAME and
+   DESCRIPTION fields.
+
+ NAME
+   This is an arbitrary-length UTF8 encoded string which names the object.
+   Newlines (\r and \n) are not allowed in this value.
+
+ DESCRIPTION
+   This is an arbitrary-length UTF8 encoded string which describes the object.
+   Newlines (\r and \n) are allowed in this value.
+
+
+Additional fields and their properties are present and can be determined by
+the value of the TYPE field.
+
+
+================================================================================
+ 
+================================================================================
+
+

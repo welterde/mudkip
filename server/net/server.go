@@ -75,7 +75,8 @@ func (this *Server) Close() {
 	this.lock.Unlock()
 }
 
-// Open the server and start listening
+// Open the server and start listening. Optionally on a secure socket using the
+// specified certificate and key files.
 func (this *Server) Open(listenaddr string, secure bool, certfile, keyfile string) (err os.Error) {
 	if this.conn != nil {
 		return
