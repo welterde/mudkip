@@ -7,7 +7,7 @@ import "os"
 const (
 	OTWorld uint8 = iota
 	OTZone
-	OTPlayer
+	OTCharacter
 )
 
 // Generic game object. Everything in this game should implement this interface.

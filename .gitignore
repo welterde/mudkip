@@ -2,6 +2,5 @@
 *.log
 *fuse_hidden*
 *.crt
-*.csr
 *.key
-*.key.org
+*.db

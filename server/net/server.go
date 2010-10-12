@@ -4,8 +4,6 @@ import "os"
 import "net"
 import "sync"
 import "time"
-import "log"
-import "fmt"
 import "crypto/tls"
 import "crypto/rand"
 import "mudkip/lib"
@@ -24,35 +22,23 @@ const (
 )
 
 type Server struct {
-	config       *Config
-	messages     chan lib.Message
-	log          *log.Logger
-	conn         net.Listener
-	rwm          *sync.RWMutex
-	clients      map[string]*Client
-	clientclosed chan net.Addr
-	tlsconf      *tls.Config
+	messages      chan lib.Message
+	conn          net.Listener
+	lock          *sync.RWMutex
+	clients       map[string]*Client
+	clientclosed  chan net.Addr
+	maxclients    int
+	clientTimeout int64
 }
 
-func NewServer(cfg *Config) *Server {
+func NewServer(maxclients, timeout int) *Server {
 	s := new(Server)
-	s.config = cfg
-
-	var logtarget *os.File
-	if cfg.LogFile != "" {
-		var err os.Error
-		if logtarget, err = os.Open(cfg.LogFile, os.O_RDWR|os.O_CREATE|os.O_APPEND, 0); err != nil {
-			logtarget = os.Stdout
-		}
-	} else {
-		logtarget = os.Stdout
-	}
-
-	s.log = log.New(logtarget, nil, "", log.Ldate|log.Ltime|log.Lmicroseconds)
-	s.rwm = new(sync.RWMutex)
+	s.lock = new(sync.RWMutex)
 	s.clients = make(map[string]*Client)
 	s.messages = make(chan lib.Message, 32)
 	s.clientclosed = make(chan net.Addr)
+	s.maxclients = maxclients
+	s.clientTimeout = int64(timeout) * 6e10
 	return s
 }
 
@@ -67,13 +53,8 @@ func (this *Server) GetClient(id string) *Client {
 // Channel yielding incoming messages
 func (this *Server) Messages() <-chan lib.Message { return this.messages }
 
-// Tells us if we are running an SSL connection or not.
-func (this *Server) IsSecure() bool { return this.config.Secure }
-
 // Close the server. Shuts down client connections and the listening socket.
 func (this *Server) Close() {
-	this.Info("Shutting down...")
-
 	if this.clients != nil {
 		for id, _ := range this.clients {
 			this.clients[id].Close()
@@ -82,47 +63,44 @@ func (this *Server) Close() {
 
 	close(this.messages)
 
-	this.rwm.Lock()
+	this.lock.Lock()
 	if this.conn != nil {
 		this.conn.Close()
 		this.conn = nil
-		this.rwm.Unlock()
+		this.lock.Unlock()
 		time.Sleep(1e9)
 		return
 	}
 
-	this.rwm.Unlock()
+	this.lock.Unlock()
 }
 
 // Open the server and start listening
-func (this *Server) Open() (err os.Error) {
+func (this *Server) Open(listenaddr string, secure bool, certfile, keyfile string) (err os.Error) {
 	if this.conn != nil {
 		return
 	}
 
-	this.rwm.Lock()
-	if this.conn, err = net.Listen("tcp", this.config.ListenAddr); err != nil {
-		this.rwm.Unlock()
+	this.lock.Lock()
+	if this.conn, err = net.Listen("tcp", listenaddr); err != nil {
+		this.lock.Unlock()
 		return
 	}
-	this.rwm.Unlock()
+	this.lock.Unlock()
 
-	if this.config.Secure {
-		this.tlsconf = new(tls.Config)
-		this.tlsconf.Rand = rand.Reader
-		this.tlsconf.Time = time.Nanoseconds
-		this.tlsconf.Certificates = make([]tls.Certificate, 1)
+	if secure {
+		conf := new(tls.Config)
+		conf.Rand = rand.Reader
+		conf.Time = time.Nanoseconds
+		conf.Certificates = make([]tls.Certificate, 1)
 
-		if this.tlsconf.Certificates[0], err = tls.LoadX509KeyPair(
-			this.config.ServerCert,
-			this.config.ServerKey,
-		); err != nil {
+		if conf.Certificates[0], err = tls.LoadX509KeyPair(certfile, keyfile); err != nil {
 			return
 		}
 
-		this.rwm.Lock()
-		this.conn = tls.NewListener(this.conn, this.tlsconf)
-		this.rwm.Unlock()
+		this.lock.Lock()
+		this.conn = tls.NewListener(this.conn, conf)
+		this.lock.Unlock()
 	}
 
 	go this.poll()
@@ -140,14 +118,14 @@ func (this *Server) clean() {
 		case addr = <-this.clientclosed:
 			if addr != nil {
 				this.messages <- lib.NewClientDisconnected(addr)
-				this.rwm.Lock()
+				this.lock.Lock()
 
 				id = addr.String()
 				if _, ok := this.clients[id]; ok {
 					this.clients[id] = nil, false
 				}
 
-				this.rwm.Unlock()
+				this.lock.Unlock()
 			}
 		}
 
@@ -168,12 +146,10 @@ loop:
 			if this.conn == nil {
 				return
 			}
-
-			this.Error("%T %v", err, err)
 			continue loop
 		}
 
-		if len(this.clients) >= this.config.MaxClients {
+		if len(this.clients) >= this.maxclients {
 			client.Write([]uint8{lib.MTMaxClientsReached})
 			client.Close()
 			continue loop
@@ -190,7 +166,6 @@ func (this *Server) process(conn net.Conn) {
 	// Send server version. Client can decide if it supports this server
 	// version. If not, it should close the connection and go away.
 	if _, err = conn.Write([]uint8{lib.MTServerVersion, ServerVersion}); err != nil {
-		this.Error("%s %v", conn.RemoteAddr(), err)
 		return
 	}
 
@@ -202,7 +177,6 @@ func (this *Server) process(conn net.Conn) {
 	// get into this situation. They bombard us with a range of standard
 	// service requests in the hopes of getting a useful response.
 	if _, err = conn.Read(in); err != nil {
-		this.Error("%s %v", conn.RemoteAddr(), err)
 		return
 	}
 
@@ -225,7 +199,7 @@ func (this *Server) process(conn net.Conn) {
 	}
 
 	//conn.SetKeepAlive(true)
-	conn.SetTimeout(int64(this.config.ClientTimeout) * 6e10)
+	conn.SetTimeout(this.clientTimeout)
 
 	// If client already exists, we have a reconnect. Close the old one.
 	if _, ok := this.clients[id]; ok {
@@ -235,39 +209,11 @@ func (this *Server) process(conn net.Conn) {
 	// Store new client.
 	client := newClient(conn, this.clientclosed, this.messages)
 
-	this.rwm.Lock()
+	this.lock.Lock()
 	this.clients[id] = client
-	this.rwm.Unlock()
+	this.lock.Unlock()
 	this.messages <- lib.NewClientConnected(conn.RemoteAddr())
 
 	// Let's get this show on the road!
 	go client.Run()
-}
-
-func (this *Server) Info(f string, a ...interface{}) {
-	s := fmt.Sprintf(f, a...) // issue 1136
-	this.rwm.Lock()
-	this.log.Logf("[i] %s", s)
-	this.rwm.Unlock()
-}
-
-func (this *Server) Error(f string, a ...interface{}) {
-	s := fmt.Sprintf(f, a...) // issue 1136
-	this.rwm.Lock()
-	this.log.Logf("[e] %s", s)
-	this.rwm.Unlock()
-}
-
-func (this *Server) Warn(f string, a ...interface{}) {
-	s := fmt.Sprintf(f, a...) // issue 1136
-	this.rwm.Lock()
-	this.log.Logf("[w] %s", s)
-	this.rwm.Unlock()
-}
-
-func (this *Server) Debug(f string, a ...interface{}) {
-	s := fmt.Sprintf(f, a...) // issue 1136
-	this.rwm.Lock()
-	this.log.Logf("[d] %s", s)
-	this.rwm.Unlock()
 }

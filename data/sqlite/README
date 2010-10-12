@@ -3,3 +3,7 @@ It relies on Russ Cox's gosqlite package. You can get it from:
 
 	http://code.google.com/p/gosqlite/
 
+This driver requires 1 initialization parameter passed into store.Open().
+This should be listed in the server config file under the [data] section.
+
+Its name is 'file'.

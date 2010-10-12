@@ -77,10 +77,13 @@ func (this *Config) Save(file string) (err os.Error) {
 	cfg.AddComment("data", "Any values needed to create a valid connection to the db of your choice,")
 	cfg.AddComment("data", "should be added in this section as key/value pairs.")
 	cfg.AddComment("data", "For example:")
+	cfg.AddComment("data", "")
 	cfg.AddComment("data", "  user = bob")
 	cfg.AddComment("data", "  pass = 1234")
 	cfg.AddComment("data", "  dbname = mudkipz")
 	cfg.AddComment("data", "  dbhost = 127.0.0.1")
+	cfg.AddComment("data", "")
+	cfg.AddComment("data", "Refer to the README of the individual db driver for the required keys.")
 
 	for k, v := range this.Datastore {
 		cfg.Set("data", k, v)

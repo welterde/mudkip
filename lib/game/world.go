@@ -8,7 +8,6 @@ type World struct {
 	name        string
 	description string
 	Zones       map[uint16]*Zone
-	Players     map[uint16]*Player
 }
 
 func NewWorld(id uint16, name, desc string) *World {
@@ -17,7 +16,6 @@ func NewWorld(id uint16, name, desc string) *World {
 	v.name = name
 	v.description = desc
 	v.Zones = make(map[uint16]*Zone)
-	v.Players = make(map[uint16]*Player)
 	return v
 }
 

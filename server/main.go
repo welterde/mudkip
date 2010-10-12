@@ -2,56 +2,21 @@ package main
 
 import "fmt"
 import "os"
-import "os/signal"
 import "mudkip/lib"
 import "mudkip/store"
 
 func main() {
-	var err os.Error
+	context := NewContext(getConfig())
+	defer context.Dispose()
 
-	cfg, ds := getConfig()
-	defer ds.Close()
-
-	srv := NewServer(cfg)
-	if err = srv.Open(); err != nil {
+	if err := context.Run(); err != nil {
 		fmt.Fprintf(os.Stderr, "%v\n", err)
-		os.Exit(1)
 	}
 
-	srv.Info("Listening on: %s", srv.conn.Addr())
-	srv.Info("Max clients: %d", cfg.MaxClients)
-	srv.Info("Client timeout: %d minute(s)", cfg.ClientTimeout)
-	srv.Info("Secure connection: %v", cfg.Secure)
-
-	var msg lib.Message
-	var sig signal.Signal
-
-	incoming := srv.Messages()
-
-loop:
-	for {
-		select {
-		case msg = <-incoming:
-			go handleMessage(srv, msg)
-
-		case sig = <-signal.Incoming:
-			if unix, ok := sig.(signal.UnixSignal); ok {
-				switch unix {
-				case signal.SIGINT, signal.SIGTERM, signal.SIGKILL:
-					break loop
-				}
-			}
-		}
-
-		if closed(incoming) || closed(signal.Incoming) {
-			break loop
-		}
-	}
-
-	srv.Close()
+	return
 }
 
-func getConfig() (cfg *Config, ds lib.DataStore) {
+func getConfig() (cfg *Config) {
 	var err os.Error
 	var cfgfile string
 
@@ -75,15 +40,20 @@ func getConfig() (cfg *Config, ds lib.DataStore) {
 		os.Exit(0)
 	}
 
+	var ds lib.DataStore
+
+	// Make sure we have a valid datastore available.
 	if ds = store.New(); ds == nil {
 		fmt.Fprintf(os.Stderr, "Server has been built without datastore support. Cannot continue.\n")
 		os.Exit(1)
 	}
 
 	if err = ds.Open(cfg.Datastore); err != nil {
-		fmt.Fprintf(os.Stderr, "%v\n", err)
+		fmt.Fprintf(os.Stderr, "Datastore failure: %v\n", err)
 		os.Exit(1)
 	}
+
+	ds.Close()
 
 	return
 }
