@@ -5,5 +5,25 @@ It relies on Russ Cox's gosqlite package. You can get it from:
 
 This driver requires 1 initialization parameter passed into store.Open().
 This should be listed in the server config file under the [data] section.
-
 Its name is 'file'.
+
+For example:
+
+---[ server.ini ]---------------------------------------------------------------
+[data]
+file = /path/to/mystore.db
+--------------------------------------------------------------------------------
+
+It should be noted that Sqlite is not an ideal choice for a multi-user MUD
+environment. While the sqlite engine supports multiple simultaneous users, it
+behaves poorly when the application performs lots of write operations.
+This happens because the engine uses the operating system's native file-locking
+mechanism to ensure atomic access.
+
+The MUD server tries to minimize the amount of writes to any datastore, but 
+when using this driver, you should expect some performance problems. I have
+mainly included this driver for testing. I can build and modify the datastore
+interface easily without having to interact with a remote database server.
+
+If you really want to use this for your production server, make sure to keep
+the amount of concurrent users to a minimum.
