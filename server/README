@@ -14,21 +14,23 @@ A template config file looks like this:
 ---------------------[ start of file ]------------------------------------------
 [data]
 ; Any values needed to create a valid connection to the db of your choice,
-; should be added in this section as key/value pairs.
-; For example:
-;  user = bob
-;  pass = 1234
-;  dbname = mudkipz
-;  dbhost = 127.0.0.1
+; should be added in this section as key/value pairs. For example:
+; 
+;   user = bob
+;   pass = 1234
+;   dbname = mudkipz
+;   dbhost = 127.0.0.1
+; 
 ; Refer to the README of the individual db driver for the required keys.
 
 [net]
 ; Address should be in the format ip:port. It can be in IPv4 and IPv6 format.
 ; IPv6 address should be encased in brackets. For example:
-; address = 127.0.0.1:54321
-; address = [::1]:54321
-; address = :54321
-; 
+;
+;   address = 127.0.0.1:54321
+;   address = [::1]:54321
+;   address = :54321
+;
 ; servercert and serverkey must be set when secure = true
 maxclients = 32
 serverkey = /path/to/key.pem
@@ -40,4 +42,5 @@ address =
 [misc]
 ; The logfile can be left empty if you want the server log to be written to stdout.
 logfile = 
+
 ---------------------[ end of file ]--------------------------------------------

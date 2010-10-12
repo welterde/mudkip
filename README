@@ -4,9 +4,9 @@
 ================================================================================
 
 A Go based MUD server, client and game collection of packages.
-So far it's pretty generic and not really specific to a MUD. It's just a TCP
-based client/server setup. I would rather have this bit done properly before I
-start with the game logic.
+
+This is work in progress. Expect commits that will significantly change the
+overal structure of the project.
 
 Check out server/main.go and client/main.go for working network examples. Run
 the server first, then the client to have it connect to the server. Both require

@@ -59,13 +59,15 @@ func (this *Config) Load(file string) (err os.Error) {
 
 func (this *Config) Save(file string) (err os.Error) {
 	cfg := ini.NewConfig()
-	cfg.AddComment("net", "Address should be in the format ip:port. It can be in IPv4 and IPv6 format.")
-	cfg.AddComment("net", "IPv6 address should be encased in brackets. For example:")
-	cfg.AddComment("net", "  address = 127.0.0.1:54321")
-	cfg.AddComment("net", "  address = [::1]:54321")
-	cfg.AddComment("net", "  address = :54321")
-	cfg.AddComment("net", "")
-	cfg.AddComment("net", "servercert and serverkey must be set when secure = true")
+	cfg.AddComment("net",
+		`Address should be in the format ip:port. It can be in IPv4 and IPv6 format.
+IPv6 address should be encased in brackets. For example:
+
+  address = 127.0.0.1:54321
+  address = [::1]:54321
+  address = :54321
+
+servercert and serverkey must be set when secure = true`)
 
 	cfg.Set("net", "address", this.ListenAddr)
 	cfg.Set("net", "secure", this.Secure)
@@ -74,16 +76,16 @@ func (this *Config) Save(file string) (err os.Error) {
 	cfg.Set("net", "maxclients", this.MaxClients)
 	cfg.Set("net", "clienttimeout", this.ClientTimeout)
 
-	cfg.AddComment("data", "Any values needed to create a valid connection to the db of your choice,")
-	cfg.AddComment("data", "should be added in this section as key/value pairs.")
-	cfg.AddComment("data", "For example:")
-	cfg.AddComment("data", "")
-	cfg.AddComment("data", "  user = bob")
-	cfg.AddComment("data", "  pass = 1234")
-	cfg.AddComment("data", "  dbname = mudkipz")
-	cfg.AddComment("data", "  dbhost = 127.0.0.1")
-	cfg.AddComment("data", "")
-	cfg.AddComment("data", "Refer to the README of the individual db driver for the required keys.")
+	cfg.AddComment("data",
+		`Any values needed to create a valid connection to the db of your choice,
+should be added in this section as key/value pairs. For example:
+
+  user = bob
+  pass = 1234
+  dbname = mudkipz
+  dbhost = 127.0.0.1
+
+Refer to the README of the individual db driver for the required keys.`)
 
 	for k, v := range this.Datastore {
 		cfg.Set("data", k, v)
