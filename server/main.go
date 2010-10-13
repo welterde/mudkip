@@ -50,17 +50,11 @@ func getConfig() (cfg *Config) {
 
 	// Make sure we have a valid datastore available.
 	if ds = store.New(); ds == nil {
-		fmt.Fprintf(os.Stderr, "[e] Server has been built without datastore support. Cannot continue.\n")
+		fmt.Fprintf(os.Stderr, "[e] Server has been built without valid datastore support. Cannot continue.\n")
 		os.Exit(1)
 	}
 
 	if err = ds.Open(cfg.Datastore); err != nil {
-		fmt.Fprintf(os.Stderr, "[e] %v\n", err)
-		os.Exit(1)
-	}
-
-	fmt.Fprint(os.Stdout, "[i] Initializing datastore...\n")
-	if err = ds.Initialize(); err != nil {
 		fmt.Fprintf(os.Stderr, "[e] %v\n", err)
 		os.Exit(1)
 	}
