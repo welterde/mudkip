@@ -21,7 +21,7 @@ func (this *Zone) SetId(id uint16) { this.id = id }
 func (this *Zone) Name() string    { return this.name }
 func (this *Zone) SetName(v string) {
 	if str := utf8.NewString(v); str.RuneCount() > LimitName {
-		this.name = str.Slice(0, LimitName)
+		this.name = str.Slice(0, LimitName+1)
 	} else {
 		this.name = v
 	}
@@ -30,7 +30,7 @@ func (this *Zone) SetName(v string) {
 func (this *Zone) Description() string { return this.description }
 func (this *Zone) SetDescription(v string) {
 	if str := utf8.NewString(v); str.RuneCount() > LimitDescription {
-		this.description = str.Slice(0, LimitDescription)
+		this.description = str.Slice(0, LimitDescription+1)
 	} else {
 		this.description = v
 	}
