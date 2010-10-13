@@ -28,6 +28,9 @@ value to true in the client config file.
  USAGE
 ================================================================================
 
+To start with, make sure you have the latest Go build environment installed and
+running. See http://golang.org/doc/install.html for a guide.
+
 To get this project up and running, follow the steps below. This package has a
 dependency on my ini-file parser package. You can get it from its git repo at
 http://github.com/jteeuwen/go-pkg-ini
