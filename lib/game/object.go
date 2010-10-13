@@ -10,6 +10,12 @@ const (
 	OTCharacter
 )
 
+// Field size limits in Unicode code points (not in bytes!)
+const (
+	LimitName        = 255
+	LimitDescription = 4096
+)
+
 // Generic game object. Everything in this game should implement this interface.
 type Object interface {
 	Type() uint8 // Unique object type

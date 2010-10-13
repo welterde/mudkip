@@ -2,27 +2,39 @@ package lib
 
 import "bufio"
 import "os"
+import "utf8"
 
 type World struct {
 	id          uint16
 	name        string
 	description string
-	Zones       map[uint16]*Zone
 }
 
 func NewWorld() *World {
 	v := new(World)
-	v.Zones = make(map[uint16]*Zone)
 	return v
 }
 
-func (this *World) Type() uint8             { return OTWorld }
-func (this *World) Id() uint16              { return this.id }
-func (this *World) SetId(id uint16)         { this.id = id }
-func (this *World) Name() string            { return this.name }
-func (this *World) SetName(v string)        { this.name = v }
-func (this *World) Description() string     { return this.description }
-func (this *World) SetDescription(v string) { this.description = v }
+func (this *World) Type() uint8     { return OTWorld }
+func (this *World) Id() uint16      { return this.id }
+func (this *World) SetId(id uint16) { this.id = id }
+func (this *World) Name() string    { return this.name }
+func (this *World) SetName(v string) {
+	if str := utf8.NewString(v); str.RuneCount() > LimitName {
+		this.name = str.Slice(0, LimitName)
+	} else {
+		this.name = v
+	}
+}
+
+func (this *World) Description() string { return this.description }
+func (this *World) SetDescription(v string) {
+	if str := utf8.NewString(v); str.RuneCount() > LimitDescription {
+		this.description = str.Slice(0, LimitDescription)
+	} else {
+		this.description = v
+	}
+}
 
 func (this *World) Pack(w *bufio.Writer) (err os.Error) {
 	if _, err = w.WriteString(this.name); err == nil {

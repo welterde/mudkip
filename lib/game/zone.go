@@ -2,6 +2,7 @@ package lib
 
 import "bufio"
 import "os"
+import "utf8"
 
 type Zone struct {
 	id          uint16
@@ -14,13 +15,26 @@ func NewZone() *Zone {
 	return v
 }
 
-func (this *Zone) Type() uint8             { return OTZone }
-func (this *Zone) Id() uint16              { return this.id }
-func (this *Zone) SetId(id uint16)         { this.id = id }
-func (this *Zone) Name() string            { return this.name }
-func (this *Zone) SetName(v string)        { this.name = v }
-func (this *Zone) Description() string     { return this.description }
-func (this *Zone) SetDescription(v string) { this.description = v }
+func (this *Zone) Type() uint8     { return OTZone }
+func (this *Zone) Id() uint16      { return this.id }
+func (this *Zone) SetId(id uint16) { this.id = id }
+func (this *Zone) Name() string    { return this.name }
+func (this *Zone) SetName(v string) {
+	if str := utf8.NewString(v); str.RuneCount() > LimitName {
+		this.name = str.Slice(0, LimitName)
+	} else {
+		this.name = v
+	}
+}
+
+func (this *Zone) Description() string { return this.description }
+func (this *Zone) SetDescription(v string) {
+	if str := utf8.NewString(v); str.RuneCount() > LimitDescription {
+		this.description = str.Slice(0, LimitDescription)
+	} else {
+		this.description = v
+	}
+}
 
 func (this *Zone) Pack(w *bufio.Writer) (err os.Error) {
 	if _, err = w.WriteString(this.name); err == nil {

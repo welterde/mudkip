@@ -2,6 +2,7 @@ package lib
 
 import "bufio"
 import "os"
+import "utf8"
 
 type Character struct {
 	id          uint16
@@ -14,13 +15,26 @@ func NewCharacter() *Character {
 	return v
 }
 
-func (this *Character) Type() uint8             { return OTCharacter }
-func (this *Character) Id() uint16              { return this.id }
-func (this *Character) SetId(id uint16)         { this.id = id }
-func (this *Character) Name() string            { return this.name }
-func (this *Character) SetName(v string)        { this.name = v }
-func (this *Character) Description() string     { return this.description }
-func (this *Character) SetDescription(v string) { this.description = v }
+func (this *Character) Type() uint8     { return OTCharacter }
+func (this *Character) Id() uint16      { return this.id }
+func (this *Character) SetId(id uint16) { this.id = id }
+func (this *Character) Name() string    { return this.name }
+func (this *Character) SetName(v string) {
+	if str := utf8.NewString(v); str.RuneCount() > LimitName {
+		this.name = str.Slice(0, LimitName)
+	} else {
+		this.name = v
+	}
+}
+
+func (this *Character) Description() string { return this.description }
+func (this *Character) SetDescription(v string) {
+	if str := utf8.NewString(v); str.RuneCount() > LimitDescription {
+		this.description = str.Slice(0, LimitDescription)
+	} else {
+		this.description = v
+	}
+}
 
 func (this *Character) Pack(w *bufio.Writer) (err os.Error) {
 	if _, err = w.WriteString(this.name); err == nil {
