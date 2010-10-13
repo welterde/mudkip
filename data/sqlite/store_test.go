@@ -29,8 +29,10 @@ func Test(t *testing.T) {
 
 	var a, b lib.Object
 
-	a = lib.NewZone("foo", "")
+	a = lib.NewZone()
 	a.SetId(1)
+	a.SetName("lobby")
+	a.SetDescription("Entrace to our great domain")
 
 	if err = ds.SetObject(a); err != nil {
 		t.Errorf("SetObject: %v", err)

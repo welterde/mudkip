@@ -9,8 +9,7 @@ type Store struct {
 }
 
 func New() lib.DataStore {
-	s := new(Store)
-	return s
+	return new(Store)
 }
 
 func (this *Store) Open(params map[string]string) (err os.Error) {
@@ -18,10 +17,7 @@ func (this *Store) Open(params map[string]string) (err os.Error) {
 		return
 	}
 
-	if this.conn, err = sqlite_Open(params["file"]); err != nil {
-		return
-	}
-
+	this.conn, err = sqlite_Open(params["file"])
 	return
 }
 
@@ -36,17 +32,26 @@ func (this *Store) Close() {
 
 func (this *Store) Initialized() bool {
 	var err os.Error
-	var count int
+	var name string
 
-	if this.qry, err = this.conn.Prepare("select count(tbl_name) from sqlite_master;"); err != nil {
+	if this.qry, err = this.conn.Prepare("select tbl_name from sqlite_master;"); err != nil {
 		return false
 	}
 
-	this.qry.Next()
-	this.qry.Scan(&count)
-	this.qry.Finalize()
+	defer this.qry.Finalize()
 
-	return count > 1
+	for this.qry.Next() {
+		if err = this.qry.Scan(&name); err != nil {
+			return false
+		}
+
+		switch name {
+		case "objects":
+			return true
+		}
+	}
+
+	return false
 }
 
 func (this *Store) Initialize() (err os.Error) {
@@ -80,8 +85,13 @@ func (this *Store) GetObject(id uint16, objtype uint8) (lib.Object, os.Error) {
 		return nil, lib.ErrUnknownObject
 	}
 
-	this.qry.Scan(&dbtype, &blob)
-	this.qry.Finalize()
+	if err = this.qry.Scan(&dbtype, &blob); err != nil {
+		return nil, err
+	}
+
+	if err = this.qry.Finalize(); err != nil {
+		return nil, err
+	}
 
 	if dbtype != objtype {
 		return nil, lib.ErrTypeMismatch
@@ -132,7 +142,10 @@ func (this *Store) SetObject(obj lib.Object) (err os.Error) {
 		}
 
 		this.qry.Next()
-		this.qry.Finalize()
+
+		if err = this.qry.Finalize(); err != nil {
+			return
+		}
 
 		var id int64
 		if id, err = this.conn.LastInsertId(); err != nil {

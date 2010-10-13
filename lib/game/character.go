@@ -1,6 +1,6 @@
 package lib
 
-import "io"
+import "bufio"
 import "os"
 
 type Character struct {
@@ -9,10 +9,8 @@ type Character struct {
 	description string
 }
 
-func NewCharacter(name, desc string) *Character {
+func NewCharacter() *Character {
 	v := new(Character)
-	v.name = name
-	v.description = desc
 	return v
 }
 
@@ -20,6 +18,46 @@ func (this *Character) Type() uint8                       { return OTCharacter }
 func (this *Character) Id() uint16                        { return this.id }
 func (this *Character) SetId(id uint16)                   { this.id = id }
 func (this *Character) Name() string                      { return this.name }
+func (this *Character) SetName(v string)                   { this.name = v }
 func (this *Character) Description() string               { return this.description }
-func (this *Character) Pack(w io.Writer) (err os.Error)   { return }
-func (this *Character) Unpack(w io.Reader) (err os.Error) { return }
+func (this *Character) SetDescription(v string)              { this.description = v }
+
+func (this *Character) Pack(w *bufio.Writer) (err os.Error) {
+	if _, err = w.WriteString(this.name); err == nil {
+		if err = w.WriteByte(0x00); err != nil {
+			return
+		}
+	}
+
+	if _, err = w.WriteString(this.description); err == nil {
+		if err = w.WriteByte(0x00); err != nil {
+			return
+		}
+	}
+
+	return
+}
+
+func (this *Character) Unpack(r *bufio.Reader) (err os.Error) {
+	var data []byte
+
+	if data, err = r.ReadBytes(0x00); err != nil {
+		return
+	}
+
+	if len(data) > 0 {
+		data = data[0:len(data)-1]
+		this.name = string(data)
+	}
+
+	if data, err = r.ReadBytes(0x00); err != nil {
+		return
+	}
+
+	if len(data) > 0 {
+		data = data[0:len(data)-1]
+		this.description = string(data)
+	}
+
+	return
+}

@@ -7,14 +7,22 @@ we implement. We will describe the individual types of objects we use in the
 game and how they relate to eachother.
 
 ================================================================================
- PREFACE
+ IMPORTANT
 ================================================================================
 
-* Unless otherwise noted, all numeric values should be encoded in LITTLE ENDIAN
-  order.
+* Unless otherwise noted, all numeric values are encoded in LITTLE ENDIAN order.
 
 * All strings are UTF-8 encoded.
 
+* Unless otherwise noted, all string size restrictions are in UNICODE CODE
+  POINTS, not in bytes. The reason is that we require some kind of limit for
+  easier storage, but we do not want to put undue restrictions on users of
+  multi-byte languages. So a string of 255 runes max, can contain equally as
+  much character content whether we use a multibyte character set or plain old
+  ASCII. In practice this means that the size of a string in bytes is variable
+  and at most 4 times larger than the actual number of unicode characters.
+
+* Strings should be NULL terminated. (0x00)
 
 ================================================================================
  STORAGE
@@ -67,12 +75,14 @@ type in the game implements this interface. These fields are as follows:
    DESCRIPTION fields.
 
  NAME
-   This is an arbitrary-length UTF8 encoded string which names the object.
-   Newlines (\r and \n) are not allowed in this value.
+   A UTF8 encoded string which names the object. It is at most 255 unicode
+   runes in length. Newlines (\r and \n) are not allowed in this value.
+   String lenght is encoded as an 8 bit unsigned integer.
 
  DESCRIPTION
-   This is an arbitrary-length UTF8 encoded string which describes the object.
-   Newlines (\r and \n) are allowed in this value.
+   A UTF8 encoded string which describes the object. It is at most 4096 bytes
+   in length. Newlines (\r and \n) are allowed in this value.
+   String lenght is encoded as a 16 bit unsigned integer.
 
 
 Additional fields and their properties are present and can be determined by
