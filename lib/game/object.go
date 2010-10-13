@@ -12,7 +12,7 @@ const (
 
 // Field size limits in Unicode code points (not in bytes!)
 const (
-	LimitName        = 255
+	LimitName        = 256
 	LimitDescription = 4096
 )
 

@@ -75,7 +75,7 @@ type in the game implements this interface. These fields are as follows:
    DESCRIPTION fields.
 
  NAME
-   A UTF8 encoded string which names the object. It is at most 255 unicode
+   A UTF8 encoded string which names the object. It is at most 256 unicode
    runes in length. Newlines (\r and \n) are not allowed in this value.
 
  DESCRIPTION
