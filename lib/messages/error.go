@@ -2,6 +2,7 @@ package lib
 
 import "net"
 import "io"
+import "bufio"
 import "os"
 
 type Error struct {
@@ -24,14 +25,8 @@ func (this *Error) ToError() os.Error { return intToErr(this.Errno) }
 // Sets Error.Errno to the appropriate value depending on the supplied os.Error
 func (this *Error) FromError(err os.Error) { this.Errno = errToInt(err) }
 
-func (this *Error) Read(r io.Reader) (err os.Error) {
-	data := make([]byte, 1)
-
-	if _, err = r.Read(data); err != nil {
-		return
-	}
-
-	this.Errno = data[0]
+func (this *Error) Read(r *bufio.Reader) (err os.Error) {
+	this.Errno, err = r.ReadByte()
 	return
 }
 

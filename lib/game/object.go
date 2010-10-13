@@ -13,6 +13,7 @@ const (
 // Field size limits in Unicode code points (not in bytes!)
 const (
 	LimitName        = 256
+	LimitPassword    = 256
 	LimitDescription = 4096
 )
 

@@ -2,6 +2,7 @@ package lib
 
 import "net"
 import "io"
+import "bufio"
 import "os"
 
 // Builtin message type IDs. These are the bytes sent over a connection and
@@ -26,7 +27,7 @@ const (
 type Message interface {
 	Id() uint8
 	Sender() net.Addr
-	Read(io.Reader) os.Error
+	Read(*bufio.Reader) os.Error
 	Write(io.Writer) os.Error
 }
 
@@ -61,7 +62,7 @@ func ReadMessage(r io.Reader, sender net.Addr) (msg Message, err os.Error) {
 
 	if builder, ok := Messages[data[0]]; ok {
 		msg = builder(sender)
-		err = msg.Read(r)
+		err = msg.Read(bufio.NewReader(r))
 		return
 	}
 

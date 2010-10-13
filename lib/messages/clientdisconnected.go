@@ -1,6 +1,7 @@
 package lib
 
 import "net"
+import "bufio"
 import "io"
 import "os"
 
@@ -17,7 +18,7 @@ func NewClientDisconnected(sender net.Addr) *ClientDisconnected {
 func (this *ClientDisconnected) Id() uint8        { return MTClientDisconnected }
 func (this *ClientDisconnected) Sender() net.Addr { return this.sender }
 
-func (this *ClientDisconnected) Read(r io.Reader) (err os.Error) {
+func (this *ClientDisconnected) Read(r *bufio.Reader) (err os.Error) {
 	// This message will never be sent across the wire.
 	return
 }

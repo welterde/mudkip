@@ -2,6 +2,7 @@ package lib
 
 import "net"
 import "io"
+import "bufio"
 import "os"
 
 type ClientConnected struct {
@@ -17,7 +18,7 @@ func NewClientConnected(sender net.Addr) *ClientConnected {
 func (this *ClientConnected) Id() uint8        { return MTClientConnected }
 func (this *ClientConnected) Sender() net.Addr { return this.sender }
 
-func (this *ClientConnected) Read(r io.Reader) (err os.Error) {
+func (this *ClientConnected) Read(r *bufio.Reader) (err os.Error) {
 	// This message will never be sent across the wire.
 	return
 }

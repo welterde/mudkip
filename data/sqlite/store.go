@@ -1,7 +1,13 @@
 package store
 
 import "os"
+import "sync"
 import "mudkip/lib"
+
+// SQlite has some issues with write operations from multiple clients.
+// We therefor use this read/write lock in the routines that perform write
+// operations. Read operations should not be a problem.
+var rwl = new(sync.RWMutex)
 
 type Store struct {
 	conn *Conn
@@ -35,6 +41,9 @@ func (this *Store) Initialize() (err os.Error) {
 		return
 	}
 
+	rwl.Lock()
+	defer rwl.Unlock()
+
 	if err = this.conn.Exec(`
 		create table objects (
 			id		INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -48,7 +57,7 @@ func (this *Store) Initialize() (err os.Error) {
 		create table users (
 			id			INTEGER PRIMARY KEY AUTOINCREMENT,
 			name		VARCHAR(120) NOT NULL,
-			password	VARCHAR(41) NOT NULL,
+			password	VARCHAR(50) NOT NULL,
 			registered	INTEGER NOT NULL,
 			zone        INTEGER NOT NULL
 		);`); err != nil {
@@ -97,6 +106,9 @@ func (this *Store) GetUserByName(name string) (usr *lib.UserInfo, err os.Error) 
 }
 
 func (this *Store) SetUser(usr *lib.UserInfo) (err os.Error) {
+	rwl.Lock()
+	defer rwl.Unlock()
+
 	var exists bool
 	if exists, err = this.userExists(usr.Id); err != nil {
 		return
@@ -239,6 +251,9 @@ func (this *Store) GetObjectsByType(objtype uint8) ([]lib.Object, os.Error) {
 }
 
 func (this *Store) SetObject(obj lib.Object) (err os.Error) {
+	rwl.Lock()
+	defer rwl.Unlock()
+
 	var blob []byte
 	var exists bool
 

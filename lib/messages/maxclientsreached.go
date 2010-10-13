@@ -2,6 +2,7 @@ package lib
 
 import "net"
 import "io"
+import "bufio"
 import "os"
 
 type MaxClientsReached struct {
@@ -17,7 +18,7 @@ func NewMaxClientsReached(sender net.Addr) *MaxClientsReached {
 func (this *MaxClientsReached) Id() uint8        { return MTMaxClientsReached }
 func (this *MaxClientsReached) Sender() net.Addr { return this.sender }
 
-func (this *MaxClientsReached) Read(r io.Reader) (err os.Error) {
+func (this *MaxClientsReached) Read(r *bufio.Reader) (err os.Error) {
 	// Nothing to read
 	return
 }

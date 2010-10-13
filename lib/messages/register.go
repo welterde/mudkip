@@ -3,6 +3,7 @@ package lib
 import "bytes"
 import "net"
 import "io"
+import "bufio"
 import "os"
 
 // Register message. Username and password can each not exceed 50 bytes.
@@ -22,38 +23,27 @@ func NewRegister(sender net.Addr) *Register {
 func (this *Register) Id() uint8        { return MTRegister }
 func (this *Register) Sender() net.Addr { return this.sender }
 
-func (this *Register) Read(r io.Reader) (err os.Error) {
-	data := make([]byte, 50)
+func (this *Register) Read(r *bufio.Reader) (err os.Error) {
+	var data []byte
 
-	// Read length of username
-	if _, err = r.Read(data[0:1]); err != nil {
+	if data, err = r.ReadBytes(0x00); err != nil {
 		return
 	}
 
-	if data[0] > 50 {
-		return ErrInvalidUsername
+	if len(data) > 0 {
+		data = data[0 : len(data)-1]
+		this.Username = string(data)
 	}
 
-	if _, err = r.Read(data[0:data[0]]); err != nil {
+	if data, err = r.ReadBytes(0x00); err != nil {
 		return
 	}
 
-	this.Username = string(data[0:data[0]])
-
-	// Read password length
-	if _, err = r.Read(data[0:1]); err != nil {
-		return
+	if len(data) > 0 {
+		data = data[0 : len(data)-1]
+		this.Password = string(data)
 	}
 
-	if data[0] > 50 {
-		return ErrInvalidPassword
-	}
-
-	if _, err = r.Read(data[0:data[0]]); err != nil {
-		return
-	}
-
-	this.Password = string(data[0:data[0]])
 	return
 }
 
@@ -61,10 +51,10 @@ func (this *Register) Write(w io.Writer) (err os.Error) {
 	var d []byte
 	buf := bytes.NewBuffer(d)
 	buf.WriteByte(MTRegister)
-	buf.WriteByte(uint8(len(this.Username)))
 	buf.WriteString(this.Username)
-	buf.WriteByte(uint8(len(this.Password)))
+	buf.WriteByte(0x00)
 	buf.WriteString(this.Password)
+	buf.WriteByte(0x00)
 	_, err = w.Write(buf.Bytes())
 	return
 }
