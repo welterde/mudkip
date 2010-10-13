@@ -59,12 +59,10 @@ func getConfig() (cfg *Config) {
 		os.Exit(1)
 	}
 
-	if !ds.Initialized() {
-		fmt.Fprint(os.Stdout, "[i] Initializing datastore...\n")
-		if err = ds.Initialize(); err != nil {
-			fmt.Fprintf(os.Stderr, "[e] %v\n", err)
-			os.Exit(1)
-		}
+	fmt.Fprint(os.Stdout, "[i] Initializing datastore...\n")
+	if err = ds.Initialize(); err != nil {
+		fmt.Fprintf(os.Stderr, "[e] %v\n", err)
+		os.Exit(1)
 	}
 
 	ds.Close()

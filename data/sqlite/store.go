@@ -30,31 +30,11 @@ func (this *Store) Close() {
 	}
 }
 
-func (this *Store) Initialized() bool {
-	var err os.Error
-	var name string
-
-	if this.qry, err = this.conn.Prepare("select tbl_name from sqlite_master;"); err != nil {
-		return false
-	}
-
-	defer this.qry.Finalize()
-
-	for this.qry.Next() {
-		if err = this.qry.Scan(&name); err != nil {
-			return false
-		}
-
-		switch name {
-		case "objects":
-			return true
-		}
-	}
-
-	return false
-}
-
 func (this *Store) Initialize() (err os.Error) {
+	if this.initialized() {
+		return
+	}
+
 	// We store objects in a compressed bit stream format. Only the ID and the
 	// object Type are independant columns, so we can select on them.
 	// Rowid column is implicit.
@@ -113,7 +93,7 @@ func (this *Store) SetObject(obj lib.Object) (err os.Error) {
 		return
 	}
 
-	if exists, err = this.ObjectExists(obj.Id()); err != nil {
+	if exists, err = this.objectExists(obj.Id()); err != nil {
 		return
 	}
 
@@ -163,7 +143,7 @@ func (this *Store) SetObject(obj lib.Object) (err os.Error) {
 	return
 }
 
-func (this *Store) ObjectExists(id uint16) (bool, os.Error) {
+func (this *Store) objectExists(id uint16) (bool, os.Error) {
 	var err os.Error
 
 	if this.qry, err = this.conn.Prepare("select count(*) from objects where rowid=?"); err != nil {
@@ -183,21 +163,26 @@ func (this *Store) ObjectExists(id uint16) (bool, os.Error) {
 	return count == 1, nil
 }
 
-func (this *Store) LastInsertId() (int64, os.Error) {
+func (this *Store) initialized() bool {
 	var err os.Error
-	var id int64
+	var name string
 
-	if this.qry, err = this.conn.Prepare(`select last_insert_rowid()`); err != nil {
-		return 0, err
+	if this.qry, err = this.conn.Prepare("select tbl_name from sqlite_master;"); err != nil {
+		return false
 	}
 
 	defer this.qry.Finalize()
 
-	if err = this.qry.Exec(); err != nil {
-		return 0, err
+	for this.qry.Next() {
+		if err = this.qry.Scan(&name); err != nil {
+			return false
+		}
+
+		switch name {
+		case "objects":
+			return true
+		}
 	}
 
-	this.qry.Next()
-	this.qry.Scan(&id)
-	return id, nil
+	return false
 }

@@ -16,13 +16,13 @@ func NewWorld() *World {
 	return v
 }
 
-func (this *World) Type() uint8                       { return OTWorld }
-func (this *World) Id() uint16                        { return this.id }
-func (this *World) SetId(id uint16)                   { this.id = id }
-func (this *World) Name() string                      { return this.name }
-func (this *World) SetName(v string)                   { this.name = v }
-func (this *World) Description() string               { return this.description }
-func (this *World) SetDescription(v string)              { this.description = v }
+func (this *World) Type() uint8             { return OTWorld }
+func (this *World) Id() uint16              { return this.id }
+func (this *World) SetId(id uint16)         { this.id = id }
+func (this *World) Name() string            { return this.name }
+func (this *World) SetName(v string)        { this.name = v }
+func (this *World) Description() string     { return this.description }
+func (this *World) SetDescription(v string) { this.description = v }
 
 func (this *World) Pack(w *bufio.Writer) (err os.Error) {
 	if _, err = w.WriteString(this.name); err == nil {
@@ -48,7 +48,7 @@ func (this *World) Unpack(r *bufio.Reader) (err os.Error) {
 	}
 
 	if len(data) > 0 {
-		data = data[0:len(data)-1]
+		data = data[0 : len(data)-1]
 		this.name = string(data)
 	}
 
@@ -57,7 +57,7 @@ func (this *World) Unpack(r *bufio.Reader) (err os.Error) {
 	}
 
 	if len(data) > 0 {
-		data = data[0:len(data)-1]
+		data = data[0 : len(data)-1]
 		this.description = string(data)
 	}
 

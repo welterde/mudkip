@@ -59,4 +59,3 @@ func Deserialize(id uint16, objtype uint8, data []byte) (obj Object, err os.Erro
 	err = obj.Unpack(bufio.NewReader(cmp))
 	return
 }
-

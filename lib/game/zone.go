@@ -14,13 +14,13 @@ func NewZone() *Zone {
 	return v
 }
 
-func (this *Zone) Type() uint8                       { return OTZone }
-func (this *Zone) Id() uint16                        { return this.id }
-func (this *Zone) SetId(id uint16)                   { this.id = id }
-func (this *Zone) Name() string                      { return this.name }
-func (this *Zone) SetName(v string)                   { this.name = v }
-func (this *Zone) Description() string               { return this.description }
-func (this *Zone) SetDescription(v string)              { this.description = v }
+func (this *Zone) Type() uint8             { return OTZone }
+func (this *Zone) Id() uint16              { return this.id }
+func (this *Zone) SetId(id uint16)         { this.id = id }
+func (this *Zone) Name() string            { return this.name }
+func (this *Zone) SetName(v string)        { this.name = v }
+func (this *Zone) Description() string     { return this.description }
+func (this *Zone) SetDescription(v string) { this.description = v }
 
 func (this *Zone) Pack(w *bufio.Writer) (err os.Error) {
 	if _, err = w.WriteString(this.name); err == nil {
@@ -46,7 +46,7 @@ func (this *Zone) Unpack(r *bufio.Reader) (err os.Error) {
 	}
 
 	if len(data) > 0 {
-		data = data[0:len(data)-1]
+		data = data[0 : len(data)-1]
 		this.name = string(data)
 	}
 
@@ -55,7 +55,7 @@ func (this *Zone) Unpack(r *bufio.Reader) (err os.Error) {
 	}
 
 	if len(data) > 0 {
-		data = data[0:len(data)-1]
+		data = data[0 : len(data)-1]
 		this.description = string(data)
 	}
 

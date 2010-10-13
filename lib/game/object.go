@@ -12,16 +12,16 @@ const (
 
 // Generic game object. Everything in this game should implement this interface.
 type Object interface {
-	Type() uint8                   // Unique object type
+	Type() uint8 // Unique object type
 
-	Id() uint16                    // Unique datastore ID
-	SetId(uint16)                  // set Unique datastore ID
+	Id() uint16   // Unique datastore ID
+	SetId(uint16) // set Unique datastore ID
 
-	Name() string                  // Display name of object
-	SetName(string)                // Set display name
+	Name() string   // Display name of object
+	SetName(string) // Set display name
 
-	Description() string           // Display description of object
-	SetDescription(string)         // Set description
+	Description() string   // Display description of object
+	SetDescription(string) // Set description
 
 	Pack(*bufio.Writer) os.Error   // Pack object contents into a bit stream
 	Unpack(*bufio.Reader) os.Error // Unpack object contents from bit stream

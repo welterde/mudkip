@@ -14,13 +14,13 @@ func NewCharacter() *Character {
 	return v
 }
 
-func (this *Character) Type() uint8                       { return OTCharacter }
-func (this *Character) Id() uint16                        { return this.id }
-func (this *Character) SetId(id uint16)                   { this.id = id }
-func (this *Character) Name() string                      { return this.name }
-func (this *Character) SetName(v string)                   { this.name = v }
-func (this *Character) Description() string               { return this.description }
-func (this *Character) SetDescription(v string)              { this.description = v }
+func (this *Character) Type() uint8             { return OTCharacter }
+func (this *Character) Id() uint16              { return this.id }
+func (this *Character) SetId(id uint16)         { this.id = id }
+func (this *Character) Name() string            { return this.name }
+func (this *Character) SetName(v string)        { this.name = v }
+func (this *Character) Description() string     { return this.description }
+func (this *Character) SetDescription(v string) { this.description = v }
 
 func (this *Character) Pack(w *bufio.Writer) (err os.Error) {
 	if _, err = w.WriteString(this.name); err == nil {
@@ -46,7 +46,7 @@ func (this *Character) Unpack(r *bufio.Reader) (err os.Error) {
 	}
 
 	if len(data) > 0 {
-		data = data[0:len(data)-1]
+		data = data[0 : len(data)-1]
 		this.name = string(data)
 	}
 
@@ -55,7 +55,7 @@ func (this *Character) Unpack(r *bufio.Reader) (err os.Error) {
 	}
 
 	if len(data) > 0 {
-		data = data[0:len(data)-1]
+		data = data[0 : len(data)-1]
 		this.description = string(data)
 	}
 

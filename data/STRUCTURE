@@ -77,12 +77,10 @@ type in the game implements this interface. These fields are as follows:
  NAME
    A UTF8 encoded string which names the object. It is at most 255 unicode
    runes in length. Newlines (\r and \n) are not allowed in this value.
-   String lenght is encoded as an 8 bit unsigned integer.
 
  DESCRIPTION
    A UTF8 encoded string which describes the object. It is at most 4096 bytes
    in length. Newlines (\r and \n) are allowed in this value.
-   String lenght is encoded as a 16 bit unsigned integer.
 
 
 Additional fields and their properties are present and can be determined by
