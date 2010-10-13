@@ -1,10 +1,10 @@
 
 Document version: 0.1
 
-This file provides an extensive overview of the Mudkip game structure. It is
-intended to be used as a guide on how to design the data model for the
-particular datastore we implement. We will describe the individual types of
-objects we use in the game and how they relate to eachother.
+This file provides an overview of the Mudkip game structure. It is intended to
+be used as a guide on how to design the data model for the particular datastore
+we implement. We will describe the individual types of objects we use in the
+game and how they relate to eachother.
 
 ================================================================================
  PREFACE
@@ -14,6 +14,37 @@ objects we use in the game and how they relate to eachother.
   order.
 
 * All strings are UTF-8 encoded.
+
+
+================================================================================
+ STORAGE
+================================================================================
+
+The simplest way to deal with this, is to use the builtin lib.Serialize() and
+lib.Deserialize() functions. These turn an object into a compressed bit stream
+and vice-versa.
+
+This bitstream, the object id and its type are the only things that have to be
+stored this way. The datastore implementation does not have to worry about what
+content a type actually has.
+
+For example, the sqlite driver has an 'objects' table with only 3 columns:
+
+ - ID:   The unique object ID
+ - TYPE: The type of the object
+ - DATA: The compressed bit stream data containing the rest of the object data.
+
+This keeps the driver extremely simple and easy to implement. It also reduces
+the need to fix any datastore implementations if and when we change something in
+the game engine. With this approach, the mudkip core library is really the only
+entity that has to know about the actual structure of any given object.
+
+The data store only cares about the ID, TYPE and the bitstream data.
+The reason we keep the TYPE field independant, is because we have to pass it
+into the Deserialize() function, and we want to be able to select on it if we
+want a listing of all objects of a given type. The ID field is independant for
+obvious reasons. We need a unique PRIMARY KEY field in most datastore
+implementations. Additionally, we use this to select a specific object.
 
 
 ================================================================================
@@ -46,10 +77,5 @@ type in the game implements this interface. These fields are as follows:
 
 Additional fields and their properties are present and can be determined by
 the value of the TYPE field.
-
-
-================================================================================
- 
-================================================================================
 
 

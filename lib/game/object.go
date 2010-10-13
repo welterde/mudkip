@@ -14,6 +14,7 @@ const (
 type Object interface {
 	Type() uint8                 // Unique object type
 	Id() uint16                  // Unique datastore ID
+	SetId(uint16)                // set Unique datastore ID
 	Name() string                // Display name of object
 	Description() string         // Display description of object
 	Pack(w io.Writer) os.Error   // Pack object contents into a bit stream

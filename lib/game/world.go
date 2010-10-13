@@ -10,9 +10,8 @@ type World struct {
 	Zones       map[uint16]*Zone
 }
 
-func NewWorld(id uint16, name, desc string) *World {
+func NewWorld(name, desc string) *World {
 	v := new(World)
-	v.id = id
 	v.name = name
 	v.description = desc
 	v.Zones = make(map[uint16]*Zone)
@@ -21,6 +20,7 @@ func NewWorld(id uint16, name, desc string) *World {
 
 func (this *World) Type() uint8                       { return OTWorld }
 func (this *World) Id() uint16                        { return this.id }
+func (this *World) SetId(id uint16)                   { this.id = id }
 func (this *World) Name() string                      { return this.name }
 func (this *World) Description() string               { return this.description }
 func (this *World) Pack(w io.Writer) (err os.Error)   { return }

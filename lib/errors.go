@@ -9,6 +9,8 @@ const (
 	EInvalidUsername
 	EInvalidPassword
 	EUsernameExists
+	EUnknownObject
+	ETypeMismatch
 )
 
 var (
@@ -16,7 +18,9 @@ var (
 	ErrUnknownMessage  = os.NewError("Unknown message")
 	ErrInvalidUsername = os.NewError("Username can not exceed 50 bytes")
 	ErrInvalidPassword = os.NewError("Password can not exceed 50 bytes")
-	ErrUsernameExists  = os.NewError("PSpecified username already exists")
+	ErrUsernameExists  = os.NewError("Specified username already exists")
+	ErrUnknownObject   = os.NewError("Unknown object")
+	ErrTypeMismatch    = os.NewError("Stored object and requested object differ in type")
 )
 
 func errToInt(err os.Error) uint8 {
@@ -29,6 +33,10 @@ func errToInt(err os.Error) uint8 {
 		return EInvalidPassword
 	case ErrUsernameExists:
 		return EUsernameExists
+	case ErrUnknownObject:
+		return EUnknownObject
+	case ErrTypeMismatch:
+		return ETypeMismatch
 	}
 	return EUnknownError
 }
@@ -43,6 +51,10 @@ func intToErr(errno uint8) os.Error {
 		return ErrInvalidPassword
 	case EUsernameExists:
 		return ErrUsernameExists
+	case EUnknownObject:
+		return ErrUnknownObject
+	case ETypeMismatch:
+		return ErrTypeMismatch
 	}
 	return ErrUnknownError
 }

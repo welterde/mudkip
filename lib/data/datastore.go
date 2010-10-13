@@ -19,9 +19,13 @@ type DataStore interface {
 	// best to build your data model.
 	Initialize() os.Error
 
+	// This returns true if the initialization and table setup has been
+	// performed already.
+	Initialized() bool
+
 	// This is a generic function which fetches an object from the datastore
 	// and transforms it into the appropriate unpacked type.
-	GetObject(objtype uint8, id uint16) (Object, os.Error)
+	GetObject(id uint16, objtype uint8) (Object, os.Error)
 
 	// This stores the given object in the datastore
 	SetObject(Object) os.Error
