@@ -27,4 +27,7 @@ type DataStore interface {
 
 	// This stores the given object in the datastore
 	SetObject(Object) os.Error
+
+	// Selects all objects of the given type
+	GetObjectsByType(objtype uint8) ([]Object, os.Error)
 }

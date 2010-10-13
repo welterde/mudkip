@@ -20,11 +20,9 @@ func Test(t *testing.T) {
 
 	defer ds.Close()
 
-	if !ds.Initialized() {
-		if err = ds.Initialize(); err != nil {
-			t.Errorf("Initialize: %v", err)
-			return
-		}
+	if err = ds.Initialize(); err != nil {
+		t.Errorf("Initialize: %v", err)
+		return
 	}
 
 	var a, b lib.Object

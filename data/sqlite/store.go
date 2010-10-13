@@ -83,6 +83,47 @@ func (this *Store) GetObject(id uint16, objtype uint8) (lib.Object, os.Error) {
 	return lib.Deserialize(id, objtype, blob)
 }
 
+func (this *Store) GetObjectsByType(objtype uint8) ([]lib.Object, os.Error) {
+	var err os.Error
+	var sz int
+	var data []byte
+	var id int64
+
+	list := make([]lib.Object, 0, 16)
+
+	if this.qry, err = this.conn.Prepare("select rowid, data from objects where type=?"); err != nil {
+		return nil, err
+	}
+
+	this.qry.Exec(objtype)
+
+	for this.qry.Next() {
+		if err = this.qry.Scan(&id, &data); err != nil {
+			return nil, err
+		}
+
+		if sz >= cap(list) {
+			cp := make([]lib.Object, sz, sz+16)
+			copy(cp, list)
+			list = cp
+		}
+
+		list = list[0 : sz+1]
+
+		if list[sz], err = lib.Deserialize(uint16(id), objtype, data); err != nil {
+			return nil, err
+		}
+
+		sz++
+	}
+
+	if err = this.qry.Finalize(); err != nil {
+		return nil, err
+	}
+
+	return list, nil
+}
+
 func (this *Store) SetObject(obj lib.Object) (err os.Error) {
 	var blob []byte
 	var exists bool
