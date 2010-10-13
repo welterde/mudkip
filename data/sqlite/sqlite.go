@@ -97,17 +97,6 @@ var errText = map[Errno]string{
 	101: "sqlite3_step() has finished executing",
 }
 
-func (c *Conn) error(rv C.int) os.Error {
-	if rv == 21 { // misuse
-		return Errno(rv)
-	}
-	return os.NewError(Errno(rv).String() + ": " + C.GoString(C.sqlite3_errmsg(c.db)))
-}
-
-type Conn struct {
-	db *C.sqlite3
-}
-
 func sqlite_Version() string {
 	p := C.sqlite3_libversion()
 	return C.GoString(p)
@@ -125,6 +114,17 @@ func sqlite_Open(filename string) (*Conn, os.Error) {
 		return nil, os.NewError("sqlite succeeded without returning a database")
 	}
 	return &Conn{db}, nil
+}
+
+type Conn struct {
+	db *C.sqlite3
+}
+
+func (c *Conn) error(rv C.int) os.Error {
+	if rv == 21 { // misuse
+		return Errno(rv)
+	}
+	return os.NewError(Errno(rv).String() + ": " + C.GoString(C.sqlite3_errmsg(c.db)))
 }
 
 func (c *Conn) LastInsertId() (int64, os.Error) {
@@ -149,44 +149,42 @@ func (c *Conn) LastInsertId() (int64, os.Error) {
 
 func (c *Conn) Exec(cmd string, args ...interface{}) os.Error {
 	s, err := c.Prepare(cmd)
-
 	if err != nil {
 		return err
 	}
 
 	defer s.Finalize()
-	err = s.Exec(args...)
 
-	if err != nil {
+	if err = s.Exec(args...); err != nil {
 		return err
 	}
 
-	rv := C.sqlite3_step(s.stmt)
-	errno := Errno(rv)
-
-	if errno != Done {
+	if errno := Errno(C.sqlite3_step(s.stmt)); errno != Done {
 		return errno
 	}
 
 	return nil
 }
 
+func (c *Conn) Prepare(cmd string) (*Stmt, os.Error) {
+	cmdstr := C.CString(cmd)
+	defer C.free(unsafe.Pointer(cmdstr))
+
+	var stmt *C.sqlite3_stmt
+	var tail *C.char
+	var rv C.int
+
+	if rv = C.sqlite3_prepare_v2(c.db, cmdstr, C.int(len(cmd)+1), &stmt, &tail); rv != 0 {
+		return nil, c.error(rv)
+	}
+
+	return &Stmt{c: c, stmt: stmt}, nil
+}
+
 type Stmt struct {
 	c    *Conn
 	stmt *C.sqlite3_stmt
 	err  os.Error
-}
-
-func (c *Conn) Prepare(cmd string) (*Stmt, os.Error) {
-	cmdstr := C.CString(cmd)
-	defer C.free(unsafe.Pointer(cmdstr))
-	var stmt *C.sqlite3_stmt
-	var tail *C.char
-	rv := C.sqlite3_prepare_v2(c.db, cmdstr, C.int(len(cmd)+1), &stmt, &tail)
-	if rv != 0 {
-		return nil, c.error(rv)
-	}
-	return &Stmt{c: c, stmt: stmt}, nil
 }
 
 func (s *Stmt) Exec(args ...interface{}) os.Error {

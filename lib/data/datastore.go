@@ -25,9 +25,21 @@ type DataStore interface {
 	// and transforms it into the appropriate unpacked type.
 	GetObject(id uint16, objtype uint8) (Object, os.Error)
 
-	// This stores the given object in the datastore
-	SetObject(Object) os.Error
-
 	// Selects all objects of the given type
 	GetObjectsByType(objtype uint8) ([]Object, os.Error)
+
+	// This stores the given object in the datastore
+	SetObject(obj Object) os.Error
+
+	// Fetches the user info associated with the given id
+	GetUser(id uint16) (*UserInfo, os.Error)
+
+	// Fetches the user info associated with the given name
+	GetUserByName(name string) (*UserInfo, os.Error)
+
+	// Stores the given user info
+	SetUser(usr *UserInfo) os.Error
+
+	// Lists all users
+	GetUsers() ([]*UserInfo, os.Error)
 }

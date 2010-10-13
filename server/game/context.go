@@ -6,10 +6,11 @@ import "sync"
 import "log"
 import "fmt"
 import "mudkip/lib"
+import "mudkip/store"
 
 type Context struct {
 	config *Config
-	users  map[string]*User
+	users  map[string]*lib.User
 	lock   *sync.Mutex
 	server *Server
 	log    *log.Logger
@@ -19,7 +20,7 @@ func NewContext(cfg *Config) *Context {
 	c := new(Context)
 	c.config = cfg
 	c.lock = new(sync.Mutex)
-	c.users = make(map[string]*User)
+	c.users = make(map[string]*lib.User)
 	c.server = NewServer(cfg.MaxClients, cfg.ClientTimeout)
 
 	var logtarget *os.File
@@ -45,7 +46,9 @@ func (this *Context) HandleMessage(msg lib.Message) {
 		this.Info("Client connected: %s", id)
 
 		this.lock.Lock()
-		this.users[id] = NewUser(this.config.Datastore)
+		ds := store.New()
+		ds.Open(this.config.Datastore)
+		this.users[id] = lib.NewUser(ds)
 		this.lock.Unlock()
 
 	case *lib.ClientDisconnected:

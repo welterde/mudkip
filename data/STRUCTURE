@@ -87,3 +87,33 @@ Additional fields and their properties are present and can be determined by
 the value of the TYPE field.
 
 
+================================================================================
+ USERS
+================================================================================
+
+Obviously we need to support some form of user registration/management.
+The mudkip client/server model supplies a set of message types for this
+purpose. Anyone connecting to a mudkip server is provided with the option to
+either register as a new player, or resume an existing account by supplying
+its username and password. This means we have to store the users somewhere.
+
+There are some limitations to the type of data a user can supply in his/her
+registration:
+
+  USERNAME
+    A UTF8 encoded string with the user's account name. It is at most 30 unicode
+    runes in length. Newlines (\r and \n) are not allowed in this value.
+
+  PASSWORD
+    This should be at least a 328 bit hash of the original password. We do not
+    want to store the password itself.
+
+  REGISTERED
+    This is the date/time at which the user registered as an unsigned 64 bit
+    unix time stamp.
+
+  ZONE
+    This value will store the last zone the user was in. As a valid 16 bit
+    unsigned integer object ID.
+
+  

@@ -21,7 +21,7 @@ func (this *World) SetId(id uint16) { this.id = id }
 func (this *World) Name() string    { return this.name }
 func (this *World) SetName(v string) {
 	if str := utf8.NewString(v); str.RuneCount() > LimitName {
-		this.name = str.Slice(0, LimitName + 1)
+		this.name = str.Slice(0, LimitName+1)
 	} else {
 		this.name = v
 	}
@@ -30,7 +30,7 @@ func (this *World) SetName(v string) {
 func (this *World) Description() string { return this.description }
 func (this *World) SetDescription(v string) {
 	if str := utf8.NewString(v); str.RuneCount() > LimitDescription {
-		this.description = str.Slice(0, LimitDescription + 1)
+		this.description = str.Slice(0, LimitDescription+1)
 	} else {
 		this.description = v
 	}
