@@ -33,7 +33,7 @@ func NewContext(cfg *Config) *Context {
 		logtarget = os.Stdout
 	}
 
-	c.log = log.New(logtarget, nil, "", log.Ldate|log.Ltime|log.Lmicroseconds)
+	c.log = log.New(logtarget, "", log.Ldate|log.Ltime|log.Lmicroseconds)
 
 	return c
 }
