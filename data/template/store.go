@@ -2,6 +2,7 @@ package store
 
 import "os"
 import "mudkip/lib"
+import "mudkip/builder"
 
 type Store struct{}
 
@@ -11,7 +12,7 @@ func New() lib.DataStore { return new(Store) }
 
 func (this *Store) Open(params map[string]string) (err os.Error) { return }
 func (this *Store) Close()                                       {}
-func (this *Store) Initialize() (err os.Error)                   { return }
+func (this *Store) Initialize(*builder.World) (err os.Error)     { return }
 
 func (this *Store) GetWorldInfo() (info lib.WorldInfo, err os.Error) { return }
 func (this *Store) SetWorldInfo(info *lib.WorldInfo) (err os.Error)  { return }

@@ -3,11 +3,33 @@ package main
 import "fmt"
 import "os"
 import "optarg"
+import "mudkip/builder"
+import "mudkip/store"
 
 func main() {
 	cfg := getConfig()
 
-	_ = cfg
+	var err os.Error
+	var world *builder.World
+
+	if world, err = builder.LoadWorld(cfg.WorldFile); err != nil {
+		fmt.Fprintf(os.Stderr, "[e] %v\n", err)
+		os.Exit(1)
+	}
+
+	ds := store.New()
+	if err = ds.Open(cfg.Datastore); err != nil {
+		fmt.Fprintf(os.Stderr, "[e] %v\n", err)
+		os.Exit(1)
+	}
+
+	defer ds.Close()
+
+	if err = ds.Initialize(world); err != nil {
+		fmt.Fprintf(os.Stderr, "[e] %v\n", err)
+		os.Exit(1)
+	}
+
 	os.Exit(0)
 }
 

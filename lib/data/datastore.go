@@ -1,6 +1,7 @@
 package lib
 
 import "os"
+import "mudkip/builder"
 
 // This interface is the front-end for a compile-time selectable datastore
 // backend. This would be a database or binary data file of some sort. The
@@ -18,8 +19,10 @@ type DataStore interface {
 	// mudkip game structure. You should be able to extrapolate from this, how
 	// best to build your data model. We do not call this in the server itself,
 	// but from a world builder tool which allows a user to create a new world
-	// from scratch.
-	Initialize() os.Error
+	// from scratch. This function acepts a pre-initialized structure of type
+	// *builder.World. It contains everything we need to populate the database
+	// with the world's initial contents.
+	Initialize(*builder.World) os.Error
 
 	// Fetches the configuration settings for this game's world. Should be only
 	// one of these per datastore.

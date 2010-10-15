@@ -1,7 +1,7 @@
 This program initializes a datastore for a new game world.
 
-This should be run at least once before starting the mudkip server. The server
-can not run without a properly initialized datastore.
+This should be run /once/ before starting the mudkip server. The server can not
+run without a properly initialized datastore.
 
 The program reads a world definition file which contains a structured layout
 of everything required to create the world. It is in JSON format and can be

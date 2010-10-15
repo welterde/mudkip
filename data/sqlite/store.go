@@ -3,6 +3,7 @@ package store
 import "os"
 import "sync"
 import "mudkip/lib"
+import "mudkip/builder"
 
 // SQlite has some issues with write operations from multiple clients.
 // We therefor use this read/write lock in the routines that perform write
@@ -36,7 +37,7 @@ func (this *Store) Close() {
 	}
 }
 
-func (this *Store) Initialize() (err os.Error) {
+func (this *Store) Initialize(world *builder.World) (err os.Error) {
 	if this.initialized() {
 		return
 	}
