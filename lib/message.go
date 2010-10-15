@@ -19,6 +19,8 @@ const (
 	MTLogin
 	MTLogout
 	MTRegister
+	MTEnterZone
+	MTLeaveZone
 )
 
 // A generic Message type. Any message should implement this interface.
@@ -29,44 +31,40 @@ type Message interface {
 	Write(*bufio.Writer) os.Error
 }
 
-// This function should construct an empty but initialized version of a
-// message. It is identified by its Message ID.
-type MessageBuilder func(sender net.Addr) Message
-
-
-// This contains handlers for processing of various messages. You should add
-// your own message types to this map if you want them to be processed.
-var Messages map[uint8]MessageBuilder
-
-func init() {
-	Messages = make(map[uint8]MessageBuilder)
-
-	Messages[MTError] = func(s net.Addr) Message { return NewError(s) }
-	Messages[MTOk] = func(s net.Addr) Message { return NewOk(s) }
-	Messages[MTServerVersion] = func(s net.Addr) Message { return NewServerVersion(s) }
-	Messages[MTMaxClientsReached] = func(s net.Addr) Message { return NewMaxClientsReached(s) }
-	Messages[MTClientConnected] = func(s net.Addr) Message { return NewClientConnected(s) }
-	Messages[MTClientDisconnected] = func(s net.Addr) Message { return NewClientDisconnected(s) }
-	Messages[MTLogin] = func(s net.Addr) Message { return NewLogin(s) }
-	Messages[MTLogout] = func(s net.Addr) Message { return NewLogout(s) }
-	Messages[MTRegister] = func(s net.Addr) Message { return NewRegister(s) }
-}
-
 func ReadMessage(r io.Reader, sender net.Addr) (msg Message, err os.Error) {
 	data := make([]byte, 1)
-
-	// Read message type
 	if _, err = r.Read(data); err != nil {
 		return
 	}
 
-	if builder, ok := Messages[data[0]]; ok {
-		msg = builder(sender)
-		err = msg.Read(bufio.NewReader(r))
-		return
+	switch data[0] {
+	case MTError:
+		msg = NewError(s)
+	case MTOk:
+		msg = NewOk(s)
+	case MTServerVersion:
+		msg = NewServerVersion(s)
+	case MTMaxClientsReached:
+		msg = NewMaxClientsReached(s)
+	case MTClientConnected:
+		msg = NewClientConnected(s)
+	case MTClientDisconnected:
+		msg = NewClientDisconnected(s)
+	case MTLogin:
+		msg = NewTLogin(s)
+	case MTLogout:
+		msg = NewLogout(s)
+	case MTRegister:
+		msg = NewRegister(s)
+	case MTEnterZone:
+		msg = NewEnterZone(s)
+	case MTLeaveZone:
+		msg = NewLeaveZone(s)
+	default:
+		return nil, ErrUnknownMessage
 	}
 
-	return nil, ErrUnknownMessage
+	return nil, msg.Read(bufio.NewReader(r))
 }
 
 func WriteMessage(w io.Writer, msg Message) (err os.Error) {
