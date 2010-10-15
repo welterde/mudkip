@@ -88,7 +88,7 @@ information about the world associated with the game that is hosted by a server.
    start int. Stored as a valid 16 bit unsigned integer object ID.
 
  ALLOWREGISTRATION
-   This is a simple boolean value indicating of new users are allowed to
+   This is a simple boolean value indicating if new users are allowed to
    register new accounts through the server.
 
 ================================================================================
