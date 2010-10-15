@@ -18,7 +18,7 @@ func main() {
 	return
 }
 
-func getConfig() (cfg *Config) {
+func getConfig() (cfg *Config, info *lib.WorldInfo) {
 	var err os.Error
 	var cfgfile string
 
@@ -59,7 +59,13 @@ func getConfig() (cfg *Config) {
 		os.Exit(1)
 	}
 
-	ds.Close()
+	defer ds.Close()
+
+	if info, err = ds.GetWorldInfo(); err != nil {
+		fmt.Fprintf(os.Stderr, "[e] It appears that there is no valid world info available.\n")
+		fmt.Fprintf(os.Stderr, "[e] Have you initialized the datastore with mudkip/dsinit?\n")
+		os.Exit(1)
+	}
 
 	return
 }

@@ -3,14 +3,6 @@ package lib
 import "os"
 import "time"
 
-type UserInfo struct {
-	Id         uint16
-	Name       string
-	Password   string
-	Zone       uint16
-	Registered int64
-}
-
 type User struct {
 	Info *UserInfo
 	Data DataStore
@@ -41,7 +33,7 @@ func (this *User) Register(name, pass string) (err os.Error) {
 	}
 
 	var info *UserInfo
-	if info , err = this.Data.GetUserByName(name); err != nil {
+	if info, err = this.Data.GetUserByName(name); err != nil {
 		if err != ErrUnknownUser {
 			return
 		}

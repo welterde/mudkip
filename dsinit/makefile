@@ -1,6 +1,6 @@
 include $(GOROOT)/src/Make.inc
 
-TARG = client
-GOFILES = main.go config.go net/*.go game.go
+TARG = dsinit
+GOFILES = main.go config.go
 
 include $(GOROOT)/src/Make.cmd

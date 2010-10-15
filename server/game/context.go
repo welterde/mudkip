@@ -10,13 +10,14 @@ import "mudkip/store"
 
 type Context struct {
 	config *Config
+	world  *lib.WorldInfo
 	users  map[string]*lib.User
 	lock   *sync.Mutex
 	server *Server
 	log    *log.Logger
 }
 
-func NewContext(cfg *Config) *Context {
+func NewContext(cfg *Config, info *lib.WorldInfo) *Context {
 	c := new(Context)
 	c.config = cfg
 	c.lock = new(sync.Mutex)
@@ -24,6 +25,7 @@ func NewContext(cfg *Config) *Context {
 	c.server = NewServer(cfg.MaxClients, cfg.ClientTimeout, func(m lib.Message) { c.handleMessage(m) })
 
 	var logtarget *os.File
+
 	if cfg.LogFile != "" {
 		var err os.Error
 		if logtarget, err = os.Open(cfg.LogFile, os.O_RDWR|os.O_CREATE|os.O_APPEND, 0); err != nil {
@@ -34,7 +36,6 @@ func NewContext(cfg *Config) *Context {
 	}
 
 	c.log = log.New(logtarget, "", log.Ldate|log.Ltime|log.Lmicroseconds)
-
 	return c
 }
 
@@ -46,10 +47,12 @@ func (this *Context) handleMessage(msg lib.Message) {
 
 	switch tt := msg.(type) {
 	case *lib.ClientConnected:
-		this.lock.Lock()
 		ds := store.New()
 		ds.Open(this.config.Datastore)
+
+		this.lock.Lock()
 		this.users[id] = lib.NewUser(ds)
+		this.users[id].Info.Zone = this.world.DefaultZone
 		this.lock.Unlock()
 
 	case *lib.ClientDisconnected:
@@ -67,6 +70,7 @@ func (this *Context) handleMessage(msg lib.Message) {
 		} else {
 			client.Ack()
 		}
+
 	case *lib.Logout:
 		client := this.server.GetClient(id)
 		if err = this.users[id].Logout(); err != nil {
@@ -74,6 +78,7 @@ func (this *Context) handleMessage(msg lib.Message) {
 		} else {
 			client.Ack()
 		}
+
 	case *lib.Register:
 		client := this.server.GetClient(id)
 		if err = this.users[id].Register(tt.Username, tt.Password); err != nil {

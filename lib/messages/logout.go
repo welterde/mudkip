@@ -5,7 +5,7 @@ import "bufio"
 import "os"
 
 type Logout struct {
-	sender  net.Addr
+	sender net.Addr
 }
 
 func NewLogout(sender net.Addr) *Logout {

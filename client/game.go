@@ -9,13 +9,19 @@ import "mudkip/lib"
 const MaxServerVersion = 1
 
 func handleMessage(client *Client, msg lib.Message) {
+	fmt.Fprintf(os.Stderr, "%s -> %T\n", msg.Sender(), msg)
+
 	switch tt := msg.(type) {
+	case *lib.Ok:
+
+	case *lib.EnterZone:
+
+	case *lib.LeaveZone:
+
 	case *lib.Error:
 		fmt.Fprintf(os.Stderr, "Error: %v\n", tt.ToError())
 
 	case *lib.ServerVersion:
-		fmt.Fprintf(os.Stdout, "Connected to Mudkip Version %d\n", tt.Version)
-
 		if tt.Version > MaxServerVersion {
 			fmt.Fprint(os.Stderr, "This client appears to be outdated. We recommend you update it to reflect the latest server version.\n")
 			client.Close()

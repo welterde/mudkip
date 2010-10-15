@@ -41,8 +41,6 @@ func Deserialize(id uint16, objtype uint8, data []byte) (obj Object, err os.Erro
 	var cmp *gzip.Decompressor
 
 	switch objtype {
-	case OTWorld:
-		obj = NewWorld()
 	case OTZone:
 		obj = NewZone()
 	case OTCharacter:

@@ -1,0 +1,20 @@
+This program initializes a datastore for a new game world.
+
+This should be run at least once before starting the mudkip server. The server
+can not run without a properly initialized datastore.
+
+The program reads a world definition file which contains a structured layout
+of everything required to create the world. It is in JSON format and can be
+created either manually, or through some external build tool.
+
+It also requires an ini configuration file much like the one for the mudkip
+server. It contains the information needed to make a valid connection to a 
+datastore backend. If the configuration file does not exist, this program will
+create a template config in the given location. It is possible to simply supply
+the same config file as you would pass to the mudkip server.
+
+Invocation is as follows:
+
+	$ ./mudkipb -c path/to/config.ini -w path/to/myworld.js
+
+

@@ -45,7 +45,32 @@ func (this *Store) Initialize() (err os.Error) {
 	defer rwl.Unlock()
 
 	if err = this.conn.Exec(`
-		create table objects (
+		create table if not exists world (
+			id            INTEGER PRIMARY KEY AUTOINCREMENT,
+			created       INTEGER NOT NULL,
+			name          TEXT NOT NULL,
+			description   TEXT NOT NULL,
+			logo          TEXT NOT NULL,
+			motd          TEXT,
+			defaultzone   INTEGER NOT NULL,
+			allowregister BOOLEAN NOT NULL
+		);`); err != nil {
+		return
+	}
+
+	if err = this.conn.Exec(`
+		create table if not exists users (
+			id          INTEGER PRIMARY KEY AUTOINCREMENT,
+			name        VARCHAR(120) NOT NULL,
+			password    VARCHAR(50) NOT NULL,
+			registered  INTEGER NOT NULL,
+			zone        INTEGER NOT NULL
+		);`); err != nil {
+		return
+	}
+
+	if err = this.conn.Exec(`
+		create table if not exists objects (
 			id		INTEGER PRIMARY KEY AUTOINCREMENT,
 			type	TINYINT,
 			data	BLOB NOT NULL
@@ -53,15 +78,83 @@ func (this *Store) Initialize() (err os.Error) {
 		return
 	}
 
-	if err = this.conn.Exec(`
-		create table users (
-			id			INTEGER PRIMARY KEY AUTOINCREMENT,
-			name		VARCHAR(120) NOT NULL,
-			password	VARCHAR(50) NOT NULL,
-			registered	INTEGER NOT NULL,
-			zone        INTEGER NOT NULL
-		);`); err != nil {
+	return
+}
+
+func (this *Store) GetWorldInfo() (info *lib.WorldInfo, err os.Error) {
+	if this.qry, err = this.conn.Prepare("select * from world"); err != nil {
+		return nil, err
+	}
+
+	this.qry.Exec()
+
+	if !this.qry.Next() {
+		return nil, lib.ErrNoWorldInfo
+	}
+
+	info = new(lib.WorldInfo)
+	if err = this.qry.Scan(
+		&info.Id, &info.Created, &info.Name, &info.Description, &info.Logo,
+		&info.Motd, &info.DefaultZone, &info.AllowRegister,
+	); err != nil {
 		return
+	}
+
+	return info, this.qry.Finalize()
+}
+
+func (this *Store) SetWorldInfo(info *lib.WorldInfo) (err os.Error) {
+	rwl.Lock()
+	defer rwl.Unlock()
+
+	var exists bool
+	if exists, err = this.worldExists(info.Id); err != nil {
+		return
+	}
+
+	if exists {
+		if this.qry, err = this.conn.Prepare(
+			`update world set created=?, name=?, description=?, logo=?, motd=?, defaultzone=?, allowregister=? where id=?`,
+		); err != nil {
+			return err
+		}
+
+		if err = this.qry.Exec(
+			info.Created, info.Name, info.Description, info.Logo,
+			info.Motd, info.DefaultZone, info.AllowRegister, info.Id,
+		); err != nil {
+			return
+		}
+
+		this.qry.Next()
+		this.qry.Finalize()
+	} else {
+		if this.qry, err = this.conn.Prepare(
+			`insert into world (created, name, description, logo, motd, defaultzone, allowregister) values(?, ?, ?, ?, ?, ?, ?)`,
+		); err != nil {
+			return
+		}
+
+		if err = this.qry.Exec(
+			info.Created, info.Name, info.Description, info.Logo,
+			info.Motd, info.DefaultZone, info.AllowRegister,
+		); err != nil {
+			return
+		}
+
+		this.qry.Next()
+		this.qry.Finalize()
+
+		var id int64
+		if id, err = this.conn.LastInsertId(); err != nil {
+			return
+		}
+
+		if id == 0 {
+			return os.NewError("Insert of world failed")
+		}
+
+		info.Id = uint16(id)
 	}
 
 	return
@@ -114,7 +207,7 @@ func (this *Store) SetUser(usr *lib.UserInfo) (err os.Error) {
 		return
 	}
 
-	if exists { // update
+	if exists {
 		if this.qry, err = this.conn.Prepare(
 			`update users set name=?, password=?, registered=?, zone=? where id=?`,
 		); err != nil {
@@ -127,7 +220,7 @@ func (this *Store) SetUser(usr *lib.UserInfo) (err os.Error) {
 
 		this.qry.Next()
 		this.qry.Finalize()
-	} else { // insert
+	} else {
 		if this.qry, err = this.conn.Prepare(
 			`insert into users (name, password, registered, zone) values(?, ?, ?, ?)`,
 		); err != nil {
@@ -147,7 +240,7 @@ func (this *Store) SetUser(usr *lib.UserInfo) (err os.Error) {
 		}
 
 		if id == 0 {
-			return os.NewError("Insert of object failed")
+			return os.NewError("Insert of user failed")
 		}
 
 		usr.Id = uint16(id)
@@ -265,7 +358,7 @@ func (this *Store) SetObject(obj lib.Object) (err os.Error) {
 		return
 	}
 
-	if exists { // update
+	if exists {
 		if this.qry, err = this.conn.Prepare(
 			`update objects set type=?, data=? where id=?`,
 		); err != nil {
@@ -278,7 +371,7 @@ func (this *Store) SetObject(obj lib.Object) (err os.Error) {
 
 		this.qry.Next()
 		this.qry.Finalize()
-	} else { // insert
+	} else {
 		if this.qry, err = this.conn.Prepare(
 			`insert into objects (type, data) values(?, ?)`,
 		); err != nil {
@@ -347,6 +440,26 @@ func (this *Store) userExists(id uint16) (bool, os.Error) {
 	return count == 1, nil
 }
 
+func (this *Store) worldExists(id uint16) (bool, os.Error) {
+	var err os.Error
+
+	if this.qry, err = this.conn.Prepare("select count(*) from world where id=?"); err != nil {
+		return false, err
+	}
+
+	if err = this.qry.Exec(id); err != nil {
+		return false, err
+	}
+
+	var count int
+
+	this.qry.Next()
+	this.qry.Scan(&count)
+	this.qry.Finalize()
+
+	return count == 1, nil
+}
+
 
 func (this *Store) initialized() bool {
 	var err os.Error
@@ -362,6 +475,7 @@ func (this *Store) initialized() bool {
 	required := make(map[string]bool)
 	required["objects"] = false
 	required["users"] = false
+	required["world"] = false
 
 	for this.qry.Next() {
 		if err = this.qry.Scan(&name); err != nil {

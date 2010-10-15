@@ -5,8 +5,7 @@ import "os"
 
 // Object types
 const (
-	OTWorld uint8 = iota
-	OTZone
+	OTZone uint8 = iota
 	OTCharacter
 )
 
@@ -15,6 +14,7 @@ const (
 	LimitName        = 256
 	LimitPassword    = 256
 	LimitDescription = 4096
+	LimitMOTD        = 4096
 )
 
 // Generic game object. Everything in this game should implement this interface.

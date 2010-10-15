@@ -5,8 +5,8 @@ import "bufio"
 import "os"
 
 type EnterZone struct {
-	sender  net.Addr
-	Zone uint16
+	sender net.Addr
+	Zone   uint16
 }
 
 func NewEnterZone(sender net.Addr) *EnterZone {
@@ -20,7 +20,7 @@ func (this *EnterZone) Sender() net.Addr { return this.sender }
 
 func (this *EnterZone) Read(r *bufio.Reader) (err os.Error) {
 	d := make([]uint8, 2)
-	
+
 	if _, err = r.Read(d); err != nil {
 		return
 	}
@@ -30,6 +30,6 @@ func (this *EnterZone) Read(r *bufio.Reader) (err os.Error) {
 }
 
 func (this *EnterZone) Write(w *bufio.Writer) (err os.Error) {
-	_, err = w.Write([]uint8{MTEnterZone, uint8(this.Zone), uint8(this.Zone)>>8})
+	_, err = w.Write([]uint8{MTEnterZone, uint8(this.Zone), uint8(this.Zone) >> 8})
 	return
 }

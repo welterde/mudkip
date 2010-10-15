@@ -9,11 +9,11 @@ import "crypto/tls"
 import "mudkip/lib"
 
 type Client struct {
-	messages  chan lib.Message
-	conn      io.ReadWriteCloser
-	rwm       *sync.RWMutex
-	addr      net.Addr
-	config    *Config
+	messages chan lib.Message
+	conn     io.ReadWriteCloser
+	rwm      *sync.RWMutex
+	addr     net.Addr
+	config   *Config
 }
 
 func NewClient(config *Config) *Client {

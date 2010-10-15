@@ -25,6 +25,17 @@ needed here. All we need to do to enable SSL connectivity, is set the 'secure'
 value to true in the client config file.
 
 ================================================================================
+ DEPENDENCIES
+================================================================================
+
+There are a few external packages this project relies on. The following are
+required. There may be additional requirements, depending on which datastore
+you choose to use. Refer to mudkip/data/<datastorename>/README for specifics.
+
+- go-pkg-optarg: http://github.com/jteeuwen/go-pkg-optarg
+- go-pkg-init: http://github.com/jteeuwen/go-pkg-ini
+
+================================================================================
  USAGE
 ================================================================================
 
@@ -37,9 +48,7 @@ If you already have Go, make sure you have the latest release build:
  $ hg pull
  $ hg update release
 
-To get this project up and running, follow the steps below. This package has a
-dependency on my ini-file parser package. You can get it from its git repo at
-http://github.com/jteeuwen/go-pkg-ini
+To get this project up and running, follow the steps below.
  
  $ cd /path/to/codedir
  $ git clone http://github.com/jteeuwen/mudkip.git
@@ -58,5 +67,6 @@ named mudkip/store.a. This is also why we can build only one of them.
 ================================================================================
 
 All code is subject to a 1-clause BSD license. See the LICENSE file for its
-contents.
+contents. This excludes mudkip/data/sqlite/sqlite.go which was written by Russ
+Cox and falls under the Go Authors License.
 

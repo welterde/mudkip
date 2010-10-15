@@ -16,6 +16,7 @@ const (
 	EDuplicateUser
 	EUserLoggedIn
 	EUserNotLoggedIn
+	ENoWorldInfo
 )
 
 var (
@@ -31,6 +32,7 @@ var (
 	ErrDuplicateUser      = os.NewError("User already exists")
 	ErrUserLoggedIn       = os.NewError("User already logged in")
 	ErrUserNotLoggedIn    = os.NewError("User not logged in")
+	ErrNoWorldInfo        = os.NewError("No world info defined in datastore")
 )
 
 func errToInt(err os.Error) uint8 {
@@ -57,6 +59,8 @@ func errToInt(err os.Error) uint8 {
 		return EUserLoggedIn
 	case ErrUserNotLoggedIn:
 		return EUserNotLoggedIn
+	case ErrNoWorldInfo:
+		return ENoWorldInfo
 	}
 	return EUnknownError
 }
@@ -85,6 +89,8 @@ func intToErr(errno uint8) os.Error {
 		return ErrUserLoggedIn
 	case EUserNotLoggedIn:
 		return ErrUserNotLoggedIn
+	case ENoWorldInfo:
+		return ErrNoWorldInfo
 	}
 	return ErrUnknownError
 }

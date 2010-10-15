@@ -56,6 +56,42 @@ implementations. Additionally, we use this to select a specific object.
 
 
 ================================================================================
+ WORLD
+================================================================================
+
+Each datastore should store 1 WorldInfo structure. It contains some general
+information about the world associated with the game that is hosted by a server.
+
+ ID
+   This is a 16 bit unsigned integer which uniquely identifies this particular
+   world. We can not have more than 1 of this ID in the datastore.
+
+ NAME
+   A UTF8 encoded string which names the world. It is at most 256 unicode
+   runes in length. Newlines (\r and \n) are not allowed in this value.
+
+ DESCRIPTION
+   A UTF8 encoded string which describes the world. It is at most 4096 unicode
+   runes in length. Newlines (\r and \n) are allowed in this value.
+
+ CREATED
+   A 64 bit unix timestamp representing the date/time at which this world was
+   first created.
+
+ MOTD:
+   A UTF8 encoded string which may contain some news related to the game. It is
+   at most 4096 unicode runes in length. Newlines (\r and \n) are allowed in
+   this value. This value can be null.
+
+ DEFAULTZONE
+   This value will store the default zone, all guests and first-time users will
+   start int. Stored as a valid 16 bit unsigned integer object ID.
+
+ ALLOWREGISTRATION
+   This is a simple boolean value indicating of new users are allowed to
+   register new accounts through the server.
+
+================================================================================
  OBJECT
 ================================================================================
 
@@ -79,8 +115,8 @@ type in the game implements this interface. These fields are as follows:
    runes in length. Newlines (\r and \n) are not allowed in this value.
 
  DESCRIPTION
-   A UTF8 encoded string which describes the object. It is at most 4096 bytes
-   in length. Newlines (\r and \n) are allowed in this value.
+   A UTF8 encoded string which describes the object. It is at most 4096 unicode
+   runes in length. Newlines (\r and \n) are allowed in this value.
 
 
 Additional fields and their properties are present and can be determined by

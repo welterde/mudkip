@@ -26,7 +26,7 @@ func newClient(conn net.Conn, closing chan net.Addr, mh MessageHandler) *Client 
 func (this *Client) Ack() {
 	lib.WriteMessage(this.conn, this.ack)
 }
-	
+
 func (this *Client) Err(err os.Error) {
 	msg := new(lib.Error)
 	msg.FromError(err)

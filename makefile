@@ -1,16 +1,19 @@
 
 # Set this to whatever datastore support you want to compile into the server.
+# For a listing of all available drivers, see mudkip/data/
 DATASTORE = sqlite
 
 all:
 	make -C lib install
 	make -C data/$(DATASTORE) install
+	make -C dsinit
 	make -C server
 	make -C client
 
 clean:
 	make -C lib clean
 	make -C data/$(DATASTORE) clean
+	make -C dsinit clean
 	make -C server clean
 	make -C client clean
 
