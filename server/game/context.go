@@ -68,9 +68,19 @@ func (this *Context) handleMessage(msg lib.Message) {
 			client.Ack()
 		}
 	case *lib.Logout:
-		
+		client := this.server.GetClient(id)
+		if err = this.users[id].Logout(); err != nil {
+			client.Err(err)
+		} else {
+			client.Ack()
+		}
 	case *lib.Register:
-		
+		client := this.server.GetClient(id)
+		if err = this.users[id].Register(tt.Username, tt.Password); err != nil {
+			client.Err(err)
+		} else {
+			client.Ack()
+		}
 	}
 }
 

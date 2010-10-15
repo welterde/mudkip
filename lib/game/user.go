@@ -72,7 +72,7 @@ func (this *User) Login(name, pass string) (err os.Error) {
 	return
 }
 
-func (this *User) Logout(name, pass string) (err os.Error) {
+func (this *User) Logout() (err os.Error) {
 	if this.Info == nil {
 		return ErrUserNotLoggedIn
 	}
