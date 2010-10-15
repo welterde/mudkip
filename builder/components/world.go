@@ -8,6 +8,7 @@ type World struct {
 	Logo        string
 	Zones       []*Zone
 	Characters  []*Character
+	Groups      []*Group
 	Races       []*Race
 	Classes     []*Class
 	Currency    []*Currency
@@ -20,11 +21,12 @@ func NewWorld() *World {
 	w.Races = make([]*Race, 0, 8)
 	w.Classes = make([]*Class, 0, 8)
 	w.Currency = make([]*Currency, 0, 8)
+	w.Groups = make([]*Group, 0, 8)
 	return w
 }
 
 // This function goes through the entire data structure and finds irregularities
-// in any of the components. Duplicate objects, unlinked zones, unconsistent
+// in any of the components. Duplicate objects, unlinked zones, inconsistent
 // bits and bobs, etc and reports them as a list of errors.
 func (this *World) Sanitize() (errlist []os.Error) {
 	errlist = make([]os.Error, 0, 10)
@@ -57,12 +59,11 @@ func (this *World) Sanitize() (errlist []os.Error) {
 		addError(&errlist, ErrNoCurrency)
 	}
 
-
 	return
 }
 
 // Add a new zone
-func (this *World) AddZone(z *Zone) {
+func (this *World) AddZone(v *Zone) {
 	sz := len(this.Zones)
 
 	if sz >= cap(this.Zones) {
@@ -72,11 +73,25 @@ func (this *World) AddZone(z *Zone) {
 	}
 
 	this.Zones = this.Zones[0:sz+1]
-	this.Zones[sz] = z
+	this.Zones[sz] = v
+}
+
+// Add a new group
+func (this *World) AddGroup(v *Group) {
+	sz := len(this.Groups)
+
+	if sz >= cap(this.Groups) {
+		cp := make([]*Group, sz, sz+32)
+		copy(cp, this.Groups)
+		this.Groups = cp
+	}
+
+	this.Groups = this.Groups[0:sz+1]
+	this.Groups[sz] = v
 }
 
 // Add a new character
-func (this *World) AddCharacter(c *Character) {
+func (this *World) AddCharacter(v *Character) {
 	sz := len(this.Characters)
 
 	if sz >= cap(this.Characters) {
@@ -86,11 +101,11 @@ func (this *World) AddCharacter(c *Character) {
 	}
 
 	this.Characters = this.Characters[0:sz+1]
-	this.Characters[sz] = c
+	this.Characters[sz] = v
 }
 
 // Add a new race
-func (this *World) AddRace(r *Race) {
+func (this *World) AddRace(v *Race) {
 	sz := len(this.Races)
 
 	if sz >= cap(this.Races) {
@@ -100,11 +115,11 @@ func (this *World) AddRace(r *Race) {
 	}
 
 	this.Races = this.Races[0:sz+1]
-	this.Races[sz] = r
+	this.Races[sz] = v
 }
 
 // Add a new class
-func (this *World) AddClass(c *Class) {
+func (this *World) AddClass(v *Class) {
 	sz := len(this.Classes)
 
 	if sz >= cap(this.Classes) {
@@ -114,5 +129,5 @@ func (this *World) AddClass(c *Class) {
 	}
 
 	this.Classes = this.Classes[0:sz+1]
-	this.Classes[sz] = c
+	this.Classes[sz] = v
 }
