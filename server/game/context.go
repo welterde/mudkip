@@ -21,7 +21,7 @@ func NewContext(cfg *Config) *Context {
 	c.config = cfg
 	c.lock = new(sync.Mutex)
 	c.users = make(map[string]*lib.User)
-	c.server = NewServer(cfg.MaxClients, cfg.ClientTimeout)
+	c.server = NewServer(cfg.MaxClients, cfg.ClientTimeout, func(m lib.Message) { c.handleMessage(m) })
 
 	var logtarget *os.File
 	if cfg.LogFile != "" {
@@ -38,13 +38,14 @@ func NewContext(cfg *Config) *Context {
 	return c
 }
 
-func (this *Context) HandleMessage(msg lib.Message) {
+func (this *Context) handleMessage(msg lib.Message) {
+	var err os.Error
+
 	id := msg.Sender().String()
+	this.Info("%s -> %T", id, msg)
 
 	switch tt := msg.(type) {
 	case *lib.ClientConnected:
-		this.Info("Client connected: %s", id)
-
 		this.lock.Lock()
 		ds := store.New()
 		ds.Open(this.config.Datastore)
@@ -52,14 +53,24 @@ func (this *Context) HandleMessage(msg lib.Message) {
 		this.lock.Unlock()
 
 	case *lib.ClientDisconnected:
-		this.Info("Client disconnected: %s", id)
-
 		this.lock.Lock()
 		if _, ok := this.users[id]; ok {
 			this.users[id].Dispose()
 			this.users[id] = nil, false
 		}
 		this.lock.Unlock()
+
+	case *lib.Login:
+		client := this.server.GetClient(id)
+		if err = this.users[id].Login(tt.Username, tt.Password); err != nil {
+			client.Err(err)
+		} else {
+			client.Ack()
+		}
+	case *lib.Logout:
+		
+	case *lib.Register:
+		
 	}
 }
 
@@ -89,22 +100,16 @@ func (this *Context) Run() (err os.Error) {
 		return
 	}
 
-	this.Info("Listening on: %s", this.server.conn.Addr())
+	this.Info("Listening on: %s", this.config.ListenAddr)
 	this.Info("Max clients: %d", this.config.MaxClients)
 	this.Info("Client timeout: %d minute(s)", this.config.ClientTimeout)
 	this.Info("Secure connection: %v", this.config.Secure)
 
-	var msg lib.Message
 	var sig signal.Signal
-
-	incoming := this.server.Messages()
 
 loop:
 	for {
 		select {
-		case msg = <-incoming:
-			go this.HandleMessage(msg)
-
 		case sig = <-signal.Incoming:
 			if unix, ok := sig.(signal.UnixSignal); ok {
 				switch unix {
@@ -114,7 +119,7 @@ loop:
 			}
 		}
 
-		if closed(incoming) || closed(signal.Incoming) {
+		if closed(signal.Incoming) {
 			return
 		}
 	}

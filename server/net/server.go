@@ -14,44 +14,47 @@ const (
 	ServerName = "MUDKIP"
 
 	// This is the version by which a client can identify the server and see if
-	// it is compatible. We send this to a client directly after we
-	// receive the correct ServerName value. The version is updated everytime
-	// this server changes in a way that will make it incompatible with older
-	// versions.
+	// it is compatible. We send this to a client directly after we receive the
+	// correct ServerName value. The version is updated everytime this server
+	// changes in a way that will make it incompatible with older versions. This
+	// refers only to the network message protocol.
 	ServerVersion = byte(1)
 )
 
+type MessageHandler func(lib.Message)
+
 type Server struct {
-	messages      chan lib.Message
 	conn          net.Listener
 	lock          *sync.RWMutex
 	clients       map[string]*Client
 	clientclosed  chan net.Addr
 	maxclients    int
 	clientTimeout int64
+	onMessage     MessageHandler
 }
 
-func NewServer(maxclients, timeout int) *Server {
+func NewServer(maxclients, timeout int, mh MessageHandler) *Server {
 	s := new(Server)
 	s.lock = new(sync.RWMutex)
 	s.clients = make(map[string]*Client)
-	s.messages = make(chan lib.Message, 32)
 	s.clientclosed = make(chan net.Addr)
 	s.maxclients = maxclients
 	s.clientTimeout = int64(timeout) * 6e10
+	s.onMessage = mh
 	return s
 }
 
 // Get the client associated with the given ID.
 func (this *Server) GetClient(id string) *Client {
+	this.lock.Lock()
+	defer this.lock.Unlock()
+
 	if c, ok := this.clients[id]; ok {
 		return c
 	}
+
 	return nil
 }
-
-// Channel yielding incoming messages
-func (this *Server) Messages() <-chan lib.Message { return this.messages }
 
 // Close the server. Shuts down client connections and the listening socket.
 func (this *Server) Close() {
@@ -61,7 +64,7 @@ func (this *Server) Close() {
 		}
 	}
 
-	close(this.messages)
+	this.onMessage = nil
 
 	this.lock.Lock()
 	if this.conn != nil {
@@ -118,7 +121,7 @@ func (this *Server) clean() {
 		select {
 		case addr = <-this.clientclosed:
 			if addr != nil {
-				this.messages <- lib.NewClientDisconnected(addr)
+				this.onMessage(lib.NewClientDisconnected(addr))
 				this.lock.Lock()
 
 				id = addr.String()
@@ -199,7 +202,6 @@ func (this *Server) process(conn net.Conn) {
 		return
 	}
 
-	//conn.SetKeepAlive(true)
 	conn.SetTimeout(this.clientTimeout)
 
 	// If client already exists, we have a reconnect. Close the old one.
@@ -208,12 +210,12 @@ func (this *Server) process(conn net.Conn) {
 	}
 
 	// Store new client.
-	client := newClient(conn, this.clientclosed, this.messages)
+	client := newClient(conn, this.clientclosed, this.onMessage)
 
 	this.lock.Lock()
 	this.clients[id] = client
 	this.lock.Unlock()
-	this.messages <- lib.NewClientConnected(conn.RemoteAddr())
+	this.onMessage(lib.NewClientConnected(conn.RemoteAddr()))
 
 	// Let's get this show on the road!
 	go client.Run()

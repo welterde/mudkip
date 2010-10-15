@@ -2,7 +2,6 @@ package lib
 
 import "net"
 import "bufio"
-import "io"
 import "os"
 
 type ClientDisconnected struct {
@@ -23,7 +22,7 @@ func (this *ClientDisconnected) Read(r *bufio.Reader) (err os.Error) {
 	return
 }
 
-func (this *ClientDisconnected) Write(w io.Writer) (err os.Error) {
+func (this *ClientDisconnected) Write(w *bufio.Writer) (err os.Error) {
 	// This message will never be sent across the wire.
 	return
 }

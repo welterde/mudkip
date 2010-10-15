@@ -2,12 +2,8 @@ package main
 
 import "os"
 import "os/signal"
-import "mudkip/lib"
 import "fmt"
-
-// Any version above this constitutes an incompatible server. This client is
-// written to deal with the version 1 API.
-const MaxServerVersion = 1
+import "mudkip/lib"
 
 func main() {
 	var err os.Error
@@ -20,8 +16,8 @@ func main() {
 
 	defer client.Close()
 
-	var msg lib.Message
 	var sig signal.Signal
+	var msg lib.Message
 
 	incoming := client.Messages()
 
@@ -29,7 +25,7 @@ loop:
 	for {
 		select {
 		case msg = <-incoming:
-			go handleMessage(client, msg)
+			handleMessage(client, msg)
 
 		case sig = <-signal.Incoming:
 			if unix, ok := sig.(signal.UnixSignal); ok {

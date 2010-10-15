@@ -13,6 +13,9 @@ const (
 	ETypeMismatch
 	EUnknownUser
 	EInvalidCredentials
+	EDuplicateUser
+	EUserLoggedIn
+	EUserNotLoggedIn
 )
 
 var (
@@ -25,6 +28,9 @@ var (
 	ErrTypeMismatch       = os.NewError("Stored object and requested object differ in type")
 	ErrUnknownUser        = os.NewError("Unknown user")
 	ErrInvalidCredentials = os.NewError("Invalid user credentials supplied")
+	ErrDuplicateUser      = os.NewError("User already exists")
+	ErrUserLoggedIn       = os.NewError("User already logged in")
+	ErrUserNotLoggedIn    = os.NewError("User not logged in")
 )
 
 func errToInt(err os.Error) uint8 {
@@ -45,6 +51,12 @@ func errToInt(err os.Error) uint8 {
 		return EUnknownUser
 	case ErrInvalidCredentials:
 		return EInvalidCredentials
+	case ErrDuplicateUser:
+		return EDuplicateUser
+	case ErrUserLoggedIn:
+		return EUserLoggedIn
+	case ErrUserNotLoggedIn:
+		return EUserNotLoggedIn
 	}
 	return EUnknownError
 }
@@ -67,6 +79,12 @@ func intToErr(errno uint8) os.Error {
 		return ErrUnknownUser
 	case EInvalidCredentials:
 		return ErrInvalidCredentials
+	case EDuplicateUser:
+		return ErrDuplicateUser
+	case EUserLoggedIn:
+		return ErrUserLoggedIn
+	case EUserNotLoggedIn:
+		return ErrUserNotLoggedIn
 	}
 	return ErrUnknownError
 }

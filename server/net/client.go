@@ -6,24 +6,35 @@ import "os"
 import "mudkip/lib"
 
 type Client struct {
-	conn     net.Conn
-	rwm      *sync.RWMutex
-	closing  chan net.Addr
-	messages chan lib.Message
+	conn      net.Conn
+	rwm       *sync.RWMutex
+	closing   chan net.Addr
+	onMessage MessageHandler
+	ack       lib.Message
 }
 
-func newClient(conn net.Conn, closing chan net.Addr, messages chan lib.Message) *Client {
+func newClient(conn net.Conn, closing chan net.Addr, mh MessageHandler) *Client {
 	c := new(Client)
 	c.rwm = new(sync.RWMutex)
 	c.closing = closing
-	c.messages = messages
 	c.conn = conn
+	c.onMessage = mh
+	c.ack = new(lib.Ok) // just cache it. No need to reallocate all the time.
 	return c
 }
 
-func (this *Client) Send(msg lib.Message) (err os.Error) {
-	err = msg.Write(this.conn)
-	return
+func (this *Client) Ack() {
+	lib.WriteMessage(this.conn, this.ack)
+}
+	
+func (this *Client) Err(err os.Error) {
+	msg := new(lib.Error)
+	msg.FromError(err)
+	lib.WriteMessage(this.conn, msg)
+}
+
+func (this *Client) Send(msg lib.Message) {
+	lib.WriteMessage(this.conn, msg)
 }
 
 func (this *Client) Run() {
@@ -37,35 +48,28 @@ func (this *Client) Run() {
 				this.Close()
 				return
 			} else {
-				em := lib.NewError(this.conn.RemoteAddr())
-				em.FromError(err)
-				em.Write(this.conn)
+				this.Err(err)
 				continue
 			}
 		}
 
-		if closed(this.messages) {
-			this.Close()
-			return
-		}
-
-		this.messages <- msg
+		this.onMessage(msg)
 	}
 }
 
 func (this *Client) Close() {
+	this.rwm.Lock()
+	defer this.rwm.Unlock()
+
 	if this.closing != nil && !closed(this.closing) {
 		this.closing <- this.conn.RemoteAddr()
-
-		this.rwm.Lock()
 		this.closing = nil
-		this.rwm.Unlock()
 	}
 
+	this.onMessage = nil
+
 	if this.conn != nil {
-		this.rwm.Lock()
 		this.conn.Close()
 		this.conn = nil
-		this.rwm.Unlock()
 	}
 }

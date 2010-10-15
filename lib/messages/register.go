@@ -1,8 +1,6 @@
 package lib
 
-import "bytes"
 import "net"
-import "io"
 import "bufio"
 import "os"
 
@@ -47,14 +45,10 @@ func (this *Register) Read(r *bufio.Reader) (err os.Error) {
 	return
 }
 
-func (this *Register) Write(w io.Writer) (err os.Error) {
-	var d []byte
-	buf := bytes.NewBuffer(d)
-	buf.WriteByte(MTRegister)
-	buf.WriteString(this.Username)
-	buf.WriteByte(0x00)
-	buf.WriteString(this.Password)
-	buf.WriteByte(0x00)
-	_, err = w.Write(buf.Bytes())
-	return
+func (this *Register) Write(w *bufio.Writer) (err os.Error) {
+	w.WriteByte(MTRegister)
+	w.WriteString(this.Username)
+	w.WriteByte(0x00)
+	w.WriteString(this.Password)
+	return w.WriteByte(0x00)
 }

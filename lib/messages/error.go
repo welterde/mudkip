@@ -1,7 +1,6 @@
 package lib
 
 import "net"
-import "io"
 import "bufio"
 import "os"
 
@@ -30,7 +29,7 @@ func (this *Error) Read(r *bufio.Reader) (err os.Error) {
 	return
 }
 
-func (this *Error) Write(w io.Writer) (err os.Error) {
+func (this *Error) Write(w *bufio.Writer) (err os.Error) {
 	_, err = w.Write([]byte{MTError, this.Errno})
 	return
 }

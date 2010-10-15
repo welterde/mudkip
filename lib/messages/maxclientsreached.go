@@ -1,7 +1,6 @@
 package lib
 
 import "net"
-import "io"
 import "bufio"
 import "os"
 
@@ -23,7 +22,7 @@ func (this *MaxClientsReached) Read(r *bufio.Reader) (err os.Error) {
 	return
 }
 
-func (this *MaxClientsReached) Write(w io.Writer) (err os.Error) {
+func (this *MaxClientsReached) Write(w *bufio.Writer) (err os.Error) {
 	_, err = w.Write([]byte{MTMaxClientsReached})
 	return
 }

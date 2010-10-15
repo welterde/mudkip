@@ -11,16 +11,14 @@ import "os"
 // custom Message types.
 const (
 	MTError uint8 = iota
+	MTOk
 	MTServerVersion
 	MTMaxClientsReached
 	MTClientConnected
 	MTClientDisconnected
 	MTLogin
+	MTLogout
 	MTRegister
-
-	// Custom message types should start here: MTMax, MTMax+1, MTMax+2 etc.
-	// There is room for 200 custom message types.
-	MTMax = 55
 )
 
 // A generic Message type. Any message should implement this interface.
@@ -28,7 +26,7 @@ type Message interface {
 	Id() uint8
 	Sender() net.Addr
 	Read(*bufio.Reader) os.Error
-	Write(io.Writer) os.Error
+	Write(*bufio.Writer) os.Error
 }
 
 // This function should construct an empty but initialized version of a
@@ -44,11 +42,13 @@ func init() {
 	Messages = make(map[uint8]MessageBuilder)
 
 	Messages[MTError] = func(s net.Addr) Message { return NewError(s) }
+	Messages[MTOk] = func(s net.Addr) Message { return NewOk(s) }
 	Messages[MTServerVersion] = func(s net.Addr) Message { return NewServerVersion(s) }
 	Messages[MTMaxClientsReached] = func(s net.Addr) Message { return NewMaxClientsReached(s) }
 	Messages[MTClientConnected] = func(s net.Addr) Message { return NewClientConnected(s) }
 	Messages[MTClientDisconnected] = func(s net.Addr) Message { return NewClientDisconnected(s) }
 	Messages[MTLogin] = func(s net.Addr) Message { return NewLogin(s) }
+	Messages[MTLogout] = func(s net.Addr) Message { return NewLogout(s) }
 	Messages[MTRegister] = func(s net.Addr) Message { return NewRegister(s) }
 }
 
@@ -67,4 +67,8 @@ func ReadMessage(r io.Reader, sender net.Addr) (msg Message, err os.Error) {
 	}
 
 	return nil, ErrUnknownMessage
+}
+
+func WriteMessage(w io.Writer, msg Message) (err os.Error) {
+	return msg.Write(bufio.NewWriter(w))
 }

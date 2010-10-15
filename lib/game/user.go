@@ -1,6 +1,7 @@
 package lib
 
 import "os"
+import "time"
 
 type UserInfo struct {
 	Id         uint16
@@ -34,12 +35,37 @@ func (this *User) Dispose() {
 	this.Info = nil
 }
 
+func (this *User) Register(name, pass string) (err os.Error) {
+	if this.Info != nil {
+		return ErrUserLoggedIn
+	}
+
+	var info *UserInfo
+	if info , err = this.Data.GetUserByName(name); err != nil {
+		if err != ErrUnknownUser {
+			return
+		}
+
+		info.Name = name
+		info.Password = pass
+		info.Registered = time.Seconds()
+		return this.Data.SetUser(info)
+	}
+
+	return ErrDuplicateUser
+}
+
 func (this *User) Login(name, pass string) (err os.Error) {
+	if this.Info != nil {
+		return ErrUserLoggedIn
+	}
+
 	if this.Info, err = this.Data.GetUserByName(name); err != nil {
 		return
 	}
 
 	if this.Info.Password != pass {
+		this.Info = nil
 		return ErrInvalidCredentials
 	}
 
@@ -47,6 +73,10 @@ func (this *User) Login(name, pass string) (err os.Error) {
 }
 
 func (this *User) Logout(name, pass string) (err os.Error) {
+	if this.Info == nil {
+		return ErrUserNotLoggedIn
+	}
+
 	if err = this.Data.SetUser(this.Info); err != nil {
 		return
 	}
