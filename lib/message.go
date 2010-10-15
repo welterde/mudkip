@@ -7,8 +7,7 @@ import "os"
 
 // Builtin message type IDs. These are the bytes sent over a connection and
 // are used to identify a specific message on the receiving end. The IDs are
-// uint8 values. 0-54 is reserved for internal use. The rest can be assigned as
-// custom Message types.
+// uint8 values.
 const (
 	MTError uint8 = iota
 	MTOk
@@ -31,7 +30,7 @@ type Message interface {
 	Write(*bufio.Writer) os.Error
 }
 
-func ReadMessage(r io.Reader, sender net.Addr) (msg Message, err os.Error) {
+func ReadMessage(r io.Reader, s net.Addr) (msg Message, err os.Error) {
 	data := make([]byte, 1)
 	if _, err = r.Read(data); err != nil {
 		return
@@ -51,7 +50,7 @@ func ReadMessage(r io.Reader, sender net.Addr) (msg Message, err os.Error) {
 	case MTClientDisconnected:
 		msg = NewClientDisconnected(s)
 	case MTLogin:
-		msg = NewTLogin(s)
+		msg = NewLogin(s)
 	case MTLogout:
 		msg = NewLogout(s)
 	case MTRegister:
@@ -64,7 +63,8 @@ func ReadMessage(r io.Reader, sender net.Addr) (msg Message, err os.Error) {
 		return nil, ErrUnknownMessage
 	}
 
-	return nil, msg.Read(bufio.NewReader(r))
+	err = msg.Read(bufio.NewReader(r))
+	return
 }
 
 func WriteMessage(w io.Writer, msg Message) (err os.Error) {
