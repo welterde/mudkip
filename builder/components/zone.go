@@ -1,7 +1,6 @@
 package builder
 
 type Zone struct {
-	Id          int
 	Default     bool
 	Name        string
 	Description string

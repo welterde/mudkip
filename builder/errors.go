@@ -1,30 +1,42 @@
 package builder
 
-import "os"
+import "fmt"
 
-var (
-	ErrNoWorldName        = os.NewError("World has no name")
-	ErrNoWorldDescription = os.NewError("World has no description")
-
-	ErrNoObjectName        = os.NewError("Object has no name")
-	ErrNoObjectDescription = os.NewError("Object has no description")
-
-	ErrNoZones      = os.NewError("World has no zones")
-	ErrNoCharacters = os.NewError("World has no characters")
-	ErrNoClasses    = os.NewError("World has no classes")
-	ErrNoRaces      = os.NewError("World has no races")
-	ErrNoCurrency   = os.NewError("World has no currency")
+const (
+	ErrNoObjectName           = "Object has no name"
+	ErrNoObjectDescription    = "Object has no description"
+	ErrNoZones                = "World has no zones"
+	ErrNoDefaultZone          = "World has no default zone"
+	ErrNoCharacters           = "World has no characters"
+	ErrNoClasses              = "World has no classes"
+	ErrNoRaces                = "World has no races"
+	ErrNoCurrency             = "World has no currency"
+	ErrZoneIsolated           = "Zone has no exits"
+	ErrDuplicateCurrencyValue = "Multiple currencies with the same value"
+	ErrNoCharacterClass       = "Character has no class"
+	ErrNoCharacterRace        = "Character has no race"
 )
 
-func addError(l *[]os.Error, e os.Error) {
+type Error struct {
+	Message string
+	Type    string
+	Id      int
+}
+
+func (this *Error) String() string { return this.Message }
+
+func addError(l *[]*Error, m string, id int, obj interface{}) {
 	sz := len(*l)
 
 	if sz >= cap(*l) {
-		cp := make([]os.Error, sz, sz+10)
+		cp := make([]*Error, sz, sz+10)
 		copy(cp, *l)
 		*l = cp
 	}
 
 	*l = (*l)[0 : sz+1]
-	(*l)[sz] = e
+	(*l)[sz] = new(Error)
+	(*l)[sz].Message = m
+	(*l)[sz].Type = fmt.Sprintf("%T", obj)
+	(*l)[sz].Id = id
 }

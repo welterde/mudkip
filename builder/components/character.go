@@ -4,14 +4,14 @@ package builder
 // including the happy bunny rabbits hopping around town. They to can be
 // formidable adversaries if you have just enjoyed a bit too much booze.
 type Character struct {
-	Name         string
-	Description  string
-	Title        string
-	Level        int
-	Group        *Group
-	Class        *Class
-	Race         *Race
-	Stats        Stats
+	Name        string
+	Description string
+	Title       string
+	Level       int
+	Group       *Group
+	Class       *Class
+	Race        *Race
+	Stats       Stats
 }
 
 func NewCharacter() *Character {

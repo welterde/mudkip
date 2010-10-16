@@ -1,18 +1,17 @@
 package builder
 
-import "os"
-
 type World struct {
-	Name        string
-	Description string
-	Logo        string
-	LevelCap    int
-	Zones       []*Zone
-	Characters  []*Character
-	Groups      []*Group
-	Races       []*Race
-	Classes     []*Class
-	Currency    []*Currency
+	Name          string
+	Description   string
+	Logo          string
+	LevelCap      int
+	AllowRegister bool
+	Zones         []*Zone
+	Characters    []*Character
+	Groups        []*Group
+	Races         []*Race
+	Classes       []*Class
+	Currency      []*Currency
 }
 
 func NewWorld() *World {
@@ -23,44 +22,118 @@ func NewWorld() *World {
 	v.Classes = make([]*Class, 0, 8)
 	v.Currency = make([]*Currency, 0, 8)
 	v.Groups = make([]*Group, 0, 8)
+	v.AllowRegister = true
 	return v
 }
 
 // This function goes through the entire data structure and finds irregularities
 // in any of the components. Duplicate objects, unlinked zones, inconsistent
-// bits and bobs, etc and reports them as a list of errors. These are not
-// necesarrily fatal errors. This will depend on the nature of the game being
+// bits and bobs etc and reports them as a list of builder.Error. These are not
+// necessarily fatal errors. This will depend on the nature of the game being
 // implemented and the wishes of the game master. These errors should just be
 // considered a guide to the correct formation of a game world.
-func (this *World) Sanitize() (errlist []os.Error) {
-	errlist = make([]os.Error, 0, 10)
+func (this *World) Sanitize() (errlist []*Error) {
+	errlist = make([]*Error, 0, 10)
 
 	if len(this.Name) == 0 {
-		addError(&errlist, ErrNoWorldName)
+		addError(&errlist, ErrNoObjectName, 0, this)
 	}
 
 	if len(this.Description) == 0 {
-		addError(&errlist, ErrNoWorldDescription)
+		addError(&errlist, ErrNoObjectDescription, 0, this)
 	}
 
 	if len(this.Zones) == 0 {
-		addError(&errlist, ErrNoZones)
+		addError(&errlist, ErrNoZones, 0, this)
+	} else {
+		var havedefault bool
+		for i, v := range this.Zones {
+			if len(v.Name) == 0 {
+				addError(&errlist, ErrNoObjectName, i, v)
+			}
+
+			if len(v.Description) == 0 {
+				addError(&errlist, ErrNoObjectDescription, i, v)
+			}
+
+			if !v.Default && len(v.Exits) == 0 {
+				addError(&errlist, ErrZoneIsolated, i, v)
+			}
+
+			if v.Default {
+				havedefault = true
+			}
+		}
+
+		if !havedefault {
+			addError(&errlist, ErrNoDefaultZone, 0, this)
+		}
 	}
 
 	if len(this.Characters) == 0 {
-		addError(&errlist, ErrNoCharacters)
+		addError(&errlist, ErrNoCharacters, 0, this)
+	} else {
+		for i, v := range this.Characters {
+			if len(v.Name) == 0 {
+				addError(&errlist, ErrNoObjectName, i, v)
+			}
+
+			if len(v.Description) == 0 {
+				addError(&errlist, ErrNoObjectDescription, i, v)
+			}
+
+			if v.Class == nil {
+				addError(&errlist, ErrNoCharacterClass, i, v)
+			}
+
+			if v.Race == nil {
+				addError(&errlist, ErrNoCharacterRace, i, v)
+			}
+		}
 	}
 
 	if len(this.Races) == 0 {
-		addError(&errlist, ErrNoRaces)
+		addError(&errlist, ErrNoRaces, 0, this)
+	} else {
+		for i, v := range this.Races {
+			if len(v.Name) == 0 {
+				addError(&errlist, ErrNoObjectName, i, v)
+			}
+
+			if len(v.Description) == 0 {
+				addError(&errlist, ErrNoObjectDescription, i, v)
+			}
+		}
 	}
 
 	if len(this.Classes) == 0 {
-		addError(&errlist, ErrNoClasses)
+		addError(&errlist, ErrNoClasses, 0, this)
+	} else {
+		for i, v := range this.Classes {
+			if len(v.Name) == 0 {
+				addError(&errlist, ErrNoObjectName, i, v)
+			}
+
+			if len(v.Description) == 0 {
+				addError(&errlist, ErrNoObjectDescription, i, v)
+			}
+		}
 	}
 
 	if len(this.Currency) == 0 {
-		addError(&errlist, ErrNoCurrency)
+		addError(&errlist, ErrNoCurrency, 0, this)
+	} else {
+		for i, v := range this.Currency {
+			if len(v.Name) == 0 {
+				addError(&errlist, ErrNoObjectName, i, v)
+			}
+
+			for j, v1 := range this.Currency {
+				if i != j && v.Value == v1.Value {
+					addError(&errlist, ErrDuplicateCurrencyValue, i, v)
+				}
+			}
+		}
 	}
 
 	return
@@ -125,7 +198,6 @@ func (this *World) AddRace(v *Race) {
 // Add a new class
 func (this *World) AddClass(v *Class) {
 	sz := len(this.Classes)
-
 	if sz >= cap(this.Classes) {
 		cp := make([]*Class, sz, sz+8)
 		copy(cp, this.Classes)

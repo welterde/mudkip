@@ -47,7 +47,7 @@ func (this *Context) handleMessage(msg lib.Message) {
 	this.lock.Lock()
 	this.stats.Update(len(this.users))
 	this.lock.Unlock()
-		
+
 	id := msg.Sender().String()
 	this.Info("%s -> %T", id, msg)
 

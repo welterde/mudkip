@@ -33,7 +33,7 @@ required. There may be additional requirements, depending on which datastore
 you choose to use. Refer to mudkip/data/<datastorename>/README for specifics.
 
 - go-pkg-optarg: http://github.com/jteeuwen/go-pkg-optarg
-- go-pkg-init: http://github.com/jteeuwen/go-pkg-ini
+- go-pkg-ini: http://github.com/jteeuwen/go-pkg-ini
 
 ================================================================================
  USAGE
