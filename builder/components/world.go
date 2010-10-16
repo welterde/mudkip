@@ -82,11 +82,11 @@ func (this *World) Sanitize() (errlist []*Error) {
 				addError(&errlist, ErrNoObjectDescription, i, v)
 			}
 
-			if v.Class == nil {
+			if v.Class == -1 {
 				addError(&errlist, ErrNoCharacterClass, i, v)
 			}
 
-			if v.Race == nil {
+			if v.Race == -1 {
 				addError(&errlist, ErrNoCharacterRace, i, v)
 			}
 		}

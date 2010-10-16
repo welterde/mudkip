@@ -1,6 +1,6 @@
 package builder
 
-type Class struct{
+type Class struct {
 	Name        string
 	Description string
 }

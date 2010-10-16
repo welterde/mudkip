@@ -8,15 +8,18 @@ type Character struct {
 	Description string
 	Title       string
 	Level       int
-	Group       *Group
-	Class       *Class
-	Race        *Race
+	Group       int
+	Class       int
+	Race        int
 	Stats       Stats
 }
 
 func NewCharacter() *Character {
 	v := new(Character)
 	v.Stats = NewStats()
+	v.Group = -1
+	v.Class = -1
+	v.Race = -1
 	v.Level = 1
 	return v
 }

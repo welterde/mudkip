@@ -5,25 +5,25 @@ package builder
 type Group struct {
 	Name        string
 	Description string
-	Members     []*Character
+	Members     []int
 }
 
 func NewGroup() *Group {
 	v := new(Group)
-	v.Members = make([]*Character, 0, 32)
+	v.Members = make([]int, 0, 32)
 	return v
 }
 
 // Add a new member
-func (this *Group) AddMember(c *Character) {
+func (this *Group) AddMember(id int) {
 	sz := len(this.Members)
 
 	if sz >= cap(this.Members) {
-		cp := make([]*Character, sz, sz+32)
+		cp := make([]int, sz, sz+32)
 		copy(cp, this.Members)
 		this.Members = cp
 	}
 
 	this.Members = this.Members[0 : sz+1]
-	this.Members[sz] = c
+	this.Members[sz] = id
 }
