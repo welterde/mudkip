@@ -1,6 +1,7 @@
 package builder
 
 import "fmt"
+import "strings"
 
 const (
 	ErrNoObjectName           = "Object has no name"
@@ -12,6 +13,7 @@ const (
 	ErrNoRaces                = "World has no races"
 	ErrNoCurrency             = "World has no currency"
 	ErrZoneIsolated           = "Zone has no exits"
+	ErrNoCurrencyValue        = "Currency value is 0"
 	ErrDuplicateCurrencyValue = "Multiple currencies with the same value"
 	ErrNoCharacterClass       = "Character has no class"
 	ErrNoCharacterRace        = "Character has no race"
@@ -23,7 +25,9 @@ type Error struct {
 	Id      int
 }
 
-func (this *Error) String() string { return this.Message }
+func (this *Error) String() string {
+	return fmt.Sprintf("%s[%d]: %s", this.Type, this.Id, this.Message)
+}
 
 func addError(l *[]*Error, m string, id int, obj interface{}) {
 	sz := len(*l)
@@ -39,4 +43,8 @@ func addError(l *[]*Error, m string, id int, obj interface{}) {
 	(*l)[sz].Message = m
 	(*l)[sz].Type = fmt.Sprintf("%T", obj)
 	(*l)[sz].Id = id
+
+	if idx := strings.Index((*l)[sz].Type, "."); idx != -1 {
+		(*l)[sz].Type = (*l)[sz].Type[idx+1:]
+	}
 }

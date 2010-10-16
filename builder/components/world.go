@@ -6,6 +6,7 @@ type World struct {
 	Logo          string
 	LevelCap      int
 	AllowRegister bool
+	DefaultZone   int
 	Zones         []*Zone
 	Characters    []*Character
 	Groups        []*Group
@@ -23,6 +24,7 @@ func NewWorld() *World {
 	v.Currency = make([]*Currency, 0, 8)
 	v.Groups = make([]*Group, 0, 8)
 	v.AllowRegister = true
+	v.DefaultZone = -1
 	return v
 }
 
@@ -43,10 +45,13 @@ func (this *World) Sanitize() (errlist []*Error) {
 		addError(&errlist, ErrNoObjectDescription, 0, this)
 	}
 
+	if this.DefaultZone == -1 {
+		addError(&errlist, ErrNoDefaultZone, 0, this)
+	}
+
 	if len(this.Zones) == 0 {
 		addError(&errlist, ErrNoZones, 0, this)
 	} else {
-		var havedefault bool
 		for i, v := range this.Zones {
 			if len(v.Name) == 0 {
 				addError(&errlist, ErrNoObjectName, i, v)
@@ -56,17 +61,9 @@ func (this *World) Sanitize() (errlist []*Error) {
 				addError(&errlist, ErrNoObjectDescription, i, v)
 			}
 
-			if !v.Default && len(v.Exits) == 0 {
+			if this.DefaultZone != i && len(v.Exits) == 0 {
 				addError(&errlist, ErrZoneIsolated, i, v)
 			}
-
-			if v.Default {
-				havedefault = true
-			}
-		}
-
-		if !havedefault {
-			addError(&errlist, ErrNoDefaultZone, 0, this)
 		}
 	}
 
@@ -76,10 +73,6 @@ func (this *World) Sanitize() (errlist []*Error) {
 		for i, v := range this.Characters {
 			if len(v.Name) == 0 {
 				addError(&errlist, ErrNoObjectName, i, v)
-			}
-
-			if len(v.Description) == 0 {
-				addError(&errlist, ErrNoObjectDescription, i, v)
 			}
 
 			if v.Class == -1 {
@@ -128,6 +121,10 @@ func (this *World) Sanitize() (errlist []*Error) {
 				addError(&errlist, ErrNoObjectName, i, v)
 			}
 
+			if v.Value == 0 {
+				addError(&errlist, ErrNoCurrencyValue, i, v)
+			}
+
 			for j, v1 := range this.Currency {
 				if i != j && v.Value == v1.Value {
 					addError(&errlist, ErrDuplicateCurrencyValue, i, v)
@@ -140,7 +137,7 @@ func (this *World) Sanitize() (errlist []*Error) {
 }
 
 // Add a new zone
-func (this *World) AddZone(v *Zone) {
+func (this *World) AddZone(v *Zone) int {
 	sz := len(this.Zones)
 
 	if sz >= cap(this.Zones) {
@@ -151,10 +148,11 @@ func (this *World) AddZone(v *Zone) {
 
 	this.Zones = this.Zones[0 : sz+1]
 	this.Zones[sz] = v
+	return sz
 }
 
 // Add a new group
-func (this *World) AddGroup(v *Group) {
+func (this *World) AddGroup(v *Group) int {
 	sz := len(this.Groups)
 
 	if sz >= cap(this.Groups) {
@@ -165,10 +163,11 @@ func (this *World) AddGroup(v *Group) {
 
 	this.Groups = this.Groups[0 : sz+1]
 	this.Groups[sz] = v
+	return sz
 }
 
 // Add a new character
-func (this *World) AddCharacter(v *Character) {
+func (this *World) AddCharacter(v *Character) int {
 	sz := len(this.Characters)
 
 	if sz >= cap(this.Characters) {
@@ -179,10 +178,11 @@ func (this *World) AddCharacter(v *Character) {
 
 	this.Characters = this.Characters[0 : sz+1]
 	this.Characters[sz] = v
+	return sz
 }
 
 // Add a new race
-func (this *World) AddRace(v *Race) {
+func (this *World) AddRace(v *Race) int {
 	sz := len(this.Races)
 
 	if sz >= cap(this.Races) {
@@ -193,10 +193,11 @@ func (this *World) AddRace(v *Race) {
 
 	this.Races = this.Races[0 : sz+1]
 	this.Races[sz] = v
+	return sz
 }
 
 // Add a new class
-func (this *World) AddClass(v *Class) {
+func (this *World) AddClass(v *Class) int {
 	sz := len(this.Classes)
 	if sz >= cap(this.Classes) {
 		cp := make([]*Class, sz, sz+8)
@@ -206,4 +207,19 @@ func (this *World) AddClass(v *Class) {
 
 	this.Classes = this.Classes[0 : sz+1]
 	this.Classes[sz] = v
+	return sz
+}
+
+// Add a new currency
+func (this *World) AddCurrency(v *Currency) int {
+	sz := len(this.Currency)
+	if sz >= cap(this.Currency) {
+		cp := make([]*Currency, sz, sz+8)
+		copy(cp, this.Currency)
+		this.Currency = cp
+	}
+
+	this.Currency = this.Currency[0 : sz+1]
+	this.Currency[sz] = v
+	return sz
 }

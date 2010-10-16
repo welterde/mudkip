@@ -1,7 +1,6 @@
 package builder
 
 type Zone struct {
-	Default     bool
 	Name        string
 	Description string
 	Lighting    string

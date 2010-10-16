@@ -5,9 +5,6 @@ type Currency struct {
 	Value int
 }
 
-func NewCurrency(name string, val int) *Currency {
-	v := new(Currency)
-	v.Name = name
-	v.Value = val
-	return v
+func NewCurrency() *Currency {
+	return new(Currency)
 }
