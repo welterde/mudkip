@@ -3,17 +3,17 @@ package builder
 import "os"
 
 var (
-	ErrNoWorldName = os.NewError("World has no name")
+	ErrNoWorldName        = os.NewError("World has no name")
 	ErrNoWorldDescription = os.NewError("World has no description")
 
-	ErrNoObjectName = os.NewError("Object has no name")
+	ErrNoObjectName        = os.NewError("Object has no name")
 	ErrNoObjectDescription = os.NewError("Object has no description")
 
-	ErrNoZones = os.NewError("World has no zones")
+	ErrNoZones      = os.NewError("World has no zones")
 	ErrNoCharacters = os.NewError("World has no characters")
-	ErrNoClasses = os.NewError("World has no classes")
-	ErrNoRaces = os.NewError("World has no races")
-	ErrNoCurrency = os.NewError("World has no currency")
+	ErrNoClasses    = os.NewError("World has no classes")
+	ErrNoRaces      = os.NewError("World has no races")
+	ErrNoCurrency   = os.NewError("World has no currency")
 )
 
 func addError(l *[]os.Error, e os.Error) {
@@ -25,6 +25,6 @@ func addError(l *[]os.Error, e os.Error) {
 		*l = cp
 	}
 
-	*l = (*l)[0:sz+1]
+	*l = (*l)[0 : sz+1]
 	(*l)[sz] = e
 }

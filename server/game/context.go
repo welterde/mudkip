@@ -15,10 +15,12 @@ type Context struct {
 	lock   *sync.Mutex
 	server *Server
 	log    *log.Logger
+	stats  *ServerStats
 }
 
 func NewContext(cfg *Config, info *lib.WorldInfo) *Context {
 	c := new(Context)
+	c.stats = NewServerStats()
 	c.config = cfg
 	c.lock = new(sync.Mutex)
 	c.users = make(map[string]*lib.User)
@@ -42,6 +44,10 @@ func NewContext(cfg *Config, info *lib.WorldInfo) *Context {
 func (this *Context) handleMessage(msg lib.Message) {
 	var err os.Error
 
+	this.lock.Lock()
+	this.stats.Update(len(this.users))
+	this.lock.Unlock()
+		
 	id := msg.Sender().String()
 	this.Info("%s -> %T", id, msg)
 

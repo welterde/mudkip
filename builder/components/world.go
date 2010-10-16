@@ -6,6 +6,7 @@ type World struct {
 	Name        string
 	Description string
 	Logo        string
+	LevelCap    int
 	Zones       []*Zone
 	Characters  []*Character
 	Groups      []*Group
@@ -15,19 +16,22 @@ type World struct {
 }
 
 func NewWorld() *World {
-	w := new(World)
-	w.Zones = make([]*Zone, 0, 32)
-	w.Characters = make([]*Character, 0, 32)
-	w.Races = make([]*Race, 0, 8)
-	w.Classes = make([]*Class, 0, 8)
-	w.Currency = make([]*Currency, 0, 8)
-	w.Groups = make([]*Group, 0, 8)
-	return w
+	v := new(World)
+	v.Zones = make([]*Zone, 0, 32)
+	v.Characters = make([]*Character, 0, 32)
+	v.Races = make([]*Race, 0, 8)
+	v.Classes = make([]*Class, 0, 8)
+	v.Currency = make([]*Currency, 0, 8)
+	v.Groups = make([]*Group, 0, 8)
+	return v
 }
 
 // This function goes through the entire data structure and finds irregularities
 // in any of the components. Duplicate objects, unlinked zones, inconsistent
-// bits and bobs, etc and reports them as a list of errors.
+// bits and bobs, etc and reports them as a list of errors. These are not
+// necesarrily fatal errors. This will depend on the nature of the game being
+// implemented and the wishes of the game master. These errors should just be
+// considered a guide to the correct formation of a game world.
 func (this *World) Sanitize() (errlist []os.Error) {
 	errlist = make([]os.Error, 0, 10)
 
@@ -72,7 +76,7 @@ func (this *World) AddZone(v *Zone) {
 		this.Zones = cp
 	}
 
-	this.Zones = this.Zones[0:sz+1]
+	this.Zones = this.Zones[0 : sz+1]
 	this.Zones[sz] = v
 }
 
@@ -86,7 +90,7 @@ func (this *World) AddGroup(v *Group) {
 		this.Groups = cp
 	}
 
-	this.Groups = this.Groups[0:sz+1]
+	this.Groups = this.Groups[0 : sz+1]
 	this.Groups[sz] = v
 }
 
@@ -100,7 +104,7 @@ func (this *World) AddCharacter(v *Character) {
 		this.Characters = cp
 	}
 
-	this.Characters = this.Characters[0:sz+1]
+	this.Characters = this.Characters[0 : sz+1]
 	this.Characters[sz] = v
 }
 
@@ -114,7 +118,7 @@ func (this *World) AddRace(v *Race) {
 		this.Races = cp
 	}
 
-	this.Races = this.Races[0:sz+1]
+	this.Races = this.Races[0 : sz+1]
 	this.Races[sz] = v
 }
 
@@ -128,6 +132,6 @@ func (this *World) AddClass(v *Class) {
 		this.Classes = cp
 	}
 
-	this.Classes = this.Classes[0:sz+1]
+	this.Classes = this.Classes[0 : sz+1]
 	this.Classes[sz] = v
 }

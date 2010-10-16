@@ -10,3 +10,9 @@ type Zone struct {
 	Sound       string
 	Exits       []Portal
 }
+
+func NewZone() *Zone {
+	v := new(Zone)
+	v.Exits = make([]Portal, 0, 8)
+	return v
+}

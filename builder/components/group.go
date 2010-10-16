@@ -2,7 +2,7 @@ package builder
 
 // A group can be anything from a clan, guild or simple fellowship of friends.
 
-type Group struct{
+type Group struct {
 	Name        string
 	Description string
 	Members     []*Character
@@ -24,6 +24,6 @@ func (this *Group) AddMember(c *Character) {
 		this.Members = cp
 	}
 
-	this.Members = this.Members[0:sz+1]
+	this.Members = this.Members[0 : sz+1]
 	this.Members[sz] = c
 }
