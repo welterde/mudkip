@@ -38,13 +38,14 @@ func addError(l *[]*Error, m string, id int, obj interface{}) {
 		*l = cp
 	}
 
-	*l = (*l)[0 : sz+1]
-	(*l)[sz] = new(Error)
-	(*l)[sz].Message = m
-	(*l)[sz].Type = fmt.Sprintf("%T", obj)
-	(*l)[sz].Id = id
-
-	if idx := strings.Index((*l)[sz].Type, "."); idx != -1 {
-		(*l)[sz].Type = (*l)[sz].Type[idx+1:]
+	err := new(Error)
+	err.Message = m
+	err.Type = fmt.Sprintf("%T", obj)
+	err.Id = id
+	if idx := strings.Index(err.Type, "."); idx != -1 {
+		err.Type = err.Type[idx+1:]
 	}
+
+	*l = (*l)[0 : sz+1]
+	(*l)[sz] = err
 }

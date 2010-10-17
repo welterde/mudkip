@@ -1,8 +1,8 @@
 package builder
 
-// Directions
 type Direction string
 
+// Directions
 const (
 	DirNorth     Direction = "n"
 	DirSouth     Direction = "s"
@@ -12,16 +12,15 @@ const (
 	DirNorthWest Direction = "nw"
 	DirSouthEast Direction = "se"
 	DirSouthWest Direction = "sw"
+
+	MaxDirections = 8
 )
 
 type Portal struct {
 	Dir  Direction
-	Zone uint16
+	Zone int
 }
 
-func NewPortal(dir Direction, val uint16) *Portal {
-	v := new(Portal)
-	v.Dir = dir
-	v.Zone = val
-	return v
+func NewPortal() *Portal {
+	return new(Portal)
 }

@@ -5,6 +5,7 @@ import "path"
 import "json"
 import "io/ioutil"
 
+// Load a world from a JSON formatted data file.
 func LoadWorld(file string) (world *World, err os.Error) {
 	var data []byte
 

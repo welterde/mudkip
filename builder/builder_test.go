@@ -63,9 +63,10 @@ LOL=====            []\
 		for _, err := range errlist {
 			t.Errorf("%v", err)
 		}
+		return
 	}
 
-	if err := SaveWorld("test.js", world, false); err != nil {
-		t.Error(err.String())
-	}
+	//	if err := SaveWorld("test.js", world, false); err != nil {
+	//		t.Error(err.String())
+	//	}
 }

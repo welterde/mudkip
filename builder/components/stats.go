@@ -2,6 +2,9 @@ package builder
 
 type Stat uint8
 
+// Stat indices. Do not change the order of these, because it will change the
+// meaning of existing stat values. If you need additions, add them to the end
+// of the list and make sure you increment the slice size in NewStats().
 const (
 	HP  Stat = iota // health points
 	MP              // magic points (mana, or energy or rage or whatever)

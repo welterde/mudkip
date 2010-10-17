@@ -7,6 +7,6 @@ a fully functional mudkip game world.
 
 It loads/saves complete or partial world definitions to/from a json formatted
 data file. This file can then be used by other tools for whatever purpose you
-may require.
-
+may require. Perhaps to exchange the world you worked so hard on with your
+friends, so they may enjoy it as well.
 
