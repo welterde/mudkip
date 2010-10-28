@@ -1,9 +1,9 @@
 This package contains classes to let you easily construct a new world from
 scratch.
 
-It contains specialized builder types and methods to allow the definition and
-modification of characters, zones, classes, etc. Everything required to create
-a fully functional mudkip game world.
+It contains builder types and methods to allow the definition and modification
+of characters, zones, classes, etc. Everything required to create a fully
+functional mudkip game world.
 
 It loads/saves complete or partial world definitions to/from a json formatted
 data file. This file can then be used by other tools for whatever purpose you

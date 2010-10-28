@@ -50,7 +50,7 @@ func getConfig() (cfg *Config, info *lib.WorldInfo) {
 
 	// Make sure we have a valid datastore available.
 	if ds = store.New(); ds == nil {
-		fmt.Fprintf(os.Stderr, "[e] Server has been built without valid datastore support. Cannot continue.\n")
+		fmt.Fprint(os.Stderr, "[e] Server has been built without valid datastore support. Cannot continue.\n")
 		os.Exit(1)
 	}
 
@@ -62,8 +62,8 @@ func getConfig() (cfg *Config, info *lib.WorldInfo) {
 	defer ds.Close()
 
 	if info, err = ds.GetWorldInfo(); err != nil {
-		fmt.Fprintf(os.Stderr, "[e] It appears that there is no valid world info available.\n")
-		fmt.Fprintf(os.Stderr, "[e] Have you initialized the datastore with mudkip/dsinit?\n")
+		fmt.Fprint(os.Stderr, "[e] It appears that there is no valid world info available.\n")
+		fmt.Fprint(os.Stderr, "[e] Have you initialized the datastore with mudkip/dsinit?\n")
 		os.Exit(1)
 	}
 

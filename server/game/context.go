@@ -151,27 +151,27 @@ loop:
 func (this *Context) Info(f string, a ...interface{}) {
 	s := fmt.Sprintf(f, a...) // issue 1136
 	this.lock.Lock()
-	this.log.Logf("[i] %s", s)
+	this.log.Printf("[i] %s", s)
 	this.lock.Unlock()
 }
 
 func (this *Context) Error(f string, a ...interface{}) {
 	s := fmt.Sprintf(f, a...) // issue 1136
 	this.lock.Lock()
-	this.log.Logf("[e] %s", s)
+	this.log.Printf("[e] %s", s)
 	this.lock.Unlock()
 }
 
 func (this *Context) Warn(f string, a ...interface{}) {
 	s := fmt.Sprintf(f, a...) // issue 1136
 	this.lock.Lock()
-	this.log.Logf("[w] %s", s)
+	this.log.Printf("[w] %s", s)
 	this.lock.Unlock()
 }
 
 func (this *Context) Debug(f string, a ...interface{}) {
 	s := fmt.Sprintf(f, a...) // issue 1136
 	this.lock.Lock()
-	this.log.Logf("[d] %s", s)
+	this.log.Printf("[d] %s", s)
 	this.lock.Unlock()
 }

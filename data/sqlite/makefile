@@ -1,7 +1,7 @@
 include $(GOROOT)/src/Make.inc
 
 TARG = mudkip/store
-GOFILES = store.go
+GOFILES = store.go world.go user.go object.go
 CGOFILES = sqlite.go
 
 ifeq ($(GOOS),darwin)

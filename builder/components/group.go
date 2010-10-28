@@ -1,7 +1,6 @@
 package builder
 
 // A group can be anything from a clan, guild or simple fellowship of friends.
-
 type Group struct {
 	Name        string
 	Description string

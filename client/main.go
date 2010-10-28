@@ -7,6 +7,8 @@ import "mudkip/lib"
 
 func main() {
 	var err os.Error
+	var sig signal.Signal
+	var msg lib.Message
 
 	client := NewClient(parseConfig())
 	if err = client.Open(); err != nil {
@@ -15,9 +17,6 @@ func main() {
 	}
 
 	defer client.Close()
-
-	var sig signal.Signal
-	var msg lib.Message
 
 	incoming := client.Messages()
 
