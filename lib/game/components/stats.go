@@ -2,16 +2,16 @@ package lib
 
 type Stats struct {
 	Id  int64
-	HP  uint8 // health points
-	MP  uint8 // magic points (mana, or energy or rage or whatever)
-	AP  uint8 // Attack Points
-	DEF uint8 // Defense points
-	AGI uint8 // Agility
-	STR uint8 // Strength
-	WIS uint8 // Wisdom
-	LUC uint8 // Luck
-	CHR uint8 // Charisma
-	PER uint8 // Perception
+	HP  int8 // health points
+	MP  int8 // magic points (mana, or energy or rage or whatever)
+	AP  int8 // Attack Points
+	DEF int8 // Defense points
+	AGI int8 // Agility
+	STR int8 // Strength
+	WIS int8 // Wisdom
+	LUC int8 // Luck
+	CHR int8 // Charisma
+	PER int8 // Perception
 }
 
 func NewStats() *Stats {
