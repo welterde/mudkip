@@ -44,6 +44,11 @@
         "LUC": 0,
         "CHR": 0,
         "PER": 0
+      },
+      "Inventory": {
+        "Id": 1,
+        "Slots": [],
+        "Size": 16
       }
     }
   ],
