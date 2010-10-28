@@ -42,7 +42,7 @@ func (this *Store) Initialize(world *lib.World) (err os.Error) {
 	return this.SetWorld(world)
 }
 
-func (this *Store) GetWorld() (info *lib.World, err os.Error) {
+func (this *Store) GetWorld() (world *lib.World, err os.Error) {
 	if this.qry, err = this.conn.Prepare("select * from world"); err != nil {
 		return nil, err
 	}
@@ -53,7 +53,7 @@ func (this *Store) GetWorld() (info *lib.World, err os.Error) {
 		return nil, lib.ErrNoWorldInfo
 	}
 
-	world := lib.NewWorld()
+	world = lib.NewWorld()
 	if err = this.qry.Scan(
 		&world.Id, &world.Created, &world.Name, &world.Description, &world.Logo,
 		&world.Motd, &world.DefaultZone, &world.AllowRegister,
