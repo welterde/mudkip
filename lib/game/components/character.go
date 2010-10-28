@@ -22,7 +22,7 @@ type Character struct {
 	Zone        int64
 	BankRoll    int64
 	Standing    uint8
-	Stats       Stats
+	Stats       *Stats
 }
 
 func NewCharacter() *Character {
@@ -35,5 +35,7 @@ func NewCharacter() *Character {
 	v.BankRoll = 0
 	v.Level = 1
 	v.Stats = NewStats()
+	v.Stats.HP = 100
+	v.Stats.MP = 100
 	return v
 }

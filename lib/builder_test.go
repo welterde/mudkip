@@ -1,6 +1,7 @@
 package lib
 
 import "testing"
+import "os"
 
 func TestBuild(t *testing.T) {
 	world := NewWorld()
@@ -24,17 +25,31 @@ LOL=====            []\
 	zone.Lighting = "dark, candle lit with a shimmering open fire in the northern corner"
 	zone.Smell = "of beer and stale bread"
 	zone.Sound = "quiet whispers and muttering"
-	world.DefaultZone = world.AddZone(zone)
+	world.DefaultZone = world.Zones.Add(zone)
 
 	class := NewClass()
 	class.Name = "Warrior"
 	class.Description = "A battle hardened fighter"
-	warrior := world.AddClass(class)
+	class.StatBonus.HP = 100
+	class.StatBonus.AP = 30
+	class.StatBonus.DEF = 40
+	class.StatBonus.STR = 40
+	warrior := world.Classes.Add(class)
 
 	race := NewRace()
 	race.Name = "Human"
 	race.Description = "Versatile, greedy and generally obnoxious"
-	human := world.AddRace(race)
+	race.StatBonus.HP = 10
+	race.StatBonus.MP = 10
+	race.StatBonus.AP = 5
+	race.StatBonus.DEF = 5
+	race.StatBonus.AGI = 5
+	race.StatBonus.STR = 5
+	race.StatBonus.WIS = 5
+	race.StatBonus.LUC = 5
+	race.StatBonus.CHR = 5
+	race.StatBonus.PER = 5
+	human := world.Races.Add(race)
 
 	char := NewCharacter()
 	char.Name = "bob"
@@ -43,35 +58,49 @@ LOL=====            []\
 	char.Class = warrior
 	char.Race = human
 	char.Zone = world.DefaultZone
-	world.AddCharacter(char)
+	world.Characters.Add(char)
 
 	copper := NewCurrency()
 	copper.Name = "copper"
 	copper.Value = 1
-	world.AddCurrency(copper)
+	world.Currency.Add(copper)
 
 	silver := NewCurrency()
 	silver.Name = "silver"
 	silver.Value = 100 * copper.Value
-	world.AddCurrency(silver)
+	world.Currency.Add(silver)
 
 	gold := NewCurrency()
 	gold.Name = "gold"
 	gold.Value = 100 * silver.Value
-	world.AddCurrency(gold)
+	world.Currency.Add(gold)
 
 	weapon := NewWeapon()
 	weapon.Name = "Club of a thousand pains"
 	weapon.Description = "This club has seen much anguish. You can see some bodily remains stuck inbetween the cracks in the wood."
 	weapon.Damage = [2]int{0, 100}
 	weapon.Type = Melee | TwoHanded
-	world.AddWeapon(weapon)
+	world.Weapons.Add(weapon)
 
 	armor := NewArmor()
 	armor.Name = "Tunic of the smelly vagrant"
 	armor.Description = "You should really wash this before wearing it. Who knows where it has been..."
 	armor.Type = Chest
-	world.AddArmor(armor)
+	world.Armor.Add(armor)
+
+	bread := NewConsumable()
+	bread.Liquid = false
+	bread.Name = "Bread"
+	bread.Description = "An old fashioned, hearty and nutritional loaf of bread"
+	bread.StatBonus.HP = 10
+	world.Consumables.Add(bread)
+
+	tea := NewConsumable()
+	tea.Liquid = true
+	tea.Name = "Ginger Tea"
+	tea.Description = "A nice, hot cup of tea"
+	tea.StatBonus.MP = 10
+	world.Consumables.Add(tea)
 
 	if errlist := SanitizeWorld(world); len(errlist) > 0 {
 		for _, err := range errlist {
@@ -80,7 +109,12 @@ LOL=====            []\
 		return
 	}
 
-	if err := SaveWorld("test.js", world, false); err != nil {
+	var err os.Error
+	if err = SaveWorld("test.js", world, false); err != nil {
+		t.Error(err.String())
+	}
+
+	if world, err = LoadWorld("test.js"); err != nil {
 		t.Error(err.String())
 	}
 }

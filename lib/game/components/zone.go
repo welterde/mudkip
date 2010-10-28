@@ -68,6 +68,6 @@ type Zone struct {
 
 func NewZone() *Zone {
 	v := new(Zone)
-	v.Exits = make([]*Portal, 0, MaxDirections)
+	v.Exits = make([]*Portal, 0, 8)
 	return v
 }

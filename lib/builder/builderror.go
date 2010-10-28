@@ -14,6 +14,7 @@ const (
 	ErrNoCurrency             = "World has no currency"
 	ErrNoArmor                = "World has no armor"
 	ErrNoWeapons              = "World has no weapons"
+	ErrNoConsumables          = "World has no consumables"
 	ErrZoneIsolated           = "Zone has no exits"
 	ErrNoCurrencyValue        = "Currency value is 0"
 	ErrDuplicateCurrencyValue = "Multiple currencies with the same value"
@@ -27,10 +28,10 @@ const (
 type BuildError struct {
 	Message string
 	Type    string
-	Id      int
+	Id      int64
 }
 
-func NewBuildError(m string, id int, obj interface{}) *BuildError {
+func NewBuildError(m string, id int64, obj interface{}) *BuildError {
 	err := new(BuildError)
 	err.Message = m
 	err.Id = id
