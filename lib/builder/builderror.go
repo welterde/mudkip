@@ -1,4 +1,4 @@
-package builder
+package lib
 
 import "fmt"
 import "strings"
@@ -12,22 +12,26 @@ const (
 	ErrNoClasses              = "World has no classes"
 	ErrNoRaces                = "World has no races"
 	ErrNoCurrency             = "World has no currency"
+	ErrNoArmor                = "World has no armor"
+	ErrNoWeapons              = "World has no weapons"
 	ErrZoneIsolated           = "Zone has no exits"
 	ErrNoCurrencyValue        = "Currency value is 0"
 	ErrDuplicateCurrencyValue = "Multiple currencies with the same value"
 	ErrNoCharacterClass       = "Character has no class"
 	ErrNoCharacterRace        = "Character has no race"
 	ErrCharacterNotPlaced     = "Character has no zone assigned"
+	ErrInventoryFull          = "Inventory is full"
+	ErrWeaponNoDamage         = "Weapon has no damage range defined"
 )
 
-type Error struct {
+type BuildError struct {
 	Message string
 	Type    string
 	Id      int
 }
 
-func NewError(m string, id int, obj interface{}) *Error {
-	err := new(Error)
+func NewBuildError(m string, id int, obj interface{}) *BuildError {
+	err := new(BuildError)
 	err.Message = m
 	err.Id = id
 	err.Type = fmt.Sprintf("%T", obj)
@@ -35,15 +39,15 @@ func NewError(m string, id int, obj interface{}) *Error {
 	return err
 }
 
-func (this *Error) String() string {
+func (this *BuildError) String() string {
 	return fmt.Sprintf("%s[%d]: %s", this.Type, this.Id, this.Message)
 }
 
-func addError(l *[]*Error, err *Error) {
+func addError(l *[]*BuildError, err *BuildError) {
 	sz := len(*l)
 
 	if sz >= cap(*l) {
-		cp := make([]*Error, sz, sz+10)
+		cp := make([]*BuildError, sz, sz+10)
 		copy(cp, *l)
 		*l = cp
 	}

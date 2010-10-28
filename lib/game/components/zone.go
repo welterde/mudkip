@@ -1,4 +1,4 @@
-package builder
+package lib
 
 /*
 A single zone can be anything from a room to a patch of land or space.
@@ -57,6 +57,7 @@ this will likely confuse the living daylights out of your players.
 */
 
 type Zone struct {
+	Id          int64
 	Name        string
 	Description string
 	Lighting    string

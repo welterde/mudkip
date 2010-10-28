@@ -1,4 +1,4 @@
-package builder
+package lib
 
 import "testing"
 
@@ -59,6 +59,19 @@ LOL=====            []\
 	gold.Name = "gold"
 	gold.Value = 100 * silver.Value
 	world.AddCurrency(gold)
+
+	weapon := NewWeapon()
+	weapon.Name = "Club of a thousand pains"
+	weapon.Description = "This club has seen much anguish. You can see some bodily remains stuck inbetween the cracks in the wood."
+	weapon.Damage = [2]int{0, 100}
+	weapon.Type = Melee | TwoHanded
+	world.AddWeapon(weapon)
+
+	armor := NewArmor()
+	armor.Name = "Tunic of the smelly vagrant"
+	armor.Description = "You should really wash this before wearing it. Who knows where it has been..."
+	armor.Type = Chest
+	world.AddArmor(armor)
 
 	if errlist := world.Sanitize(); len(errlist) > 0 {
 		for _, err := range errlist {

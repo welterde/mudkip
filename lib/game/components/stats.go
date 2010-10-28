@@ -1,4 +1,4 @@
-package builder
+package lib
 
 type Stat uint8
 

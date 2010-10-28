@@ -10,7 +10,7 @@ import "mudkip/store"
 
 type Context struct {
 	config *Config
-	world  *lib.WorldInfo
+	world  *lib.World
 	users  map[string]*lib.User
 	lock   *sync.Mutex
 	server *Server
@@ -18,7 +18,7 @@ type Context struct {
 	stats  *ServerStats
 }
 
-func NewContext(cfg *Config, info *lib.WorldInfo) *Context {
+func NewContext(cfg *Config, info *lib.World) *Context {
 	c := new(Context)
 	c.stats = NewServerStats()
 	c.config = cfg
