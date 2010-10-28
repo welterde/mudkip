@@ -23,6 +23,7 @@ type Character struct {
 	BankRoll    int64
 	Standing    uint8
 	Stats       *Stats
+	Inventory   *Inventory
 }
 
 func NewCharacter() *Character {
@@ -37,5 +38,6 @@ func NewCharacter() *Character {
 	v.Stats = NewStats()
 	v.Stats.HP = 100
 	v.Stats.MP = 100
+	v.Inventory = NewInventory(16)
 	return v
 }

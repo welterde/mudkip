@@ -12,29 +12,53 @@ type InventorySlot struct {
 
 type Inventory struct {
 	Id    int64
-	slots []*InventorySlot
+	Slots []*InventorySlot
+	Size  int
 }
 
 func NewInventory(size int) *Inventory {
 	v := new(Inventory)
-	v.slots = make([]*InventorySlot, 0, size)
+	v.Slots = make([]*InventorySlot, 0, size)
+	v.Size = size
+	v.Id = 1
 	return v
 }
 
 func (this *Inventory) Clear() {
-	this.slots = make([]*InventorySlot, 0, cap(this.slots))
+	this.Slots = make([]*InventorySlot, 0, this.Size)
+}
+
+func (this *Inventory) Resize(size int) {
+	if size == this.Size {
+		return
+	}
+
+	if size > this.Size {
+		cp := make([]*InventorySlot, this.Size, size)
+		copy(cp, this.Slots)
+		this.Slots = cp
+	} else {
+		cp := make([]*InventorySlot, size, size)
+		copy(cp, this.Slots[0:size])
+		this.Slots = cp
+	}
+
+	this.Size = size
 }
 
 func (this *Inventory) Add(item Item) (err os.Error) {
-	sz := len(this.slots)
+	sz := len(this.Slots)
 
-	if sz >= cap(this.slots) {
+	if sz >= cap(this.Slots) {
 		return os.NewError(ErrInventoryFull)
 	}
 
-	this.slots = this.slots[0 : sz+1]
-	this.slots[sz] = new(InventorySlot)
-	this.slots[sz].Item = item
-	this.slots[sz].Count = 1
+	slot := new(InventorySlot)
+	slot.Id = int64(sz+1)
+	slot.Item = item
+	slot.Count = 1
+
+	this.Slots = this.Slots[0 : sz+1]
+	this.Slots[sz] = slot
 	return
 }
