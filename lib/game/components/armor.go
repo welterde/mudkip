@@ -25,9 +25,11 @@ type Armor struct {
 	Name        string
 	Description string
 	Type        ArmorType
+	StatBonus   *Stats
 }
 
 func NewArmor() *Armor {
 	v := new(Armor)
+	v.StatBonus = NewStats()
 	return v
 }

@@ -115,7 +115,20 @@
       "Id": 1,
       "Name": "Tunic of the smelly vagrant",
       "Description": "You should really wash this before wearing it. Who knows where it has been...",
-      "Type": 3
+      "Type": 3,
+      "StatBonus": {
+        "Id": 0,
+        "HP": 10,
+        "MP": 0,
+        "AP": 0,
+        "DEF": 0,
+        "AGI": 0,
+        "STR": 0,
+        "WIS": 0,
+        "LUC": 0,
+        "CHR": -10,
+        "PER": 0
+      }
     }
   ],
   "Weapons": [
@@ -127,7 +140,20 @@
       "Damage": [
         0,
         100
-      ]
+      ],
+      "StatBonus": {
+        "Id": 0,
+        "HP": 0,
+        "MP": 0,
+        "AP": 10,
+        "DEF": 0,
+        "AGI": 0,
+        "STR": 20,
+        "WIS": 0,
+        "LUC": 0,
+        "CHR": 0,
+        "PER": 0
+      }
     }
   ],
   "Consumables": [

@@ -19,11 +19,13 @@ type Weapon struct {
 	Name        string
 	Description string
 	Damage      [2]int
+	StatBonus   *Stats
 }
 
 func NewWeapon() *Weapon {
 	v := new(Weapon)
 	v.Type = Melee | OneHanded
 	v.Damage = [2]int{0, 0}
+	v.StatBonus = NewStats()
 	return v
 }

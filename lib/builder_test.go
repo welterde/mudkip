@@ -80,12 +80,16 @@ LOL=====            []\
 	weapon.Description = "This club has seen much anguish. You can see some bodily remains stuck inbetween the cracks in the wood."
 	weapon.Damage = [2]int{0, 100}
 	weapon.Type = Melee | TwoHanded
+	weapon.StatBonus.AP = 10
+	weapon.StatBonus.STR = 20
 	world.Weapons.Add(weapon)
 
 	armor := NewArmor()
 	armor.Name = "Tunic of the smelly vagrant"
 	armor.Description = "You should really wash this before wearing it. Who knows where it has been..."
 	armor.Type = Chest
+	armor.StatBonus.HP = 10
+	armor.StatBonus.CHR = -10
 	world.Armor.Add(armor)
 
 	bread := NewConsumable()
