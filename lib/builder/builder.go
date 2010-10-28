@@ -43,7 +43,7 @@ func SaveWorld(file string, world *World, compact bool) (err os.Error) {
 // necessarily fatal errors. This will depend on the nature of the game being
 // implemented and the wishes of the game master. These errors should just be
 // considered a guide to the correct formation of a game world.
-func Sanitize(w *World) (errlist []*BuildError) {
+func SanitizeWorld(w *World) (errlist []*BuildError) {
 	errlist = make([]*BuildError, 0, 10)
 
 	if len(w.Name) == 0 {
