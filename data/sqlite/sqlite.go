@@ -12,16 +12,17 @@ package store
 static int my_bind_text(sqlite3_stmt *stmt, int n, char *p, int np) {
 	return sqlite3_bind_text(stmt, n, p, np, SQLITE_TRANSIENT);
 }
+
 static int my_bind_blob(sqlite3_stmt *stmt, int n, void *p, int np) {
 	return sqlite3_bind_blob(stmt, n, p, np, SQLITE_TRANSIENT);
 }
-
 */
 import "C"
 
 import (
 	"fmt"
 	"os"
+	"strings"
 	"reflect"
 	"strconv"
 	"unsafe"
@@ -127,6 +128,7 @@ func (c *Conn) error(rv C.int) os.Error {
 	return os.NewError(Errno(rv).String() + ": " + C.GoString(C.sqlite3_errmsg(c.db)))
 }
 
+// Returns the ID of the last inserted row.
 func (c *Conn) LastInsertId() (int64, os.Error) {
 	var err os.Error
 	var s *Stmt
@@ -145,6 +147,59 @@ func (c *Conn) LastInsertId() (int64, os.Error) {
 	s.Next()
 	s.Scan(&id)
 	return id, nil
+}
+
+// Passing multiple sql commands in a single command string requires some extra
+// work to make it go. Sqlite normally executes only one expression and returns
+// the remainder in the @tail parameter of sqlite3_prepare(). This sqlite binding
+// does not take that into account. We need to loop and process @tail until it
+// is empty. This also means taking care of any parameters we pass to Stmt.Exec.
+// We need to ensure that we offset the supplied argument list after every
+// execution.
+func (c *Conn) ExecRange(cmd string, argv ...interface{}) (err os.Error) {
+	var tail *C.char
+	var rv C.int
+	var errno Errno
+
+	cmdlen := len(cmd) + 1
+	s := new(Stmt)
+	s.c = c
+
+	cmdstr := C.CString(strings.TrimSpace(cmd))
+	defer C.free(unsafe.Pointer(cmdstr))
+
+	for {
+		if rv = C.sqlite3_prepare_v2(c.db, cmdstr, C.int(cmdlen), &s.stmt, &tail); rv != 0 {
+			return c.error(rv)
+		}
+
+		if rv = C.sqlite3_bind_parameter_count(s.stmt); int(rv) > len(argv) {
+			return os.NewError(fmt.Sprintf("incorrect argument count: have %d, want %d", len(argv), rv))
+		}
+
+		if err = s.Exec(argv[0:rv]...); err != nil {
+			s.Finalize()
+			return
+		}
+
+		argv = argv[rv:]
+
+		if errno = Errno(C.sqlite3_step(s.stmt)); errno != Done {
+			s.Finalize()
+			return errno
+		}
+
+		s.Finalize()
+
+		if C.GoString(tail) == "" {
+			break
+		}
+
+		cmdstr = tail
+		cmdlen = len(C.GoString(cmdstr)) + 1
+	}
+
+	return
 }
 
 func (c *Conn) Exec(cmd string, args ...interface{}) os.Error {
@@ -167,12 +222,12 @@ func (c *Conn) Exec(cmd string, args ...interface{}) os.Error {
 }
 
 func (c *Conn) Prepare(cmd string) (*Stmt, os.Error) {
-	cmdstr := C.CString(cmd)
-	defer C.free(unsafe.Pointer(cmdstr))
-
 	var stmt *C.sqlite3_stmt
 	var tail *C.char
 	var rv C.int
+
+	cmdstr := C.CString(cmd)
+	defer C.free(unsafe.Pointer(cmdstr))
 
 	if rv = C.sqlite3_prepare_v2(c.db, cmdstr, C.int(len(cmd)+1), &stmt, &tail); rv != 0 {
 		return nil, c.error(rv)
@@ -188,25 +243,28 @@ type Stmt struct {
 }
 
 func (s *Stmt) Exec(args ...interface{}) os.Error {
-	rv := C.sqlite3_reset(s.stmt)
-	if rv != 0 {
+	var rv C.int
+	var str string
+	var cstr *C.char
+
+	if rv = C.sqlite3_reset(s.stmt); rv != 0 {
 		return s.c.error(rv)
 	}
 
-	n := int(C.sqlite3_bind_parameter_count(s.stmt))
-	if n != len(args) {
-		return os.NewError(fmt.Sprintf("incorrect argument count: have %d want %d", len(args), n))
+	if n := int(C.sqlite3_bind_parameter_count(s.stmt)); n != len(args) {
+		return os.NewError(fmt.Sprintf("incorrect argument count: have %d, want %d", len(args), n))
 	}
 
 	for i, v := range args {
-		var str string
 		switch v := v.(type) {
 		case []byte:
 			var p *byte
+
 			if len(v) > 0 {
 				p = &v[0]
 			}
-			if rv := C.my_bind_blob(s.stmt, C.int(i+1), unsafe.Pointer(p), C.int(len(v))); rv != 0 {
+
+			if rv = C.my_bind_blob(s.stmt, C.int(i+1), unsafe.Pointer(p), C.int(len(v))); rv != 0 {
 				return s.c.error(rv)
 			}
 			continue
@@ -222,9 +280,10 @@ func (s *Stmt) Exec(args ...interface{}) os.Error {
 			str = fmt.Sprint(v)
 		}
 
-		cstr := C.CString(str)
-		rv := C.my_bind_text(s.stmt, C.int(i+1), cstr, C.int(len(str)))
+		cstr = C.CString(str)
+		rv = C.my_bind_text(s.stmt, C.int(i+1), cstr, C.int(len(str)))
 		C.free(unsafe.Pointer(cstr))
+
 		if rv != 0 {
 			return s.c.error(rv)
 		}

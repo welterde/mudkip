@@ -17,6 +17,7 @@ const (
 	ErrDuplicateCurrencyValue = "Multiple currencies with the same value"
 	ErrNoCharacterClass       = "Character has no class"
 	ErrNoCharacterRace        = "Character has no race"
+	ErrCharacterNotPlaced     = "Character has no zone assigned"
 )
 
 type Error struct {
@@ -25,25 +26,26 @@ type Error struct {
 	Id      int
 }
 
+func NewError(m string, id int, obj interface{}) *Error {
+	err := new(Error)
+	err.Message = m
+	err.Id = id
+	err.Type = fmt.Sprintf("%T", obj)
+	err.Type = err.Type[strings.Index(err.Type, ".")+1:]
+	return err
+}
+
 func (this *Error) String() string {
 	return fmt.Sprintf("%s[%d]: %s", this.Type, this.Id, this.Message)
 }
 
-func addError(l *[]*Error, m string, id int, obj interface{}) {
+func addError(l *[]*Error, err *Error) {
 	sz := len(*l)
 
 	if sz >= cap(*l) {
 		cp := make([]*Error, sz, sz+10)
 		copy(cp, *l)
 		*l = cp
-	}
-
-	err := new(Error)
-	err.Message = m
-	err.Type = fmt.Sprintf("%T", obj)
-	err.Id = id
-	if idx := strings.Index(err.Type, "."); idx != -1 {
-		err.Type = err.Type[idx+1:]
 	}
 
 	*l = (*l)[0 : sz+1]

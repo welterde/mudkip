@@ -16,12 +16,12 @@ func NewConfig() *Config {
 
 func (this *Config) Load(file string) (err os.Error) {
 	var cfg *ini.Config
+	var data *ini.Section
+	var ok bool
+
 	if cfg, err = ini.Load(file); err != nil {
 		return
 	}
-
-	var data *ini.Section
-	var ok bool
 
 	if data, ok = cfg.Sections["data"]; !ok {
 		return

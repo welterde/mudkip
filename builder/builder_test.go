@@ -42,6 +42,7 @@ LOL=====            []\
 	char.Level = 1
 	char.Class = warrior
 	char.Race = human
+	char.Zone = world.DefaultZone
 	world.AddCharacter(char)
 
 	copper := NewCurrency()
@@ -66,7 +67,7 @@ LOL=====            []\
 		return
 	}
 
-	//	if err := SaveWorld("test.js", world, false); err != nil {
-	//		t.Error(err.String())
-	//	}
+	if err := SaveWorld("test.js", world, false); err != nil {
+		t.Error(err.String())
+	}
 }

@@ -1,10 +1,8 @@
 package builder
 
-type Standing uint8
-
 // Standings
 const (
-	Neutral Standing = iota
+	Neutral uint8 = iota
 	Friendly
 	Enemy
 )
@@ -20,19 +18,21 @@ type Character struct {
 	Group       int
 	Class       int
 	Race        int
+	Zone        int
 	BankRoll    int64
+	Standing    uint8
 	Stats       Stats
-	Standing    Standing
 }
 
 func NewCharacter() *Character {
 	v := new(Character)
-	v.Stats = NewStats()
+	v.Standing = Neutral
 	v.Group = -1
 	v.Class = -1
 	v.Race = -1
-	v.Level = 1
+	v.Zone = -1
 	v.BankRoll = 0
-	v.Standing = Neutral
+	v.Level = 1
+	v.Stats = NewStats()
 	return v
 }
