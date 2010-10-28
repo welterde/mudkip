@@ -54,7 +54,7 @@ func (this *Inventory) Add(item Item) (err os.Error) {
 	}
 
 	slot := new(InventorySlot)
-	slot.Id = int64(sz+1)
+	slot.Id = int64(sz + 1)
 	slot.Item = item
 	slot.Count = 1
 
