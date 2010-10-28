@@ -36,7 +36,7 @@ func NewWorld() *World {
 }
 
 // Add a new zone
-func (this *World) AddZone(v *Zone) int {
+func (this *World) AddZone(v *Zone) int64 {
 	sz := len(this.Zones)
 
 	if sz >= cap(this.Zones) {
@@ -45,13 +45,14 @@ func (this *World) AddZone(v *Zone) int {
 		this.Zones = cp
 	}
 
+	v.Id = int64(sz)
 	this.Zones = this.Zones[0 : sz+1]
 	this.Zones[sz] = v
-	return sz
+	return v.Id
 }
 
 // Add a new group
-func (this *World) AddGroup(v *Group) int {
+func (this *World) AddGroup(v *Group) int64 {
 	sz := len(this.Groups)
 
 	if sz >= cap(this.Groups) {
@@ -60,13 +61,14 @@ func (this *World) AddGroup(v *Group) int {
 		this.Groups = cp
 	}
 
+	v.Id = int64(sz)
 	this.Groups = this.Groups[0 : sz+1]
 	this.Groups[sz] = v
-	return sz
+	return v.Id
 }
 
 // Add a new character
-func (this *World) AddCharacter(v *Character) int {
+func (this *World) AddCharacter(v *Character) int64 {
 	sz := len(this.Characters)
 
 	if sz >= cap(this.Characters) {
@@ -75,13 +77,14 @@ func (this *World) AddCharacter(v *Character) int {
 		this.Characters = cp
 	}
 
+	v.Id = int64(sz)
 	this.Characters = this.Characters[0 : sz+1]
 	this.Characters[sz] = v
-	return sz
+	return v.Id
 }
 
 // Add a new race
-func (this *World) AddRace(v *Race) int {
+func (this *World) AddRace(v *Race) int64 {
 	sz := len(this.Races)
 
 	if sz >= cap(this.Races) {
@@ -90,13 +93,14 @@ func (this *World) AddRace(v *Race) int {
 		this.Races = cp
 	}
 
+	v.Id = int64(sz)
 	this.Races = this.Races[0 : sz+1]
 	this.Races[sz] = v
-	return sz
+	return v.Id
 }
 
 // Add a new class
-func (this *World) AddClass(v *Class) int {
+func (this *World) AddClass(v *Class) int64 {
 	sz := len(this.Classes)
 
 	if sz >= cap(this.Classes) {
@@ -105,13 +109,14 @@ func (this *World) AddClass(v *Class) int {
 		this.Classes = cp
 	}
 
+	v.Id = int64(sz)
 	this.Classes = this.Classes[0 : sz+1]
 	this.Classes[sz] = v
-	return sz
+	return v.Id
 }
 
 // Add a new currency
-func (this *World) AddCurrency(v *Currency) int {
+func (this *World) AddCurrency(v *Currency) int64 {
 	sz := len(this.Currency)
 
 	if sz >= cap(this.Currency) {
@@ -120,13 +125,14 @@ func (this *World) AddCurrency(v *Currency) int {
 		this.Currency = cp
 	}
 
+	v.Id = int64(sz)
 	this.Currency = this.Currency[0 : sz+1]
 	this.Currency[sz] = v
-	return sz
+	return v.Id
 }
 
 // Add a new weapon
-func (this *World) AddWeapon(v *Weapon) int {
+func (this *World) AddWeapon(v *Weapon) int64 {
 	sz := len(this.Weapons)
 
 	if sz >= cap(this.Weapons) {
@@ -135,13 +141,14 @@ func (this *World) AddWeapon(v *Weapon) int {
 		this.Weapons = cp
 	}
 
+	v.Id = int64(sz)
 	this.Weapons = this.Weapons[0 : sz+1]
 	this.Weapons[sz] = v
-	return sz
+	return v.Id
 }
 
 // Add a new armor
-func (this *World) AddArmor(v *Armor) int {
+func (this *World) AddArmor(v *Armor) int64 {
 	sz := len(this.Armor)
 
 	if sz >= cap(this.Armor) {
@@ -150,7 +157,8 @@ func (this *World) AddArmor(v *Armor) int {
 		this.Armor = cp
 	}
 
+	v.Id = int64(sz)
 	this.Armor = this.Armor[0 : sz+1]
 	this.Armor[sz] = v
-	return sz
+	return v.Id
 }

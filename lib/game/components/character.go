@@ -16,10 +16,10 @@ type Character struct {
 	Description string
 	Title       string
 	Level       int
-	Group       int
-	Class       int
-	Race        int
-	Zone        int
+	Group       int64
+	Class       int64
+	Race        int64
+	Zone        int64
 	BankRoll    int64
 	Standing    uint8
 	Stats       Stats

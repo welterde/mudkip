@@ -2,7 +2,7 @@ package lib
 
 import "testing"
 
-func Test(t *testing.T) {
+func TestBuild(t *testing.T) {
 	world := NewWorld()
 	world.Name = "Mudkipia"
 	world.Description = "Magical land of unicorns and mudkipz"
@@ -73,7 +73,7 @@ LOL=====            []\
 	armor.Type = Chest
 	world.AddArmor(armor)
 
-	if errlist := world.Sanitize(); len(errlist) > 0 {
+	if errlist := SanitizeWorld(world); len(errlist) > 0 {
 		for _, err := range errlist {
 			t.Errorf("%v", err)
 		}
