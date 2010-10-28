@@ -3,16 +3,16 @@ package main
 import "fmt"
 import "os"
 import "optarg"
-import "mudkip/builder"
+import "mudkip/lib"
 import "mudkip/store"
 
 func main() {
 	cfg := getConfig()
 
 	var err os.Error
-	var world *builder.World
+	var world *lib.World
 
-	if world, err = builder.LoadWorld(cfg.WorldFile); err != nil {
+	if world, err = lib.LoadWorld(cfg.WorldFile); err != nil {
 		fmt.Fprintf(os.Stderr, "[e] %v\n", err)
 		os.Exit(1)
 	}

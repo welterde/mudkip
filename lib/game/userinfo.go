@@ -1,9 +1,9 @@
 package lib
 
 type UserInfo struct {
-	Id         uint16
+	Id         int64
 	Name       string
 	Password   string
-	Zone       uint16
+	Zone       int64
 	Registered int64
 }

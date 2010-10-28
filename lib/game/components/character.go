@@ -1,4 +1,4 @@
-package builder
+package lib
 
 // Standings
 const (
@@ -11,6 +11,7 @@ const (
 // including the happy bunny rabbits hopping around town. They to can be
 // formidable adversaries if you have just enjoyed a bit too much booze.
 type Character struct {
+	Id          int64
 	Name        string
 	Description string
 	Title       string

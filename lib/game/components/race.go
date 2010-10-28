@@ -1,6 +1,7 @@
-package builder
+package lib
 
 type Race struct {
+	Id          int64
 	Name        string
 	Description string
 	StatBonus   Stats

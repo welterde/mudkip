@@ -1,6 +1,7 @@
-package builder
+package lib
 
 type Currency struct {
+	Id    int64
 	Name  string
 	Value int
 }

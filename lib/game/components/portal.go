@@ -1,4 +1,4 @@
-package builder
+package lib
 
 type Direction string
 
@@ -16,6 +16,7 @@ const (
 )
 
 type Portal struct {
+	Id   int64
 	Dir  Direction
 	Zone int
 }
