@@ -54,7 +54,7 @@ func SanitizeWorld(w *World) (errlist []*BuildError) {
 		addError(&errlist, NewBuildError(ErrNoObjectDescription, 0, w))
 	}
 
-	if w.DefaultZone == -1 {
+	if w.DefaultZone <= 0 {
 		addError(&errlist, NewBuildError(ErrNoDefaultZone, 0, w))
 	}
 
@@ -65,23 +65,23 @@ func SanitizeWorld(w *World) (errlist []*BuildError) {
 	sanitizeCurrency(w, &errlist)
 	sanitizeArmor(w, &errlist)
 	sanitizeWeapons(w, &errlist)
+	sanitizeConsumables(w, &errlist)
 	return
 }
 
-// Verify validity of zones
 func sanitizeZones(w *World, errlist *[]*BuildError) {
 	if len(w.Zones) == 0 {
 		addError(errlist, NewBuildError(ErrNoZones, 0, w))
 		return
 	}
 
-	for i, v := range w.Zones {
+	for _, v := range w.Zones {
 		if len(v.Name) == 0 {
-			addError(errlist, NewBuildError(ErrNoObjectName, i, v))
+			addError(errlist, NewBuildError(ErrNoObjectName, v.Id, v))
 		}
 
 		if len(v.Description) == 0 {
-			addError(errlist, NewBuildError(ErrNoObjectDescription, i, v))
+			addError(errlist, NewBuildError(ErrNoObjectDescription, v.Id, v))
 		}
 
 		// The default zone does not require exits. New players will spawn here.
@@ -89,8 +89,8 @@ func sanitizeZones(w *World, errlist *[]*BuildError) {
 		// zones without exits are isolated from the game. This might be done
 		// deliberately. For instance, a jail to which a game master can
 		// teleport players.
-		if w.DefaultZone != int64(i) && len(v.Exits) == 0 {
-			addError(errlist, NewBuildError(ErrZoneIsolated, i, v))
+		if w.DefaultZone != v.Id && len(v.Exits) == 0 {
+			addError(errlist, NewBuildError(ErrZoneIsolated, v.Id, v))
 		}
 	}
 
@@ -101,129 +101,140 @@ func sanitizeZones(w *World, errlist *[]*BuildError) {
 	}
 }
 
-// Verify validity of characters
 func sanitizeCharacters(w *World, errlist *[]*BuildError) {
 	if len(w.Characters) == 0 {
 		addError(errlist, NewBuildError(ErrNoCharacters, 0, w))
 		return
 	}
 
-	for i, v := range w.Characters {
+	for _, v := range w.Characters {
 		if len(v.Name) == 0 {
-			addError(errlist, NewBuildError(ErrNoObjectName, i, v))
+			addError(errlist, NewBuildError(ErrNoObjectName, v.Id, v))
 		}
 
 		if v.Class == -1 {
-			addError(errlist, NewBuildError(ErrNoCharacterClass, i, v))
+			addError(errlist, NewBuildError(ErrNoCharacterClass, v.Id, v))
 		}
 
 		if v.Race == -1 {
-			addError(errlist, NewBuildError(ErrNoCharacterRace, i, v))
+			addError(errlist, NewBuildError(ErrNoCharacterRace, v.Id, v))
 		}
 
 		if v.Zone == -1 {
-			addError(errlist, NewBuildError(ErrCharacterNotPlaced, i, v))
+			addError(errlist, NewBuildError(ErrCharacterNotPlaced, v.Id, v))
 		}
 	}
 }
 
-// Verify validity of races
 func sanitizeRaces(w *World, errlist *[]*BuildError) {
 	if len(w.Races) == 0 {
 		addError(errlist, NewBuildError(ErrNoRaces, 0, w))
 		return
 	}
 
-	for i, v := range w.Races {
+	for _, v := range w.Races {
 		if len(v.Name) == 0 {
-			addError(errlist, NewBuildError(ErrNoObjectName, i, v))
+			addError(errlist, NewBuildError(ErrNoObjectName, v.Id, v))
 		}
 
 		if len(v.Description) == 0 {
-			addError(errlist, NewBuildError(ErrNoObjectDescription, i, v))
+			addError(errlist, NewBuildError(ErrNoObjectDescription, v.Id, v))
 		}
 	}
 }
 
-// Verify validity of classes
 func sanitizeClasses(w *World, errlist *[]*BuildError) {
 	if len(w.Classes) == 0 {
 		addError(errlist, NewBuildError(ErrNoClasses, 0, w))
 		return
 	}
 
-	for i, v := range w.Classes {
+	for _, v := range w.Classes {
 		if len(v.Name) == 0 {
-			addError(errlist, NewBuildError(ErrNoObjectName, i, v))
+			addError(errlist, NewBuildError(ErrNoObjectName, v.Id, v))
 		}
 
 		if len(v.Description) == 0 {
-			addError(errlist, NewBuildError(ErrNoObjectDescription, i, v))
+			addError(errlist, NewBuildError(ErrNoObjectDescription, v.Id, v))
 		}
 	}
 }
 
-// Verify validity of currencies
 func sanitizeCurrency(w *World, errlist *[]*BuildError) {
 	if len(w.Currency) == 0 {
 		addError(errlist, NewBuildError(ErrNoCurrency, 0, w))
 		return
 	}
 
-	for i, v := range w.Currency {
+	var v, v1 *Currency
+	for _, v = range w.Currency {
 		if len(v.Name) == 0 {
-			addError(errlist, NewBuildError(ErrNoObjectName, i, v))
+			addError(errlist, NewBuildError(ErrNoObjectName, v.Id, v))
 		}
 
 		if v.Value == 0 {
-			addError(errlist, NewBuildError(ErrNoCurrencyValue, i, v))
+			addError(errlist, NewBuildError(ErrNoCurrencyValue, v.Id, v))
 		}
 
-		for j, v1 := range w.Currency {
-			if i != j && v.Value == v1.Value {
-				addError(errlist, NewBuildError(ErrDuplicateCurrencyValue, i, v))
+		for _, v1 = range w.Currency {
+			if v.Id != v1.Id && v.Value == v1.Value {
+				addError(errlist, NewBuildError(ErrDuplicateCurrencyValue, v.Id, v))
 			}
 		}
 	}
 }
 
-// Verify validity of armor
 func sanitizeArmor(w *World, errlist *[]*BuildError) {
 	if len(w.Armor) == 0 {
 		addError(errlist, NewBuildError(ErrNoArmor, 0, w))
 		return
 	}
 
-	for i, v := range w.Armor {
+	for _, v := range w.Armor {
 		if len(v.Name) == 0 {
-			addError(errlist, NewBuildError(ErrNoObjectName, i, v))
+			addError(errlist, NewBuildError(ErrNoObjectName, v.Id, v))
 		}
 
 		if len(v.Description) == 0 {
-			addError(errlist, NewBuildError(ErrNoObjectName, i, v))
+			addError(errlist, NewBuildError(ErrNoObjectName, v.Id, v))
 		}
 	}
 }
 
-// Verify validity of weapons
 func sanitizeWeapons(w *World, errlist *[]*BuildError) {
 	if len(w.Weapons) == 0 {
 		addError(errlist, NewBuildError(ErrNoWeapons, 0, w))
 		return
 	}
 
-	for i, v := range w.Weapons {
+	for _, v := range w.Weapons {
 		if len(v.Name) == 0 {
-			addError(errlist, NewBuildError(ErrNoObjectName, i, v))
+			addError(errlist, NewBuildError(ErrNoObjectName, v.Id, v))
 		}
 
 		if len(v.Description) == 0 {
-			addError(errlist, NewBuildError(ErrNoObjectName, i, v))
+			addError(errlist, NewBuildError(ErrNoObjectName, v.Id, v))
 		}
 
 		if v.Damage[0] == 0 && v.Damage[1] == 0 {
-			addError(errlist, NewBuildError(ErrWeaponNoDamage, i, v))
+			addError(errlist, NewBuildError(ErrWeaponNoDamage, v.Id, v))
 		}
 	}
 }
 
+func sanitizeConsumables(w *World, errlist *[]*BuildError) {
+	if len(w.Consumables) == 0 {
+		addError(errlist, NewBuildError(ErrNoConsumables, 0, w))
+		return
+	}
+
+	for _, v := range w.Consumables {
+		if len(v.Name) == 0 {
+			addError(errlist, NewBuildError(ErrNoObjectName, v.Id, v))
+		}
+
+		if len(v.Description) == 0 {
+			addError(errlist, NewBuildError(ErrNoObjectName, v.Id, v))
+		}
+	}
+}

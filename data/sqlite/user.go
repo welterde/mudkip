@@ -3,7 +3,7 @@ package store
 import "os"
 import "mudkip/lib"
 
-func (this *Store) GetUser(id uint16) (usr *lib.UserInfo, err os.Error) {
+func (this *Store) GetUser(id int64) (usr *lib.UserInfo, err os.Error) {
 	if this.qry, err = this.conn.Prepare("select * from users where id=?"); err != nil {
 		return nil, err
 	}

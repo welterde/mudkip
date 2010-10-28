@@ -1,18 +1,17 @@
 package lib
 
-type Direction string
+type Direction uint16
 
 // Directions
 const (
-	DirNorth      Direction = "n"
-	DirSouth      Direction = "s"
-	DirEast       Direction = "e"
-	DirWest       Direction = "w"
-	DirNorthEast  Direction = "ne"
-	DirNorthWest  Direction = "nw"
-	DirSouthEast  Direction = "se"
-	DirSouthWest  Direction = "sw"
-	MaxDirections = 8
+	North Direction = 1 << iota
+	South
+	East
+	West
+	NorthEast = North | East
+	NorthWest = North | West
+	SouthEast = South | East
+	SouthWest = South | West
 )
 
 type Portal struct {

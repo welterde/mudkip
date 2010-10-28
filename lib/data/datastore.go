@@ -11,34 +11,49 @@ type DataStore interface {
 	Open(map[string]string) os.Error
 	Close()
 
-	// This method is only used when we initialize a new game world. It should
-	// take care of doing all the initial table creation and initialization,
-	// relevant to the implemented datastore. What to implement can be seen in
-	// the mudkip/data/STRUCTURE file. It shows an extensive overview of the
-	// mudkip game structure. You should be able to extrapolate from this, how
-	// best to build your data model. We do not call this in the server itself,
-	// but from a world builder tool which allows a user to create a new world
-	// from scratch. This function accepts a pre-initialized structure of type
-	// *lib.World. It contains everything we need to populate the database
-	// with the world's initial contents and state.
 	Initialize(*World) os.Error
 
-	// Fetches the configuration settings for this game's world. Should be only
-	// one of these per datastore.
-	GetWorld() (*World, os.Error)
+	GetArmor(id int64) (*Armor, os.Error)
+	SetArmor(*Armor) os.Error
 
-	// Update the world configuration settings.
+	GetCharacter(id int64) (*Character, os.Error)
+	SetCharacter(*Character) os.Error
+
+	GetClass(id int64) (*Class, os.Error)
+	SetClass(*Class) os.Error
+
+	GetConsumable(id int64) (*Consumable, os.Error)
+	SetConsumable(*Consumable) os.Error
+
+	GetCurrency(id int64) (*Currency, os.Error)
+	SetCurrency(*Currency) os.Error
+
+	GetGroup(id int64) (*Group, os.Error)
+	SetGroup(*Group) os.Error
+
+	GetInventory(id int64) (*Inventory, os.Error)
+	SetInventory(*Inventory) os.Error
+
+	GetPortal(id int64) (*Portal, os.Error)
+	SetPortal(*Portal) os.Error
+
+	GetRace(id int64) (*Race, os.Error)
+	SetRace(*Race) os.Error
+
+	GetStats(id int64) (*Stats, os.Error)
+	SetStats(*Stats) os.Error
+
+	GetWeapon(id int64) (*Weapon, os.Error)
+	SetWeapon(*Weapon) os.Error
+
+	GetWorld() (*World, os.Error)
 	SetWorld(*World) os.Error
 
-	// Fetches the user info associated with the given id
-	GetUser(uint16) (*UserInfo, os.Error)
+	GetZone(id int64) (*Zone, os.Error)
+	SetZone(*Zone) os.Error
 
-	// Fetches the user info associated with the given name
+	GetUser(int64) (*UserInfo, os.Error)
 	GetUserByName(string) (*UserInfo, os.Error)
-
-	// Stores the given user info
 	SetUser(*UserInfo) os.Error
-
-	// Lists all users
 	GetUsers() ([]*UserInfo, os.Error)
 }

@@ -34,24 +34,12 @@ func (this *Store) Initialize(world *lib.World) (err os.Error) {
 			character   integer not null
 		);
 
-		drop table if exists objects;
-		create table objects (
-			id		integer primary key autoincrement,
-			type	tinyint,
-			data	blob not null
-		);
-
-		insert into world (created, name, description, logo, motd, defaultzone, 
-			allowregister, levelcap) values(?,?,?,?,?,?,?,?);
-
 		end transaction;`,
-		time.Seconds(), world.Name, world.Description, world.Logo, "",
-		world.DefaultZone, world.AllowRegister, world.LevelCap,
 	); err != nil {
 		return
 	}
 
-	return
+	return this.SetWorld(world)
 }
 
 func (this *Store) GetWorld() (info *lib.World, err os.Error) {
@@ -87,14 +75,14 @@ func (this *Store) SetWorld(world *lib.World) (err os.Error) {
 
 	if exists {
 		if this.qry, err = this.conn.Prepare(
-			`update world set created=?, name=?, description=?, logo=?, motd=?, defaultzone=?, allowregister=? where id=?`,
+			`update world set name=?, description=?, logo=?, motd=?, defaultzone=?, allowregister=? where id=?`,
 		); err != nil {
 			return err
 		}
 
 		if err = this.qry.Exec(
-			world.Created, world.Name, world.Description, world.Logo,
-			world.Motd, world.DefaultZone, world.AllowRegister, world.Id,
+			world.Name, world.Description, world.Logo, world.Motd,
+			world.DefaultZone, world.AllowRegister, world.Id,
 		); err != nil {
 			return
 		}
@@ -107,6 +95,8 @@ func (this *Store) SetWorld(world *lib.World) (err os.Error) {
 		); err != nil {
 			return
 		}
+
+		world.Created = time.Seconds()
 
 		if err = this.qry.Exec(
 			world.Created, world.Name, world.Description, world.Logo,
