@@ -31,7 +31,6 @@
       "Race": 1,
       "Zone": 1,
       "BankRoll": 0,
-      "Standing": 0,
       "Stats": {
         "Id": 0,
         "HP": 100,
@@ -194,6 +193,35 @@
         "CHR": 0,
         "PER": 0
       }
+    }
+  ],
+  "QuestItems": [
+    {
+      "Id": 1,
+      "Name": "Bouquet of wildflowers",
+      "Description": "Smells like glitter and faggotry. Ideal for charming a lady."
+    }
+  ],
+  "Quests": [
+    {
+      "Id": 1,
+      "Character": 1,
+      "Name": "Flowers abound",
+      "Description": "Pick 5 wildflowers for that woman over there.",
+      "Rewards": [
+        {
+          "Id": 1,
+          "Type": 3,
+          "Item": 1,
+          "Count": 1
+        },
+        {
+          "Id": 2,
+          "Type": 5,
+          "Item": 0,
+          "Count": 30000
+        }
+      ]
     }
   ]
 }

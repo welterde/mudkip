@@ -15,6 +15,8 @@ const (
 	ErrNoArmor                = "World has no armor"
 	ErrNoWeapons              = "World has no weapons"
 	ErrNoConsumables          = "World has no consumables"
+	ErrNoQuestItems           = "World has no questitems"
+	ErrNoQuests               = "World has no quests"
 	ErrZoneIsolated           = "Zone has no exits"
 	ErrNoCurrencyValue        = "Currency value is 0"
 	ErrDuplicateCurrencyValue = "Multiple currencies with the same value"
@@ -23,6 +25,9 @@ const (
 	ErrCharacterNotPlaced     = "Character has no zone assigned"
 	ErrInventoryFull          = "Inventory is full"
 	ErrWeaponNoDamage         = "Weapon has no damage range defined"
+	ErrQuestItemNoQuest       = "Quest item is not associated with a quest"
+	ErrQuestNoRewards         = "Quest has no rewards"
+	ErrQuestNoSource          = "Quest is not associated with a character"
 )
 
 type BuildError struct {

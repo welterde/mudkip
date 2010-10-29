@@ -1,12 +1,5 @@
 package lib
 
-// Standings
-const (
-	Neutral uint8 = iota
-	Friendly
-	Enemy
-)
-
 // A character is either a player or an NPC. This counts all 'living' entities, 
 // including the happy bunny rabbits hopping around town. They to can be
 // formidable adversaries if you have just enjoyed a bit too much booze.
@@ -21,14 +14,12 @@ type Character struct {
 	Race        int64
 	Zone        int64
 	BankRoll    int64
-	Standing    uint8
 	Stats       *Stats
 	Inventory   *Inventory
 }
 
 func NewCharacter() *Character {
 	v := new(Character)
-	v.Standing = Neutral
 	v.Group = -1
 	v.Class = -1
 	v.Race = -1

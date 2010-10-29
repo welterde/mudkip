@@ -19,6 +19,8 @@ type World struct {
 	Armor         ArmorList
 	Weapons       WeaponList
 	Consumables   ConsumableList
+	QuestItems    QuestItemList
+	Quests        QuestList
 }
 
 func NewWorld() *World {
@@ -33,6 +35,8 @@ func NewWorld() *World {
 	v.Armor = NewArmorList()
 	v.Weapons = NewWeaponList()
 	v.Consumables = NewConsumableList()
+	v.QuestItems = NewQuestItemList()
+	v.Quests = NewQuestList()
 	v.AllowRegister = true
 	v.DefaultZone = -1
 	return v

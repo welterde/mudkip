@@ -43,7 +43,7 @@ func (this ClassList) Len() int {
 	return len(this)
 }
 
-func (this ClassList) Find(id int64) *Class {
+func (this ClassList) Get(id int64) *Class {
 	idx := this.IndexOf(id)
 	if idx == -1 {
 		return nil

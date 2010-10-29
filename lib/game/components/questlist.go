@@ -1,16 +1,16 @@
 package lib
 
-type CurrencyList []*Currency
+type QuestList []*Quest
 
-func NewCurrencyList() CurrencyList {
-	return make([]*Currency, 0, 16)
+func NewQuestList() QuestList {
+	return make([]*Quest, 0, 16)
 }
 
-func (this *CurrencyList) Add(v *Currency) int64 {
+func (this *QuestList) Add(v *Quest) int64 {
 	sz := len(*this)
 
 	if sz >= cap(*this) {
-		cp := make([]*Currency, sz, sz+16)
+		cp := make([]*Quest, sz, sz+16)
 		copy(cp, *this)
 		*this = cp
 	}
@@ -21,11 +21,11 @@ func (this *CurrencyList) Add(v *Currency) int64 {
 	return v.Id
 }
 
-func (this *CurrencyList) Remove(v *Currency) {
+func (this *QuestList) Remove(v *Quest) {
 	this.RemoveId(v.Id)
 }
 
-func (this *CurrencyList) RemoveId(id int64) {
+func (this *QuestList) RemoveId(id int64) {
 	idx := this.IndexOf(id)
 	if idx == -1 {
 		return
@@ -35,15 +35,15 @@ func (this *CurrencyList) RemoveId(id int64) {
 	*this = (*this)[:len(*this)-1]
 }
 
-func (this *CurrencyList) Clear() {
-	*this = make([]*Currency, 0, 16)
+func (this *QuestList) Clear() {
+	*this = make([]*Quest, 0, 16)
 }
 
-func (this CurrencyList) Len() int {
+func (this QuestList) Len() int {
 	return len(this)
 }
 
-func (this CurrencyList) Get(id int64) *Currency {
+func (this QuestList) Get(id int64) *Quest {
 	idx := this.IndexOf(id)
 	if idx == -1 {
 		return nil
@@ -51,7 +51,7 @@ func (this CurrencyList) Get(id int64) *Currency {
 	return this[idx]
 }
 
-func (this CurrencyList) IndexOf(id int64) int {
+func (this QuestList) IndexOf(id int64) int {
 	for i, v := range this {
 		if v.Id == id {
 			return i

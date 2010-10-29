@@ -66,6 +66,8 @@ func SanitizeWorld(w *World) (errlist []*BuildError) {
 	sanitizeArmor(w, &errlist)
 	sanitizeWeapons(w, &errlist)
 	sanitizeConsumables(w, &errlist)
+	sanitizeQuestItems(w, &errlist)
+	sanitizeQuests(w, &errlist)
 	return
 }
 
@@ -235,6 +237,48 @@ func sanitizeConsumables(w *World, errlist *[]*BuildError) {
 
 		if len(v.Description) == 0 {
 			addError(errlist, NewBuildError(ErrNoObjectName, v.Id, v))
+		}
+	}
+}
+
+func sanitizeQuestItems(w *World, errlist *[]*BuildError) {
+	if len(w.QuestItems) == 0 {
+		addError(errlist, NewBuildError(ErrNoQuestItems, 0, w))
+		return
+	}
+
+	for _, v := range w.QuestItems {
+		if len(v.Name) == 0 {
+			addError(errlist, NewBuildError(ErrNoObjectName, v.Id, v))
+		}
+
+		if len(v.Description) == 0 {
+			addError(errlist, NewBuildError(ErrNoObjectName, v.Id, v))
+		}
+	}
+}
+
+func sanitizeQuests(w *World, errlist *[]*BuildError) {
+	if len(w.Quests) == 0 {
+		addError(errlist, NewBuildError(ErrNoQuests, 0, w))
+		return
+	}
+
+	for _, v := range w.Quests {
+		if len(v.Name) == 0 {
+			addError(errlist, NewBuildError(ErrNoObjectName, v.Id, v))
+		}
+
+		if len(v.Description) == 0 {
+			addError(errlist, NewBuildError(ErrNoObjectName, v.Id, v))
+		}
+
+		if v.Character <= 0 {
+			addError(errlist, NewBuildError(ErrQuestNoSource, v.Id, v))
+		}
+
+		if v.Rewards.Len() == 0 {
+			addError(errlist, NewBuildError(ErrQuestNoRewards, v.Id, v))
 		}
 	}
 }

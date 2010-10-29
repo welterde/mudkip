@@ -4,16 +4,6 @@ import "os"
 import "sync"
 import "mudkip/lib"
 
-type ItemType uint8
-
-// Item types - used as enumerations in inventory slots to distinguish different
-// item sources: armor, weapons, consumbales, etc.
-const (
-	Armor ItemType = iota
-	Weapon
-	Consumbale
-)
-
 // SQlite has some issues with write operations from multiple clients.
 // We therefor use this read/write lock in the routines that perform write
 // operations. Read operations should not be a problem. It is not part of the
@@ -81,7 +71,6 @@ func (this *Store) Initialize(world *lib.World) (err os.Error) {
 			title       text not null,
 			level       integer not null,
 			bankroll    integer not null,
-			standing    tinyint not null,
 			groupid     integer not null,
 			classid     integer not null,
 			raceid      integer not null,
@@ -124,7 +113,7 @@ func (this *Store) Initialize(world *lib.World) (err os.Error) {
 		drop table if exists inventory;
 		create table inventory (
 			id          integer primary key autoincrement,
-			size        integer not null
+			size        tinyint not null
 		);
 
 		drop table if exists inventoryslots;
@@ -141,6 +130,30 @@ func (this *Store) Initialize(world *lib.World) (err os.Error) {
 			id          integer primary key autoincrement,
 			zoneid      integer not null,
 			direction   tinyint not null
+		);
+
+		drop table if exists quests;
+		create table quests (
+			id          integer primary key autoincrement,
+			name        text not null,
+			description text not null,
+			characterid integer not null
+		);
+
+		drop table if exists questrewards;
+		create table questrewards (
+			id          integer primary key autoincrement,
+			questid     integer not null,
+			itemid      integer not null,
+			itemtype    tinyint not null
+		);
+
+		drop table if exists questitems;
+		create table questitems (
+			id          integer primary key autoincrement,
+			name        text not null,
+			description text not null,
+			questid     integer not null
 		);
 
 		drop table if exists races;
