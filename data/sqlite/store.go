@@ -226,7 +226,7 @@ func (this *Store) Initialize(world *lib.World) (err os.Error) {
 func (this *Store) itemExists(id int64, table string) (bool, os.Error) {
 	var err os.Error
 
-	if this.qry, err = this.conn.Prepare("select count(*) from "+table+" where id=?"); err != nil {
+	if this.qry, err = this.conn.Prepare("select count(*) from " + table + " where id=?"); err != nil {
 		return false, err
 	}
 

@@ -1,13 +1,14 @@
 
 This is the mudkip server. It runs based on some profile settings you supply
-through a .ini file.
+through an ini file.
 
 Invocation is simple:
 
-	$ ./mudkips path/to/config.ini
+	$ ./server path/to/config.ini
 
-If the config file does not exist, mudkips will create a standard template for
-you in that location and exit. You can then edit it and restart the server.
+If the config file does not exist, the server will create a standard template
+for you in the specified location and exit. You can then edit it and restart the
+server.
 
 A template config file looks like this:
 
@@ -32,7 +33,6 @@ A template config file looks like this:
 ;   address = :54321
 ;
 ; servercert and serverkey must be set when secure = true
-maxclients = 32
 serverkey = /path/to/key.pem
 servercert = /path/to/cert.pem
 secure = false
