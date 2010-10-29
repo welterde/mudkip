@@ -8,7 +8,6 @@ type Config struct {
 	Secure        bool
 	ServerCert    string
 	ServerKey     string
-	MaxClients    int
 	LogFile       string
 	ClientTimeout int
 	Datastore     map[string]string
@@ -16,7 +15,6 @@ type Config struct {
 
 func NewConfig() *Config {
 	c := new(Config)
-	c.MaxClients = 32
 	c.Secure = false
 	c.ClientTimeout = 2
 	c.ServerCert = "/path/to/cert.pem"
@@ -36,7 +34,6 @@ func (this *Config) Load(file string) (err os.Error) {
 	this.Secure = cfg.B("net", "secure", false)
 	this.ServerCert = cfg.S("net", "servercert", "/path/to/cert.pem")
 	this.ServerKey = cfg.S("net", "serverkey", "/path/to/key.pem")
-	this.MaxClients = cfg.I("net", "maxclients", 32)
 	this.ClientTimeout = cfg.I("net", "clienttimeout", 2)
 
 	var data *ini.Section
@@ -73,7 +70,6 @@ servercert and serverkey must be set when secure = true`)
 	cfg.Set("net", "secure", this.Secure)
 	cfg.Set("net", "servercert", this.ServerCert)
 	cfg.Set("net", "serverkey", this.ServerKey)
-	cfg.Set("net", "maxclients", this.MaxClients)
 	cfg.Set("net", "clienttimeout", this.ClientTimeout)
 
 	cfg.AddComment("data",

@@ -6,16 +6,12 @@ DATASTORE = sqlite
 all:
 	make -C lib install
 	make -C data/$(DATASTORE) install
-	make -C dsinit
 	make -C server
-	make -C client
 
 clean:
 	make -C lib clean
 	make -C data/$(DATASTORE) clean
-	make -C dsinit clean
 	make -C server clean
-	make -C client clean
 
 test:
 	make -C lib test

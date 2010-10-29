@@ -3,26 +3,24 @@
  MUDKIP
 ================================================================================
 
-A Go based MUD server, client and game collection of packages.
+A Go based MUD server.
 
 This is work in progress. Expect commits that will significantly change the
-overal structure of the project.
+overal structure of the project and possibly break stuff.
 
-Check out server/main.go and client/main.go for working network examples. Run
-the server first, then the client to have it connect to the server. Both require
-that you supply a config file in the commandline. Run them without any arguments
-to see the help on getting things started. To connect the client to the server,
-you will obviously have to give them both the same IP/port to work with.
+The server is a basic, custom written HTTP server. The game can therefor be
+accessed, modified and played through any regular webbrowser. Most of the game
+API is exposed through a JSON based Api. This allows one to write a custom
+client of need be.
+
+The server is capable of hosting multiple game worlds simultaneously. Users can
+either play in an existing world, or create/manage their own.
 
 The mudkip server can listen on a secure socket using TLS/SSL. This means we
 have to specify a Key file and certificate file in the server config if secure
 is set to true. For testing purposes, we can generate a self-signed key file
 and certificate. Check out the following website for a rundown on how this
 works: http://www.akadia.com/services/ssh_test_certificate.html
-
-The mudkip client also supports SSL connections. No certificate/key files are
-needed here. All we need to do to enable SSL connectivity, is set the 'secure'
-value to true in the client config file.
 
 ================================================================================
  DEPENDENCIES
@@ -32,8 +30,8 @@ There are a few external packages this project relies on. The following are
 required. There may be additional requirements, depending on which datastore
 you choose to use. Refer to mudkip/data/<datastorename>/README for specifics.
 
-- go-pkg-optarg: http://github.com/jteeuwen/go-pkg-optarg
-- go-pkg-ini: http://github.com/jteeuwen/go-pkg-ini
+- go-pkg-optarg from http://github.com/jteeuwen/go-pkg-optarg
+- go-pkg-ini from http://github.com/jteeuwen/go-pkg-ini
 
 ================================================================================
  USAGE
@@ -44,9 +42,13 @@ running. See http://golang.org/doc/install.html for a guide.
 
 If you already have Go, make sure you have the latest release build:
 
- $ cd $GOROOT
+ $ cd $GOROOT/src
+ $ ./clean.bash
+ # cd ..
  $ hg pull
  $ hg update release
+ $ cd src
+ $ ./all.bash
 
 To get this project up and running, follow the steps below.
  

@@ -1,24 +1,15 @@
 package main
 
-import "fmt"
 import "os"
-import "mudkip/lib"
-import "mudkip/store"
+import "fmt"
 
 func main() {
-	context := NewContext(getConfig())
-	defer context.Dispose()
-
-	fmt.Fprint(os.Stdout, "[i] Running server...\n\n")
-
-	if err := context.Run(); err != nil {
-		fmt.Fprintf(os.Stderr, "[e] %v\n", err)
-	}
-
-	return
+	config := getConfig()
+	_ = config
+	os.Exit(0)
 }
 
-func getConfig() (cfg *Config, world *lib.World) {
+func getConfig() (cfg *Config) {
 	var err os.Error
 	var cfgfile string
 
@@ -28,8 +19,6 @@ func getConfig() (cfg *Config, world *lib.World) {
 		usage()
 		os.Exit(0)
 	}
-
-	fmt.Fprint(os.Stdout, "[i] Reading configuration...\n")
 
 	cfg = NewConfig()
 	if err = cfg.Load(cfgfile); err != nil {
@@ -42,29 +31,6 @@ func getConfig() (cfg *Config, world *lib.World) {
 		}
 
 		os.Exit(0)
-	}
-
-	var ds lib.DataStore
-
-	fmt.Fprint(os.Stdout, "[i] Testing datastore...\n")
-
-	// Make sure we have a valid datastore available.
-	if ds = store.New(); ds == nil {
-		fmt.Fprint(os.Stderr, "[e] Server has been built without valid datastore support. Cannot continue.\n")
-		os.Exit(1)
-	}
-
-	if err = ds.Open(cfg.Datastore); err != nil {
-		fmt.Fprintf(os.Stderr, "[e] %v\n", err)
-		os.Exit(1)
-	}
-
-	defer ds.Close()
-
-	if world, err = ds.GetWorld(); err != nil {
-		fmt.Fprint(os.Stderr, "[e] It appears that there is no valid world info available.\n")
-		fmt.Fprint(os.Stderr, "[e] Have you initialized the datastore with mudkip/dsinit?\n")
-		os.Exit(1)
 	}
 
 	return

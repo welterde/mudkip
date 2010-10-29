@@ -1,7 +1,7 @@
 include $(GOROOT)/src/Make.inc
 
 TARG = server
-GOFILES = main.go config.go net/*.go game/*.go
+GOFILES = main.go config.go
 
 all:
 	$(GC) -o $(TARG).6 $(GOFILES)
