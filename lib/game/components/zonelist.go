@@ -43,7 +43,7 @@ func (this ZoneList) Len() int {
 	return len(this)
 }
 
-func (this ZoneList) Find(id int64) *Zone {
+func (this ZoneList) Get(id int64) *Zone {
 	idx := this.IndexOf(id)
 	if idx == -1 {
 		return nil

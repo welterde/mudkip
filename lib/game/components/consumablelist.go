@@ -43,7 +43,7 @@ func (this ConsumableList) Len() int {
 	return len(this)
 }
 
-func (this ConsumableList) Find(id int64) *Consumable {
+func (this ConsumableList) Get(id int64) *Consumable {
 	idx := this.IndexOf(id)
 	if idx == -1 {
 		return nil

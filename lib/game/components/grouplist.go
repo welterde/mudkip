@@ -43,7 +43,7 @@ func (this GroupList) Len() int {
 	return len(this)
 }
 
-func (this GroupList) Find(id int64) *Group {
+func (this GroupList) Get(id int64) *Group {
 	idx := this.IndexOf(id)
 	if idx == -1 {
 		return nil

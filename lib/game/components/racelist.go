@@ -43,7 +43,7 @@ func (this RaceList) Len() int {
 	return len(this)
 }
 
-func (this RaceList) Find(id int64) *Race {
+func (this RaceList) Get(id int64) *Race {
 	idx := this.IndexOf(id)
 	if idx == -1 {
 		return nil

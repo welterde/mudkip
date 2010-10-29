@@ -43,7 +43,7 @@ func (this ArmorList) Len() int {
 	return len(this)
 }
 
-func (this ArmorList) Find(id int64) *Armor {
+func (this ArmorList) Get(id int64) *Armor {
 	idx := this.IndexOf(id)
 	if idx == -1 {
 		return nil

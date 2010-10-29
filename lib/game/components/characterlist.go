@@ -43,7 +43,7 @@ func (this CharacterList) Len() int {
 	return len(this)
 }
 
-func (this CharacterList) Find(id int64) *Character {
+func (this CharacterList) Get(id int64) *Character {
 	idx := this.IndexOf(id)
 	if idx == -1 {
 		return nil

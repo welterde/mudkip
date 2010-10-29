@@ -13,43 +13,52 @@ type DataStore interface {
 
 	Initialize(*World) os.Error
 
-	GetArmor(id int64) (*Armor, os.Error)
+	GetArmor(int64) (*Armor, os.Error)
 	SetArmor(*Armor) os.Error
 
-	GetCharacter(id int64) (*Character, os.Error)
+	GetCharacter(int64) (*Character, os.Error)
 	SetCharacter(*Character) os.Error
 
-	GetClass(id int64) (*Class, os.Error)
+	GetClass(int64) (*Class, os.Error)
 	SetClass(*Class) os.Error
 
-	GetConsumable(id int64) (*Consumable, os.Error)
+	GetConsumable(int64) (*Consumable, os.Error)
 	SetConsumable(*Consumable) os.Error
 
-	GetCurrency(id int64) (*Currency, os.Error)
+	GetCurrency(int64) (*Currency, os.Error)
 	SetCurrency(*Currency) os.Error
 
-	GetGroup(id int64) (*Group, os.Error)
+	GetGroup(int64) (*Group, os.Error)
 	SetGroup(*Group) os.Error
 
-	GetInventory(id int64) (*Inventory, os.Error)
+	GetInventory(int64) (*Inventory, os.Error)
 	SetInventory(*Inventory) os.Error
 
-	GetPortal(id int64) (*Portal, os.Error)
+	GetPortal(int64) (*Portal, os.Error)
 	SetPortal(*Portal) os.Error
 
-	GetRace(id int64) (*Race, os.Error)
+	GetQuest(int64) (*Quest, os.Error)
+	SetQuest(*Quest) os.Error
+
+	GetQuestItem(int64) (*QuestItem, os.Error)
+	SetQuestItem(*QuestItem) os.Error
+
+	GetQuestReward(int64) (*QuestReward, os.Error)
+	SetQuestReward(*QuestReward) os.Error
+
+	GetRace(int64) (*Race, os.Error)
 	SetRace(*Race) os.Error
 
-	GetStats(id int64) (*Stats, os.Error)
+	GetStats(int64) (*Stats, os.Error)
 	SetStats(*Stats) os.Error
 
-	GetWeapon(id int64) (*Weapon, os.Error)
+	GetWeapon(int64) (*Weapon, os.Error)
 	SetWeapon(*Weapon) os.Error
 
 	GetWorld() (*World, os.Error)
 	SetWorld(*World) os.Error
 
-	GetZone(id int64) (*Zone, os.Error)
+	GetZone(int64) (*Zone, os.Error)
 	SetZone(*Zone) os.Error
 
 	GetUser(int64) (*UserInfo, os.Error)

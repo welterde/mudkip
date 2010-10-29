@@ -106,6 +106,29 @@ LOL=====            []\
 	tea.StatBonus.MP = 10
 	world.Consumables.Add(tea)
 
+	bouquet := NewQuestItem()
+	bouquet.Name = "Bouquet of wildflowers"
+	bouquet.Description = "Smells like glitter and faggotry. Ideal for charming a lady."
+	bouquetid := world.QuestItems.Add(bouquet)
+
+	reward1 := NewQuestReward()
+	reward1.Type = TypeQuestItem
+	reward1.Item = bouquetid
+	reward1.Count = 1
+
+	reward2 := NewQuestReward()
+	reward2.Type = TypeCurrency
+	reward2.Count = gold.Value * 3
+
+	quest := NewQuest()
+	quest.Character = char.Id
+	quest.Name = "Flowers abound"
+	quest.Description = "Pick 5 wildflowers for that woman over there."
+	quest.Rewards.Add(reward1)
+	quest.Rewards.Add(reward2)
+
+	world.Quests.Add(quest)
+
 	if errlist := SanitizeWorld(world); len(errlist) > 0 {
 		for _, err := range errlist {
 			t.Errorf("%v", err)
@@ -113,6 +136,7 @@ LOL=====            []\
 		return
 	}
 
+	// Roundtrip test of save/load functions.
 	var err os.Error
 	if err = SaveWorld("test.js", world, false); err != nil {
 		t.Error(err.String())
