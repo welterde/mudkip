@@ -31,7 +31,7 @@ func (this *Store) SetWorld(world *lib.World) (err os.Error) {
 	defer rwl.Unlock()
 
 	var exists bool
-	if exists, err = this.worldExists(world.Id); err != nil {
+	if exists, err = this.itemExists(world.Id, "worlds"); err != nil {
 		return
 	}
 
@@ -80,24 +80,4 @@ func (this *Store) SetWorld(world *lib.World) (err os.Error) {
 	}
 
 	return
-}
-
-func (this *Store) worldExists(id int64) (bool, os.Error) {
-	var err os.Error
-
-	if this.qry, err = this.conn.Prepare("select count(*) from worlds where id=?"); err != nil {
-		return false, err
-	}
-
-	if err = this.qry.Exec(id); err != nil {
-		return false, err
-	}
-
-	var count int
-
-	this.qry.Next()
-	this.qry.Scan(&count)
-	this.qry.Finalize()
-
-	return count == 1, nil
 }

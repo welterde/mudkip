@@ -222,3 +222,23 @@ func (this *Store) Initialize(world *lib.World) (err os.Error) {
 	rwl.Unlock()
 	return //this.SetWorld(world)
 }
+
+func (this *Store) itemExists(id int64, table string) (bool, os.Error) {
+	var err os.Error
+
+	if this.qry, err = this.conn.Prepare("select count(*) from "+table+" where id=?"); err != nil {
+		return false, err
+	}
+
+	if err = this.qry.Exec(id); err != nil {
+		return false, err
+	}
+
+	var count int
+
+	this.qry.Next()
+	this.qry.Scan(&count)
+	this.qry.Finalize()
+
+	return count == 1, nil
+}

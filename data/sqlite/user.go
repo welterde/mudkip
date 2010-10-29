@@ -46,7 +46,7 @@ func (this *Store) SetUser(usr *lib.UserInfo) (err os.Error) {
 	defer rwl.Unlock()
 
 	var exists bool
-	if exists, err = this.userExists(usr.Id); err != nil {
+	if exists, err = this.itemExists(usr.Id, "users"); err != nil {
 		return
 	}
 
@@ -119,24 +119,4 @@ func (this *Store) GetUsers() (list []*lib.UserInfo, err os.Error) {
 	}
 
 	return list, this.qry.Finalize()
-}
-
-func (this *Store) userExists(id int64) (bool, os.Error) {
-	var err os.Error
-
-	if this.qry, err = this.conn.Prepare("select count(*) from users where id=?"); err != nil {
-		return false, err
-	}
-
-	if err = this.qry.Exec(id); err != nil {
-		return false, err
-	}
-
-	var count int
-
-	this.qry.Next()
-	this.qry.Scan(&count)
-	this.qry.Finalize()
-
-	return count == 1, nil
 }
