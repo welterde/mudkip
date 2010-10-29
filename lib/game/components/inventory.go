@@ -6,7 +6,7 @@ type Item interface{}
 
 type InventorySlot struct {
 	Id    int64
-	Item  Item
+	Item  int64
 	Count int
 }
 
@@ -46,7 +46,7 @@ func (this *Inventory) Resize(size int) {
 	this.Size = size
 }
 
-func (this *Inventory) Add(item Item) (err os.Error) {
+func (this *Inventory) Add(item int64) (err os.Error) {
 	sz := len(this.Slots)
 
 	if sz >= cap(this.Slots) {

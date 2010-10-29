@@ -16,8 +16,8 @@ const (
 
 type Portal struct {
 	Id   int64
+	Zone int64
 	Dir  Direction
-	Zone int
 }
 
 func NewPortal() *Portal {

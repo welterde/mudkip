@@ -4,46 +4,8 @@ import "os"
 import "time"
 import "mudkip/lib"
 
-func (this *Store) Initialize(world *lib.World) (err os.Error) {
-	rwl.Lock()
-	defer rwl.Unlock()
-
-	if err = this.conn.ExecRange(`
-		begin transaction;
-
-		drop table if exists world;
-		create table world (
-			id            integer primary key autoincrement,
-			created       integer NOT NULL,
-			name          text not null,
-			description   text not null,
-			logo          text not null,
-			motd          text,
-			defaultzone   integer not null,
-			allowregister boolean not null,
-			levelcap      integer not null
-		);
-
-		drop table if exists users;
-		create table users (
-			id          integer primary key autoincrement,
-			name        varchar(120) not null,
-			password    varchar(50) not null,
-			registered  integer not null,
-			zone        integer not null,
-			character   integer not null
-		);
-
-		end transaction;`,
-	); err != nil {
-		return
-	}
-
-	return this.SetWorld(world)
-}
-
 func (this *Store) GetWorld() (world *lib.World, err os.Error) {
-	if this.qry, err = this.conn.Prepare("select * from world"); err != nil {
+	if this.qry, err = this.conn.Prepare("select * from worlds"); err != nil {
 		return nil, err
 	}
 
@@ -56,7 +18,7 @@ func (this *Store) GetWorld() (world *lib.World, err os.Error) {
 	world = lib.NewWorld()
 	if err = this.qry.Scan(
 		&world.Id, &world.Created, &world.Name, &world.Description, &world.Logo,
-		&world.Motd, &world.DefaultZone, &world.AllowRegister,
+		&world.Motd, &world.DefaultZone, &world.AllowRegister, &world.LevelCap,
 	); err != nil {
 		return
 	}
@@ -75,14 +37,14 @@ func (this *Store) SetWorld(world *lib.World) (err os.Error) {
 
 	if exists {
 		if this.qry, err = this.conn.Prepare(
-			`update world set name=?, description=?, logo=?, motd=?, defaultzone=?, allowregister=? where id=?`,
+			`update worlds set name=?, description=?, logo=?, motd=?, defaultzone=?, allowregister=?, levelcap=? where id=?`,
 		); err != nil {
 			return err
 		}
 
 		if err = this.qry.Exec(
 			world.Name, world.Description, world.Logo, world.Motd,
-			world.DefaultZone, world.AllowRegister, world.Id,
+			world.DefaultZone, world.AllowRegister, world.LevelCap, world.Id,
 		); err != nil {
 			return
 		}
@@ -91,7 +53,7 @@ func (this *Store) SetWorld(world *lib.World) (err os.Error) {
 		this.qry.Finalize()
 	} else {
 		if this.qry, err = this.conn.Prepare(
-			`insert into world (created, name, description, logo, motd, defaultzone, allowregister) values(?, ?, ?, ?, ?, ?, ?)`,
+			`insert into worlds (created, name, description, logo, motd, defaultzone, allowregister, levelcap) values(?,?,?,?,?,?,?,?)`,
 		); err != nil {
 			return
 		}
@@ -100,7 +62,7 @@ func (this *Store) SetWorld(world *lib.World) (err os.Error) {
 
 		if err = this.qry.Exec(
 			world.Created, world.Name, world.Description, world.Logo,
-			world.Motd, world.DefaultZone, world.AllowRegister,
+			world.Motd, world.DefaultZone, world.AllowRegister, world.LevelCap,
 		); err != nil {
 			return
 		}
@@ -123,7 +85,7 @@ func (this *Store) SetWorld(world *lib.World) (err os.Error) {
 func (this *Store) worldExists(id int64) (bool, os.Error) {
 	var err os.Error
 
-	if this.qry, err = this.conn.Prepare("select count(*) from world where id=?"); err != nil {
+	if this.qry, err = this.conn.Prepare("select count(*) from worlds where id=?"); err != nil {
 		return false, err
 	}
 

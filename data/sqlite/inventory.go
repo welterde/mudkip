@@ -14,7 +14,7 @@ func (this *Store) SetInventory(*lib.Inventory) os.Error {
 func (this *Store) InventoryExists(id int64) (bool, os.Error) {
 	var err os.Error
 
-	if this.qry, err = this.conn.Prepare("select count(*) from inventories where id=?"); err != nil {
+	if this.qry, err = this.conn.Prepare("select count(*) from inventory where id=?"); err != nil {
 		return false, err
 	}
 

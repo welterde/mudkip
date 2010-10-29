@@ -6,4 +6,5 @@ type UserInfo struct {
 	Password   string
 	Zone       int64
 	Registered int64
+	Character  int64
 }

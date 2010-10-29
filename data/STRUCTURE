@@ -22,39 +22,6 @@ game and how they relate to eachother.
   ASCII. In practice this means that the size of a string in bytes is variable
   and at most 4 times larger than the actual number of unicode characters.
 
-* Strings should be NULL terminated. (0x00)
-
-================================================================================
- STORAGE
-================================================================================
-
-The simplest way to deal with this, is to use the builtin lib.Serialize() and
-lib.Deserialize() functions. These turn an object into a compressed bit stream
-and vice-versa.
-
-This bitstream, the object id and its type are the only things that have to be
-stored this way. The datastore implementation does not have to worry about what
-content a type actually has.
-
-For example, the sqlite driver has an 'objects' table with only 3 columns:
-
- - ID:   The unique object ID
- - TYPE: The type of the object
- - DATA: The compressed bit stream data containing the rest of the object data.
-
-This keeps the driver extremely simple and easy to implement. It also reduces
-the need to fix any datastore implementations if and when we change something in
-the game engine. With this approach, the mudkip core library is really the only
-entity that has to know about the actual structure of any given object.
-
-The data store only cares about the ID, TYPE and the bitstream data.
-The reason we keep the TYPE field independant, is because we have to pass it
-into the Deserialize() function, and we want to be able to select on it if we
-want a listing of all objects of a given type. The ID field is independant for
-obvious reasons. We need a unique PRIMARY KEY field in most datastore
-implementations. Additionally, we use this to select a specific object.
-
-
 ================================================================================
  WORLD
 ================================================================================
@@ -92,38 +59,6 @@ information about the world associated with the game that is hosted by a server.
    register new accounts through the server.
 
 ================================================================================
- OBJECT
-================================================================================
-
-Each object in a Mudkip world can be represented in minimal form with only 4
-fields. While specific object types can have more fields, these 4 are present in
-all of them. Mudkip uses the lib.Object interface to define these. Every object
-type in the game implements this interface. These fields are as follows:
-
- ID
-   This is a 16 bit unsigned integer which uniquely identifies this particular
-   object. We can not have more than 1 of this ID in the datastore.
-
- TYPE
-   This is an 8 bit unsigned integer which describes the type of object. This
-   value is used to determine how to (de)serialize the object, as it will tell
-   you which fields this object contains in addition to the ID, TYPE, NAME and
-   DESCRIPTION fields.
-
- NAME
-   A UTF8 encoded string which names the object. It is at most 256 unicode
-   runes in length. Newlines (\r and \n) are not allowed in this value.
-
- DESCRIPTION
-   A UTF8 encoded string which describes the object. It is at most 4096 unicode
-   runes in length. Newlines (\r and \n) are allowed in this value.
-
-
-Additional fields and their properties are present and can be determined by
-the value of the TYPE field.
-
-
-================================================================================
  USERS
 ================================================================================
 
@@ -152,4 +87,7 @@ registration:
     This value will store the last zone the user was in. As a valid 16 bit
     unsigned integer object ID.
 
-  
+  CHARACTER
+    This is the id of the character associated with this user, eg: the player's
+    toon.
+

@@ -15,7 +15,7 @@ func (this *Store) GetUser(id int64) (usr *lib.UserInfo, err os.Error) {
 	}
 
 	usr = new(lib.UserInfo)
-	if err = this.qry.Scan(&usr.Id, &usr.Name, &usr.Password, &usr.Registered, &usr.Zone); err != nil {
+	if err = this.qry.Scan(&usr.Id, &usr.Name, &usr.Password, &usr.Registered, &usr.Zone, &usr.Character); err != nil {
 		return
 	}
 
@@ -34,7 +34,7 @@ func (this *Store) GetUserByName(name string) (usr *lib.UserInfo, err os.Error) 
 	}
 
 	usr = new(lib.UserInfo)
-	if err = this.qry.Scan(&usr.Id, &usr.Name, &usr.Password, &usr.Registered, &usr.Zone); err != nil {
+	if err = this.qry.Scan(&usr.Id, &usr.Name, &usr.Password, &usr.Registered, &usr.Zone, &usr.Character); err != nil {
 		return
 	}
 
@@ -52,12 +52,12 @@ func (this *Store) SetUser(usr *lib.UserInfo) (err os.Error) {
 
 	if exists {
 		if this.qry, err = this.conn.Prepare(
-			`update users set name=?, password=?, registered=?, zone=? where id=?`,
+			`update users set name=?, password=?, registered=?, zone=?, characterid=? where id=?`,
 		); err != nil {
 			return err
 		}
 
-		if err = this.qry.Exec(usr.Name, usr.Password, usr.Registered, usr.Zone, usr.Id); err != nil {
+		if err = this.qry.Exec(usr.Name, usr.Password, usr.Registered, usr.Zone, usr.Id, usr.Character); err != nil {
 			return
 		}
 
@@ -65,12 +65,12 @@ func (this *Store) SetUser(usr *lib.UserInfo) (err os.Error) {
 		this.qry.Finalize()
 	} else {
 		if this.qry, err = this.conn.Prepare(
-			`insert into users (name, password, registered, zone) values(?, ?, ?, ?)`,
+			`insert into users (name, password, registered, zone, characterid) values(?,?,?,?,?)`,
 		); err != nil {
 			return
 		}
 
-		if err = this.qry.Exec(usr.Name, usr.Password, usr.Registered, usr.Zone); err != nil {
+		if err = this.qry.Exec(usr.Name, usr.Password, usr.Registered, usr.Zone, usr.Character); err != nil {
 			return
 		}
 
