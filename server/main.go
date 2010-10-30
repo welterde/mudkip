@@ -74,7 +74,7 @@ func getConfig() (cfg *Config) {
 	if len(cfg.CookieSalt) == 0 {
 		fmt.Fprint(os.Stderr, "[e] It is highly recommended to set a valid cookiesalt value in "+
 			"the configuration file. This salt is used to (de/en)crypt cookies. It should be an "+
-			"arbitrary length random string of characters.\n")
+			"arbitrary length, random string of characters.\n")
 		os.Exit(1)
 	}
 

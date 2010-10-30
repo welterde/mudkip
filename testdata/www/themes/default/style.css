@@ -1,16 +1,132 @@
 @media screen {
-
 	html, body {
-		margin: 0px;
-		padding: 0px;
-		font-family: verdana, arial, helvetica;
+		font-family: verdana, sans-serif;
 		font-size: small;
-		background-color: #e3e3e3;
+		background-color: #f3f3f3;
+		color: #333333;
+		padding: 0px;
+		margin: 0px;
 	}
 
-	#content {
-		padding-left: 20px;
-		padding-right: 20px;
+	#body div {
+		margin-left: auto;
+		margin-right: auto;
+		width: 700px;
+	}
+	  
+	#border div {
+		width: 675px;
+		padding: 10px;
+	}
+
+	#border {
+		padding: 5px;
+		background-color: #ffffff;
+		border: 1px solid #a3a3a3;
+		-moz-border-radius: 10px;
+		-webkit-border-radius: 10px;
+		-moz-box-shadow: 0px 0px 10px #a3a3a3;
+		-webkit-box-shadow: 0px 0px 10px #a3a3a3;
+	}
+
+	#header {
+		font-style: italic;
+		text-shadow: #333333 0px 0px 10px;
+		color: #f3f3f3;
+	}
+
+	#menu {
+		text-align: right;
+		font-weight: bold;
+		color: #f3f3f3;
+		background-color: #f3f3f3;
+		-moz-border-radius-topleft: 10px;
+		-webkit-border-top-left-radius: 10px;
+		-moz-border-radius-topright: 10px;
+		-webkit-border-top-right-radius: 10px;
+	}
+
+	#submenu {
+		padding: 0px !important;
+		margin: 0px;
+	}
+
+	#submenu a {
+		margin: 0px;
+		font-size: small !important;
+	}
+
+	#menu a {
+		color:#a3a3a3;
+		font-size: medium;
+		text-decoration: none;
+		padding-left: 10px;
+		padding-right: 10px;
+	}
+
+	#menu a:hover, #menu a.selected {
+		color: #466a7e;
+	}
+
+	#menu li {
+		display: inline;
+		position: relative;
+	}
+
+	#footer {
+		text-align: center;
+		font-size: xx-small;
+	}
+
+	.error {
+		font-weight: bold;
+		color: #ff5500;
+	}
+
+	a {
+		color: #466a7e;
+		font-weight: bold;
+	}
+
+	p {
+		text-align: justify;
+	}
+
+	#footer p {
+		text-align: center;
+	}
+
+	img {
+		padding: 5px;
+		background-color: #f3f3f3;
+		border: 1px solid #a3a3a3;
+		-moz-border-radius: 5px;
+		-webkit-border-radius: 5px;
+	}
+
+	pre {
+		padding: 5px;
+		background-color: #f5f5f5;
+		overflow: auto;
+		border: 1px solid #a3a3a3;
+		-moz-border-radius: 10px;
+		-webkit-border-radius: 10px;
+	}
+
+	.spacer {
+		clear: both;
+		font-size: xx-small;
+		text-align: right;
+	}
+
+	.tiny {
+		font-size: xx-small;
+	}
+
+	.top {
+		padding: 3px;
+		text-align: right;
+		border-top: 1px solid #a3a3a3;
 	}
 }
 
