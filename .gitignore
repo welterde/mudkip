@@ -3,5 +3,5 @@
 *.crt
 *.key
 *.db
-server.ini
+*/server.ini
 
