@@ -38,9 +38,4 @@ servercert = /path/to/cert.pem
 secure = false
 clienttimeout = 2
 address = 
-
-[misc]
-; The logfile can be left empty if you want the server log to be written to stdout.
-logfile = 
-
 ---------------------[ end of file ]--------------------------------------------

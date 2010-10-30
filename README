@@ -20,7 +20,12 @@ The mudkip server can listen on a secure socket using TLS/SSL. This means we
 have to specify a Key file and certificate file in the server config if secure
 is set to true. For testing purposes, we can generate a self-signed key file
 and certificate. Check out the following website for a rundown on how this
-works: http://www.akadia.com/services/ssh_test_certificate.html
+works: http://www.akadia.com/services/ssh_test_certificate.html. Note that when
+you visit your server using a self-signed certificate, your browser may yield 
+a security error. In Chromium this will be something along the lines of 
+"The site's security certificate is not trusted!". Just hit "Proceed anyway" to
+continue testing the server. Do not do this unless you are absolutely sure you
+are connecting to your own server.
 
 ================================================================================
  DEPENDENCIES
