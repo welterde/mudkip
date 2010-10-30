@@ -10,6 +10,7 @@ type Config struct {
 	ServerKey     string
 	CookieSalt    string
 	WebRoot       string
+	ServerName    string
 	ClientTimeout int
 	Datastore     map[string]string
 }
@@ -22,6 +23,7 @@ func NewConfig() *Config {
 	c.ServerKey = "/path/to/key.pem"
 	c.Datastore = make(map[string]string)
 	c.CookieSalt = "xxxx"
+	c.ServerName = "mudkip"
 	c.WebRoot = "./"
 	return c
 }
@@ -39,6 +41,7 @@ func (this *Config) Load(file string) (err os.Error) {
 	this.ClientTimeout = cfg.I("net", "clienttimeout", 2)
 	this.CookieSalt = cfg.S("net", "cookiesalt", "xxxx")
 	this.WebRoot = cfg.S("net", "webroot", "./")
+	this.ServerName = cfg.S("net", "servername", "mudkip")
 
 	var data *ini.Section
 	var ok bool
@@ -61,14 +64,18 @@ func (this *Config) Load(file string) (err os.Error) {
 func (this *Config) Save(file string) (err os.Error) {
 	cfg := ini.NewConfig()
 	cfg.AddComment("net",
-		`Address should be in the format ip:port. It can be in IPv4 and IPv6 format.
-IPv6 address should be encased in brackets. For example:
-
-  address = 127.0.0.1:54321
-  address = [::1]:54321
-  address = :54321
-
-servercert and serverkey must be set when secure = true`)
+		`- address should be in the format ip:port. It can be in IPv4 and IPv6 format.
+  IPv6 address should be encased in brackets. The ip can be omitted. This will
+  automatically bind the server to localhost on the given port. For example:
+ 
+    address = 127.0.0.1:54321
+    address = [::1]:54321
+    address = :54321
+ 
+- servercert and serverkey must be set when secure = true.
+- servername is added to a HTTP response in the Server header.
+- cookiesalt is a string of random character used to encrypt cookies.
+  Keep this value from becoming public.`)
 
 	cfg.Set("net", "address", this.ListenAddr)
 	cfg.Set("net", "secure", this.Secure)
@@ -77,6 +84,7 @@ servercert and serverkey must be set when secure = true`)
 	cfg.Set("net", "clienttimeout", this.ClientTimeout)
 	cfg.Set("net", "cookiesalt", this.CookieSalt)
 	cfg.Set("net", "webroot", this.WebRoot)
+	cfg.Set("net", "servername", this.ServerName)
 
 	cfg.AddComment("data",
 		`Any values needed to create a valid connection to the db of your choice,

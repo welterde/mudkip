@@ -49,7 +49,7 @@ If you already have Go, make sure you have the latest release build:
 
  $ cd $GOROOT/src
  $ ./clean.bash
- # cd ..
+ $ cd ..
  $ hg pull
  $ hg update release
  $ cd src

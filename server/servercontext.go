@@ -5,15 +5,15 @@ import "time"
 import "fmt"
 import "mudkip/lib"
 
-type Context struct {
+type ServerContext struct {
 	config   *Config
 	lock     *sync.RWMutex
 	sessions map[string]*Session
 	worlds   []*lib.World
 }
 
-func NewContext(config *Config) *Context {
-	c := new(Context)
+func NewServerContext(config *Config) *ServerContext {
+	c := new(ServerContext)
 	c.config = config
 	c.lock = new(sync.RWMutex)
 	c.sessions = make(map[string]*Session)
@@ -21,9 +21,9 @@ func NewContext(config *Config) *Context {
 	return c
 }
 
-func (this *Context) Worlds() []*lib.World { return this.worlds }
-func (this *Context) Config() *Config      { return this.config }
-func (this *Context) Sessions() []*Session {
+func (this *ServerContext) Worlds() []*lib.World { return this.worlds }
+func (this *ServerContext) Config() *Config      { return this.config }
+func (this *ServerContext) Sessions() []*Session {
 	this.lock.Lock()
 	defer this.lock.Unlock()
 
@@ -38,7 +38,7 @@ func (this *Context) Sessions() []*Session {
 	return list
 }
 
-func (this *Context) CreateSession(addr string) *Session {
+func (this *ServerContext) CreateSession(addr string) *Session {
 	id := fmt.Sprintf("%s%d", addr, time.Nanoseconds())
 
 	this.lock.Lock()
@@ -48,7 +48,7 @@ func (this *Context) CreateSession(addr string) *Session {
 	return this.sessions[id]
 }
 
-func (this *Context) GetSession(id string) *Session {
+func (this *ServerContext) GetSession(id string) *Session {
 	this.lock.Lock()
 	defer this.lock.Unlock()
 
@@ -59,7 +59,7 @@ func (this *Context) GetSession(id string) *Session {
 	return nil
 }
 
-func (this *Context) AddWorld(v *lib.World) {
+func (this *ServerContext) AddWorld(v *lib.World) {
 	this.lock.Lock()
 	defer this.lock.Unlock()
 

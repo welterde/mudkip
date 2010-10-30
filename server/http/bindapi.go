@@ -2,7 +2,7 @@ package main
 
 import "os"
 
-func BindApi() (err os.Error) {
+func BindApi(methods *ServiceMethodList) (err os.Error) {
 	methods.Add(NewServiceMethod("", getHandler))
 
 	sm := NewServiceMethod("", getHandler)

@@ -31,21 +31,22 @@ func Run(cfg *Config) {
 }
 
 func httpHandler(rw http.ResponseWriter, req *http.Request) {
+	reqtime := time.Nanoseconds() / 1000
 	sc := NewServiceContext(rw, req)
 
 	if file := path.Join(context.Config().WebRoot, req.URL.Path); fileExists(file) {
 		if serveFile(sc, file) {
-			log(os.Stdout, rw, req)
+			log(reqtime, os.Stdout, rw, req)
 		} else {
-			log(os.Stderr, rw, req)
+			log(reqtime, os.Stderr, rw, req)
 		}
 		return
 	}
 
 	if methods.Exec(sc) {
-		log(os.Stdout, rw, req)
+		log(reqtime, os.Stdout, rw, req)
 	} else {
-		log(os.Stderr, rw, req)
+		log(reqtime, os.Stderr, rw, req)
 		rw.WriteHeader(404)
 	}
 }
@@ -64,8 +65,7 @@ func getHandler(c *ServiceContext) bool {
 		return serveFile(c, file)
 	}
 
-	println("moose")
-	c.SetHeaders(200, 3600, "text/html", 0)
+	c.Status(404)
 	return true
 }
 
@@ -88,19 +88,13 @@ func serveFile(c *ServiceContext, file string) bool {
 
 	defer f.Close()
 
-	if stat, err := f.Stat(); err != nil {
-		fmt.Fprintf(os.Stderr, "%v", err)
-		c.Status(404)
-		return false
-	} else {
-		modified = stat.Mtime_ns / 1e9
-	}
+	stat, _ := f.Stat()
+	modified = stat.Mtime_ns / 1e9
 
 	if v, ok := c.Req.Header["If_Modified_Since"]; ok {
 		v = v[0:len(v)-3] + "UTC"
-		t, err = time.Parse(v, time.RFC1123)
 
-		if err != nil {
+		if t, err = time.Parse(v, time.RFC1123); err != nil {
 			fmt.Fprintf(os.Stderr, "Unrecognized time format in If_Modified_Since header: %s", v)
 			return false
 		}
@@ -137,8 +131,7 @@ func serveFile(c *ServiceContext, file string) bool {
 	return c.SendReadWriter(f)
 }
 
-func log(w io.Writer, rw http.ResponseWriter, req *http.Request) {
-	reqtime := time.Nanoseconds() / 1000
+func log(stamp int64, w io.Writer, rw http.ResponseWriter, req *http.Request) {
 	addr := rw.RemoteAddr()
 
 	// Strip port number. Make sure we don't cut off bits of the actual IP if we
@@ -147,5 +140,5 @@ func log(w io.Writer, rw http.ResponseWriter, req *http.Request) {
 		addr = addr[:idx]
 	}
 
-	fmt.Fprintf(w, "%d %s %s\n", reqtime, addr, req.URL)
+	fmt.Fprintf(w, "%d %s %s\n", stamp, addr, req.URL)
 }

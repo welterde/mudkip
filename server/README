@@ -10,34 +10,4 @@ If the config file does not exist, the server will create a standard template
 for you in the specified location and exit. You can then edit it and restart the
 server.
 
-A template config file looks like this:
-
----------------------[ start of file ]------------------------------------------
-[data]
-; Any values needed to create a valid connection to the db of your choice,
-; should be added in this section as key/value pairs. For example:
-; 
-;   user = bob
-;   pass = 1234
-;   dbname = mudkipz
-;   dbhost = 127.0.0.1
-; 
-; Refer to the README of the individual db driver for the required keys.
-
-[net]
-; Address should be in the format ip:port. It can be in IPv4 and IPv6 format.
-; IPv6 address should be encased in brackets. For example:
-;
-;   address = 127.0.0.1:54321
-;   address = [::1]:54321
-;   address = :54321
-;
-; servercert and serverkey must be set when secure = true
-serverkey = /path/to/key.pem
-servercert = /path/to/cert.pem
-cookiesalt = 47297sf789s6df2u38927r0+_)09823%$7232089>?<=+32@@1
-secure = false
-clienttimeout = 2
-webroot = ./
-address = 
----------------------[ end of file ]--------------------------------------------
+An example of a standard config file can be viewed in mudkip/testdata/template.ini

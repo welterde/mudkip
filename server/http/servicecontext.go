@@ -62,7 +62,7 @@ func (this *ServiceContext) SetHeaders(code, timeout int, ctype string, modified
 
 	this.Conn.SetHeader("Last-Modified", fmt.Sprintf("%s GMT", ts[0:len(ts)-4]))
 	this.Conn.SetHeader("Content-Type", ctype)
-	this.Conn.SetHeader("Server", "mudkip")
+	this.Conn.SetHeader("Server", context.Config().ServerName)
 
 	if this.Compressed {
 		this.Conn.SetHeader("Content-Encoding", "gzip")
