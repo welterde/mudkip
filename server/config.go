@@ -9,6 +9,7 @@ type Config struct {
 	ServerCert    string
 	ServerKey     string
 	CookieSalt    string
+	WebRoot       string
 	ClientTimeout int
 	Datastore     map[string]string
 }
@@ -21,6 +22,7 @@ func NewConfig() *Config {
 	c.ServerKey = "/path/to/key.pem"
 	c.Datastore = make(map[string]string)
 	c.CookieSalt = "xxxx"
+	c.WebRoot = "./"
 	return c
 }
 
@@ -36,6 +38,7 @@ func (this *Config) Load(file string) (err os.Error) {
 	this.ServerKey = cfg.S("net", "serverkey", "/path/to/key.pem")
 	this.ClientTimeout = cfg.I("net", "clienttimeout", 2)
 	this.CookieSalt = cfg.S("net", "cookiesalt", "xxxx")
+	this.WebRoot = cfg.S("net", "webroot", "./")
 
 	var data *ini.Section
 	var ok bool
@@ -73,6 +76,7 @@ servercert and serverkey must be set when secure = true`)
 	cfg.Set("net", "serverkey", this.ServerKey)
 	cfg.Set("net", "clienttimeout", this.ClientTimeout)
 	cfg.Set("net", "cookiesalt", this.CookieSalt)
+	cfg.Set("net", "webroot", this.WebRoot)
 
 	cfg.AddComment("data",
 		`Any values needed to create a valid connection to the db of your choice,

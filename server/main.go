@@ -4,11 +4,18 @@ import "os"
 import "fmt"
 import "os/signal"
 
+var methods *ServiceMethodList
 var context *Context
 
 func main() {
 	cfg := getConfig()
 	context = NewContext(cfg)
+	methods = NewServiceMethodList()
+
+	if err := BindApi(); err != nil {
+		fmt.Fprintf(os.Stderr, "[e] %v\n", err)
+		os.Exit(1)
+	}
 
 	go Run(cfg)
 

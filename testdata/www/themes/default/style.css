@@ -1,0 +1,19 @@
+@media screen {
+
+	html, body {
+		margin: 0px;
+		padding: 0px;
+		font-family: verdana, arial, helvetica;
+		font-size: small;
+		background-color: #e3e3e3;
+	}
+
+	#content {
+		padding-left: 20px;
+		padding-right: 20px;
+	}
+}
+
+@media print { }
+@media aural { }
+@media braille { }

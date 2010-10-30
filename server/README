@@ -38,5 +38,6 @@ servercert = /path/to/cert.pem
 cookiesalt = 47297sf789s6df2u38927r0+_)09823%$7232089>?<=+32@@1
 secure = false
 clienttimeout = 2
+webroot = ./
 address = 
 ---------------------[ end of file ]--------------------------------------------
