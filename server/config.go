@@ -8,7 +8,7 @@ type Config struct {
 	Secure        bool
 	ServerCert    string
 	ServerKey     string
-	LogFile       string
+	CookieSalt    string
 	ClientTimeout int
 	Datastore     map[string]string
 }
@@ -20,6 +20,7 @@ func NewConfig() *Config {
 	c.ServerCert = "/path/to/cert.pem"
 	c.ServerKey = "/path/to/key.pem"
 	c.Datastore = make(map[string]string)
+	c.CookieSalt = "47297sf789s6df2u38927r0+_)09823%$7232089>?<=+32@@1"
 	return c
 }
 
@@ -29,12 +30,12 @@ func (this *Config) Load(file string) (err os.Error) {
 		return
 	}
 
-	this.LogFile = cfg.S("misc", "logfile", "")
 	this.ListenAddr = cfg.S("net", "address", "")
 	this.Secure = cfg.B("net", "secure", false)
 	this.ServerCert = cfg.S("net", "servercert", "/path/to/cert.pem")
 	this.ServerKey = cfg.S("net", "serverkey", "/path/to/key.pem")
 	this.ClientTimeout = cfg.I("net", "clienttimeout", 2)
+	this.CookieSalt = cfg.S("net", "cookiesalt", "47297sf789s6df2u38927r0+_)09823%$7232089>?<=+32@@1")
 
 	var data *ini.Section
 	var ok bool
@@ -71,6 +72,7 @@ servercert and serverkey must be set when secure = true`)
 	cfg.Set("net", "servercert", this.ServerCert)
 	cfg.Set("net", "serverkey", this.ServerKey)
 	cfg.Set("net", "clienttimeout", this.ClientTimeout)
+	cfg.Set("net", "cookiesalt", this.CookieSalt)
 
 	cfg.AddComment("data",
 		`Any values needed to create a valid connection to the db of your choice,
@@ -87,7 +89,5 @@ Refer to the README of the individual db driver for the required keys.`)
 		cfg.Set("data", k, v)
 	}
 
-	cfg.AddComment("misc", "The logfile can be left empty if you want the server log to be written to stdout.")
-	cfg.Set("misc", "logfile", this.LogFile)
 	return ini.Save(file, cfg)
 }

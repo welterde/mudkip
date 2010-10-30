@@ -2,10 +2,29 @@ package main
 
 import "os"
 import "fmt"
+import "os/signal"
+
+var context *Context
 
 func main() {
-	config := getConfig()
-	_ = config
+	cfg := getConfig()
+	context = NewContext(cfg)
+
+	go Run(cfg)
+
+loop:
+	for {
+		select {
+		case sig := <-signal.Incoming:
+			if unix, ok := sig.(signal.UnixSignal); ok {
+				switch unix {
+				case signal.SIGINT, signal.SIGTERM, signal.SIGKILL:
+					break loop
+				}
+			}
+		}
+	}
+
 	os.Exit(0)
 }
 
