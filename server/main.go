@@ -5,12 +5,19 @@ import "fmt"
 import "os/signal"
 
 var methods *ServiceMethodList
+var templates *TemplateCache
 var context *ServerContext
 
 func main() {
 	config := getConfig()
 	context = NewServerContext(config)
 	methods = NewServiceMethodList()
+	templates = NewTemplateCache()
+
+	if err := templates.Load(config.WebRoot); err != nil {
+		fmt.Fprintf(os.Stderr, "[e] %v\n", err)
+		os.Exit(1)
+	}
 
 	if err := BindApi(methods); err != nil {
 		fmt.Fprintf(os.Stderr, "[e] %v\n", err)

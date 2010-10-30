@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html>
+ <head>
+  <meta http-equiv="content-type" content="text/html;charset=utf-8" />
+  <meta name="description" content="MUDkip online MUD game server" />
+  <meta name="keywords" content="mudkip, mud, rpg, game, online game, role playing" />
+  <!--[if IE 7]><link rel="stylesheet" type="text/css" href="/themes/{.section Style}{@}{.end}/ie7.css" /><![endif]-->
+  <!--[if IE 8]><link rel="stylesheet" type="text/css" href="/themes/{.section Style}{@}{.end}/ie8.css" /><![endif]-->
+  <link rel="stylesheet" type="text/css" href="/themes/{.section Style}{@}{.end}/style.css" />
+  <link rel="shortcut icon" href="/favicon.ico" type="image/x-icon" />
+  <link rel="icon" href="/favicon.ico" type="image/x-icon" />
+  <title>MUDkip :: {.section Title}{@}{.end}</title>
+ </head>
+ <body>
+  <div id="body">
+   <div id="header">
+    <a id="top"></a>
+    <h1 class="logo">MUDkip</h1>
+   </div>
+   <div id="border">
+    <div id="menu">
+     <ul>
+      <li><a href="/" title="Go to home page">Home</a></li>
+      <li><a href="/worlds" title="Browser worlds">Worlds</a></li>
+      <li><a href="/account" title="Create or manage your account">Account</a></li>
+     </ul>
+    </div>
+    <div id="content">

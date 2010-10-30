@@ -12,10 +12,9 @@ clean:
 	make -C lib clean
 	make -C data/$(DATASTORE) clean
 	make -C server clean
+	gofmt -w .
 
 test:
 	make -C lib test
 	make -C data/$(DATASTORE) test
 
-format:
-	gofmt -w .

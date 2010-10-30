@@ -24,8 +24,8 @@ func NewServerContext(config *Config) *ServerContext {
 func (this *ServerContext) Worlds() []*lib.World { return this.worlds }
 func (this *ServerContext) Config() *Config      { return this.config }
 func (this *ServerContext) Sessions() []*Session {
-	this.lock.Lock()
-	defer this.lock.Unlock()
+	this.lock.RLock()
+	defer this.lock.RUnlock()
 
 	var idx int
 	list := make([]*Session, len(this.sessions))
@@ -39,18 +39,17 @@ func (this *ServerContext) Sessions() []*Session {
 }
 
 func (this *ServerContext) CreateSession(addr string) *Session {
-	id := fmt.Sprintf("%s%d", addr, time.Nanoseconds())
-
 	this.lock.Lock()
 	defer this.lock.Unlock()
 
+	id := fmt.Sprintf("%s%d", addr, time.Nanoseconds())
 	this.sessions[id] = NewSession(id)
 	return this.sessions[id]
 }
 
 func (this *ServerContext) GetSession(id string) *Session {
-	this.lock.Lock()
-	defer this.lock.Unlock()
+	this.lock.RLock()
+	defer this.lock.RUnlock()
 
 	if session, ok := this.sessions[id]; ok {
 		return session

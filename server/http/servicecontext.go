@@ -26,7 +26,8 @@ func NewServiceContext(rw http.ResponseWriter, req *http.Request) *ServiceContex
 
 	if id := GetSecureCookie(sc.Cookies, "mudkip_id"); len(id) > 0 {
 		if sc.Session = context.GetSession(id); sc.Session == nil {
-			SetSecureCookie(rw, "mudkip_id", "", "/", -1)
+			sc.Session = context.CreateSession(rw.RemoteAddr())
+			SetSecureCookie(rw, "mudkip_id", sc.Session.Id, "/", 2592000)
 		}
 	} else {
 		sc.Session = context.CreateSession(rw.RemoteAddr())
@@ -71,32 +72,28 @@ func (this *ServiceContext) SetHeaders(code, timeout int, ctype string, modified
 	this.Conn.WriteHeader(code)
 }
 
-func (this *ServiceContext) Send(data []byte) bool {
+// Signature satisfies io.Writer
+func (this *ServiceContext) Write(data []byte) (n int, err os.Error) {
 	if this.Compressed {
 		var cmp *gzip.Compressor
-		var err os.Error
-
 		if cmp, err = gzip.NewWriterLevel(this.Conn, gzip.DefaultCompression); err != nil {
-			fmt.Fprintf(os.Stderr, "[e] %v\n", err)
-			return false
+			return
 		}
 
-		cmp.Write(data)
+		n, err = cmp.Write(data)
 		cmp.Close()
 	} else {
-		this.Conn.Write(data)
+		n, err = this.Conn.Write(data)
 	}
 
-	return true
+	return
 }
 
-func (this *ServiceContext) SendReadWriter(w io.ReadWriter) bool {
+func (this *ServiceContext) SendReadWriter(w io.ReadWriter) (n int, err os.Error) {
 	if this.Compressed {
 		var cmp *gzip.Compressor
-		var err os.Error
-
 		if cmp, err = gzip.NewWriterLevel(this.Conn, gzip.DefaultCompression); err != nil {
-			return false
+			return
 		}
 
 		io.Copy(cmp, w)
@@ -105,5 +102,5 @@ func (this *ServiceContext) SendReadWriter(w io.ReadWriter) bool {
 		io.Copy(this.Conn, w)
 	}
 
-	return true
+	return
 }
