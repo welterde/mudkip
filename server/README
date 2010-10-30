@@ -35,6 +35,7 @@ A template config file looks like this:
 ; servercert and serverkey must be set when secure = true
 serverkey = /path/to/key.pem
 servercert = /path/to/cert.pem
+cookiesalt = 47297sf789s6df2u38927r0+_)09823%$7232089>?<=+32@@1
 secure = false
 clienttimeout = 2
 address = 

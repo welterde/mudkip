@@ -20,7 +20,7 @@ func NewConfig() *Config {
 	c.ServerCert = "/path/to/cert.pem"
 	c.ServerKey = "/path/to/key.pem"
 	c.Datastore = make(map[string]string)
-	c.CookieSalt = "47297sf789s6df2u38927r0+_)09823%$7232089>?<=+32@@1"
+	c.CookieSalt = "xxxx"
 	return c
 }
 
@@ -35,7 +35,7 @@ func (this *Config) Load(file string) (err os.Error) {
 	this.ServerCert = cfg.S("net", "servercert", "/path/to/cert.pem")
 	this.ServerKey = cfg.S("net", "serverkey", "/path/to/key.pem")
 	this.ClientTimeout = cfg.I("net", "clienttimeout", 2)
-	this.CookieSalt = cfg.S("net", "cookiesalt", "47297sf789s6df2u38927r0+_)09823%$7232089>?<=+32@@1")
+	this.CookieSalt = cfg.S("net", "cookiesalt", "xxxx")
 
 	var data *ini.Section
 	var ok bool
