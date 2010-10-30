@@ -23,8 +23,8 @@ func NewConfig() *Config {
 	c.ServerKey = "/path/to/key.pem"
 	c.Datastore = make(map[string]string)
 	c.CookieSalt = "xxxx"
-	c.ServerName = "mudkip"
-	c.WebRoot = "./"
+	c.ServerName = "MUDkip"
+	c.WebRoot = "webroot/"
 	return c
 }
 
@@ -40,8 +40,8 @@ func (this *Config) Load(file string) (err os.Error) {
 	this.ServerKey = cfg.S("net", "serverkey", "/path/to/key.pem")
 	this.ClientTimeout = cfg.I("net", "clienttimeout", 2)
 	this.CookieSalt = cfg.S("net", "cookiesalt", "xxxx")
-	this.WebRoot = cfg.S("net", "webroot", "./")
-	this.ServerName = cfg.S("net", "servername", "mudkip")
+	this.WebRoot = cfg.S("net", "webroot", "webroot/")
+	this.ServerName = cfg.S("net", "servername", "MUDkip")
 
 	var data *ini.Section
 	var ok bool
