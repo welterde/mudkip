@@ -1,33 +1,7 @@
 package main
 
-import "fmt"
 import "os"
 import "utf8"
-
-const (
-	APP_NAME    = "Webui"
-	APP_VERSION = "0.1"
-)
-
-func Debug(f string, argv ...interface{}) {
-	str := fmt.Sprintf(f, argv...)
-	fmt.Fprintf(os.Stdout, "[d] %s\n", str)
-}
-
-func Info(f string, argv ...interface{}) {
-	str := fmt.Sprintf(f, argv...)
-	fmt.Fprintf(os.Stdout, "[i] %s\n", str)
-}
-
-func Error(f string, argv ...interface{}) {
-	str := fmt.Sprintf(f, argv...)
-	fmt.Fprintf(os.Stderr, "[e] %s\n", str)
-}
-
-func Fatal(f string, argv ...interface{}) {
-	Error(f, argv...)
-	os.Exit(1)
-}
 
 func isText(b []byte) bool {
 	for len(b) > 0 && utf8.FullRune(b) {

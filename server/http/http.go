@@ -89,7 +89,7 @@ func serveFile(c *ServiceContext, file string) bool {
 	defer f.Close()
 
 	if stat, err := f.Stat(); err != nil {
-		Error("%v", err)
+		fmt.Fprintf(os.Stderr, "%v", err)
 		c.Status(404)
 		return false
 	} else {
@@ -101,7 +101,7 @@ func serveFile(c *ServiceContext, file string) bool {
 		t, err = time.Parse(v, time.RFC1123)
 
 		if err != nil {
-			Error("Unrecognized time format in If_Modified_Since header: %s", v)
+			fmt.Fprintf(os.Stderr, "Unrecognized time format in If_Modified_Since header: %s", v)
 			return false
 		}
 
