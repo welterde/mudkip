@@ -14,11 +14,11 @@ type ServiceMethod struct {
 	handler ServiceHandler
 }
 
-func NewServiceMethod(name string, sh ServiceHandler) *ServiceMethod {
+func NewServiceMethod(name string, sh ServiceHandler, m HttpMethod) *ServiceMethod {
 	sm := new(ServiceMethod)
 	sm.Name = name
 	sm.handler = sh
-	sm.Method = GET
+	sm.Method = m
 	sm.Params = []string{}
 	return sm
 }

@@ -3,35 +3,16 @@ package main
 import "os"
 
 func BindApi(methods *ServiceMethodList) (err os.Error) {
-	methods.Add(NewServiceMethod("", getHandler))
+	// TODO: Bind Mudkip API
 
-	sm := NewServiceMethod("", getHandler)
-	sm.Method = HEAD
-	methods.Add(sm)
-
-	sm = NewServiceMethod("", postHandler)
-	sm.Method = POST
-	methods.Add(sm)
-
-	sm = NewServiceMethod("", notImplementedHandler)
-	sm.Method = CONNECT
-	methods.Add(sm)
-
-	sm = NewServiceMethod("", notImplementedHandler)
-	sm.Method = DELETE
-	methods.Add(sm)
-
-	sm = NewServiceMethod("", notImplementedHandler)
-	sm.Method = OPTIONS
-	methods.Add(sm)
-
-	sm = NewServiceMethod("", notImplementedHandler)
-	sm.Method = PUT
-	methods.Add(sm)
-
-	sm = NewServiceMethod("", notImplementedHandler)
-	sm.Method = TRACE
-	methods.Add(sm)
-
+	// Catch-all handlers for HTTP commands we have not yet covered.
+	methods.Add(NewServiceMethod("", getHandler, GET))
+	methods.Add(NewServiceMethod("", getHandler, HEAD))
+	methods.Add(NewServiceMethod("", postHandler, POST))
+	methods.Add(NewServiceMethod("", notImplementedHandler, CONNECT))
+	methods.Add(NewServiceMethod("", notImplementedHandler, DELETE))
+	methods.Add(NewServiceMethod("", notImplementedHandler, OPTIONS))
+	methods.Add(NewServiceMethod("", notImplementedHandler, PUT))
+	methods.Add(NewServiceMethod("", notImplementedHandler, TRACE))
 	return methods.Build()
 }
