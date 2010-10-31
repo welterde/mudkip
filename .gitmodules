@@ -1,0 +1,6 @@
+[submodule "vendor/go-pkg-ini"]
+	path = vendor/go-pkg-ini
+	url = git://github.com/jteeuwen/go-pkg-ini.git
+[submodule "vendor/go-pkg-optarg"]
+	path = vendor/go-pkg-optarg
+	url = git://github.com/jteeuwen/go-pkg-optarg.git
