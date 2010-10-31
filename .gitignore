@@ -3,5 +3,8 @@
 *.crt
 *.key
 *.db
+*.6
+*.8
+*~
 testdata/server.ini
 
