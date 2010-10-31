@@ -11,3 +11,22 @@ for you in the specified location and exit. You can then edit it and restart the
 server.
 
 An example of a standard config file can be viewed in mudkip/testdata/template.ini
+
+The server presents its page content through the use of templates. The page to
+display is determined based on the url. We do not refer to physical pages
+however*. The urls refer to Service commands defined explicitely in the server
+code. The handlers for these 'urls' determine which template is actually 
+rendered and displayed.
+
+*) The server does support serving of static files. We use this feature to serve
+css stylesheets, images and javascript documents when needed. In principle, any
+type of file can be accessed directly, except .ghtml files. These are the 
+templates that should first be parsed and executed by the server. We therefor
+explicitely deny direct access to these files. We've done this mostly out of
+security concerns.
+
+By seeing the unprocessed content of a template, a user can puzzle together the
+internal structure of the Go server. This will not be a problem at this point,
+but we just prefer to stay on the side of caution. If the user has no business
+seeing some information, then simply don't share it.
+

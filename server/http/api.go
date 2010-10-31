@@ -3,6 +3,7 @@ package main
 import "os"
 import "mime"
 import "bytes"
+import "strings"
 import "path"
 import "time"
 import "io"
@@ -10,13 +11,20 @@ import "fmt"
 
 func BindApi(methods *ServiceMethodList) (err os.Error) {
 	// TODO: Bind Mudkip API
-	methods.Add(NewServiceMethod("index", indexHandler, GET))
+	methods.Add(NewServiceMethod("home", homeHandler, GET))
 	methods.Add(NewServiceMethod("worlds", worldsHandler, GET))
+	methods.Add(NewServiceMethod("worlds/play", playWorldHandler, GET))
+	methods.Add(NewServiceMethod("worlds/create", createWorldHandler, GET))
+	methods.Add(NewServiceMethod("worlds/edit", editWorldHandler, GET))
 	methods.Add(NewServiceMethod("account", accountHandler, GET))
+	methods.Add(NewServiceMethod("account/register", registerAccountHandler, GET))
+	methods.Add(NewServiceMethod("account/login", loginAccountHandler, GET))
+	methods.Add(NewServiceMethod("account/edit", editAccountHandler, GET))
+	methods.Add(NewServiceMethod("account/logout", logoutAccountHandler, GET))
 
 	// Catch-all handlers for HTTP commands we have not yet covered.
-	methods.Add(NewServiceMethod("", indexHandler, GET))
-	methods.Add(NewServiceMethod("", indexHandler, HEAD))
+	methods.Add(NewServiceMethod("", homeHandler, GET))
+	methods.Add(NewServiceMethod("", homeHandler, HEAD))
 	methods.Add(NewServiceMethod("", postHandler, POST))
 	methods.Add(NewServiceMethod("", notImplementedHandler, CONNECT))
 	methods.Add(NewServiceMethod("", notImplementedHandler, DELETE))
@@ -27,17 +35,56 @@ func BindApi(methods *ServiceMethodList) (err os.Error) {
 }
 
 func accountHandler(c *ServiceContext) bool {
-	servePage(c, "account", nil)
+	if c.Session.Registered {
+		servePage(c, mainMenu, accountMenuB, "account", nil)
+	} else {
+		servePage(c, mainMenu, accountMenuA, "account", nil)
+	}
+	return true
+}
+
+func registerAccountHandler(c *ServiceContext) bool {
+	servePage(c, mainMenu, accountMenuA, "account/register", nil)
+	return true
+}
+
+func loginAccountHandler(c *ServiceContext) bool {
+	servePage(c, mainMenu, accountMenuA, "account/login", nil)
+	return true
+}
+
+func editAccountHandler(c *ServiceContext) bool {
+	servePage(c, mainMenu, accountMenuB, "account/edit", nil)
+	return true
+}
+
+func logoutAccountHandler(c *ServiceContext) bool {
+	servePage(c, mainMenu, accountMenuB, "account/logout", nil)
 	return true
 }
 
 func worldsHandler(c *ServiceContext) bool {
-	servePage(c, "worlds", nil)
+	servePage(c, mainMenu, worldsMenu, "worlds", nil)
 	return true
 }
 
-func indexHandler(c *ServiceContext) bool {
-	servePage(c, "index", nil)
+func playWorldHandler(c *ServiceContext) bool {
+	servePage(c, mainMenu, worldsMenu, "worlds/play", nil)
+	return true
+}
+
+func createWorldHandler(c *ServiceContext) bool {
+	servePage(c, mainMenu, worldsMenu, "worlds/create", nil)
+	return true
+}
+
+func editWorldHandler(c *ServiceContext) bool {
+	servePage(c, mainMenu, worldsMenu, "worlds/edit", nil)
+	return true
+}
+
+func homeHandler(c *ServiceContext) bool {
+	servePage(c, mainMenu, nil, "home", nil)
 	return true
 }
 
@@ -47,7 +94,7 @@ func postHandler(c *ServiceContext) bool {
 		return false
 	}
 
-	return indexHandler(c)
+	return homeHandler(c)
 }
 
 func notImplementedHandler(c *ServiceContext) bool {
@@ -55,24 +102,39 @@ func notImplementedHandler(c *ServiceContext) bool {
 	return true
 }
 
-func servePage(c *ServiceContext, name string, data interface{}) {
+func servePage(c *ServiceContext, menu, submenu []*MenuItem, name string, data interface{}) {
 	c.SetHeaders(200, 2592000, "text/html", -1)
 
-	type MenuItem struct {
-		Url      string
-		Title    string
-		Name     string
-		Selected bool
-	}
-
 	var pageinfo struct {
-		Title string
-		Style string
-		Menu  []*MenuItem
+		Title       string
+		Style       string
+		HaveSubMenu bool
+		Menu        []*MenuItem
+		SubMenu     []*MenuItem
 	}
 
 	pageinfo.Title = name
 	pageinfo.Style = c.Session.Style
+	pageinfo.Menu = menu
+	pageinfo.HaveSubMenu = submenu != nil
+	pageinfo.SubMenu = submenu
+
+	target := "/"
+	if name != "home" {
+		target += name
+	}
+
+	for _, mnu := range pageinfo.Menu {
+		if mnu.Url == "/" {
+			mnu.Selected = mnu.Url == target
+		} else {
+			mnu.Selected = strings.HasPrefix(target, mnu.Url)
+		}
+	}
+
+	for _, mnu := range pageinfo.SubMenu {
+		mnu.Selected = mnu.Url == target
+	}
 
 	var buf bytes.Buffer
 

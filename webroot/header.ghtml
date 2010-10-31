@@ -20,9 +20,18 @@
    <div id="border">
     <div id="menu">
      <ul>
-      <li><a href="/" title="Go to home page">Home</a></li>
-      <li><a href="/worlds" title="Browser worlds">Worlds</a></li>
-      <li><a href="/account" title="Create or manage your account">Account</a></li>
+     {.repeated section Menu}
+      <li><a href="{Url|html}" title="{Title|html}"{.section Selected} class="selected"{.end}>{Name}</a></li>
+     {.end}
      </ul>
+     {.section HaveSubMenu}
+     <div id="submenu">
+      <ul>
+      {.repeated section SubMenu}
+       <li><a href="{Url|html}" title="{Title|html}"{.section Selected} class="selected"{.end}>{Name}</a></li>
+      {.end}
+      </ul>
+     </div>
+     {.end}
     </div>
     <div id="content">
