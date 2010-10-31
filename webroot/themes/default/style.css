@@ -96,6 +96,11 @@
 		text-align: center;
 	}
 
+	dt {
+		font-weight: bold;
+		font-style: italic;
+	}
+
 	img {
 		padding: 5px;
 		background-color: #f3f3f3;

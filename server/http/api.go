@@ -10,7 +10,6 @@ import "io"
 import "fmt"
 
 func BindApi(methods *ServiceMethodList) (err os.Error) {
-	// TODO: Bind Mudkip API
 	methods.Add(NewServiceMethod("home", homeHandler, GET))
 	methods.Add(NewServiceMethod("worlds", worldsHandler, GET))
 	methods.Add(NewServiceMethod("worlds/play", playWorldHandler, GET))
@@ -21,6 +20,7 @@ func BindApi(methods *ServiceMethodList) (err os.Error) {
 	methods.Add(NewServiceMethod("account/login", loginAccountHandler, GET))
 	methods.Add(NewServiceMethod("account/edit", editAccountHandler, GET))
 	methods.Add(NewServiceMethod("account/logout", logoutAccountHandler, GET))
+	methods.Add(NewServiceMethod("sitemap", sitemapHandler, GET))
 
 	// Catch-all handlers for HTTP commands we have not yet covered.
 	methods.Add(NewServiceMethod("", homeHandler, GET))
@@ -34,32 +34,81 @@ func BindApi(methods *ServiceMethodList) (err os.Error) {
 	return methods.Build()
 }
 
+func sitemapHandler(c *ServiceContext) bool {
+	menuLock.RLock()
+	sitemap := make([]*MenuItem, len(mainMenu))
+	copy(sitemap, mainMenu)
+	menuLock.RUnlock()
+
+	for _, m := range sitemap {
+		switch m.Url {
+		case "/account":
+			if c.Session.Registered {
+				m.Menu = accountMenuB
+			} else {
+				m.Menu = accountMenuA
+			}
+		case "/worlds":
+			m.Menu = worldsMenu
+		}
+	}
+
+	servePage(c, mainMenu, nil, "sitemap", sitemap)
+	return true
+}
+
 func accountHandler(c *ServiceContext) bool {
+	var data struct {
+		Registered   bool
+		Username     string
+		RegisterDate string
+	}
+
+	if data.Registered = c.Session.Registered; data.Registered {
+		// TODO: Fetch account details
+	}
+
 	if c.Session.Registered {
-		servePage(c, mainMenu, accountMenuB, "account", nil)
+		servePage(c, mainMenu, accountMenuB, "account", &data)
 	} else {
-		servePage(c, mainMenu, accountMenuA, "account", nil)
+		servePage(c, mainMenu, accountMenuA, "account", &data)
 	}
 	return true
 }
 
 func registerAccountHandler(c *ServiceContext) bool {
-	servePage(c, mainMenu, accountMenuA, "account/register", nil)
+	if c.Session.Registered {
+		servePage(c, mainMenu, accountMenuB, "account/register", &c.Session.Registered)
+	} else {
+		servePage(c, mainMenu, accountMenuA, "account/register", &c.Session.Registered)
+	}
 	return true
 }
 
 func loginAccountHandler(c *ServiceContext) bool {
-	servePage(c, mainMenu, accountMenuA, "account/login", nil)
+	if c.Session.Registered {
+		servePage(c, mainMenu, accountMenuB, "account/login", &c.Session.Registered)
+	} else {
+		servePage(c, mainMenu, accountMenuA, "account/login", &c.Session.Registered)
+	}
 	return true
 }
 
 func editAccountHandler(c *ServiceContext) bool {
-	servePage(c, mainMenu, accountMenuB, "account/edit", nil)
+	if c.Session.Registered {
+		servePage(c, mainMenu, accountMenuB, "account/edit", &c.Session.Registered)
+	} else {
+		servePage(c, mainMenu, accountMenuA, "account/edit", &c.Session.Registered)
+	}
 	return true
 }
 
 func logoutAccountHandler(c *ServiceContext) bool {
-	servePage(c, mainMenu, accountMenuB, "account/logout", nil)
+	if c.Session.Registered {
+		servePage(c, mainMenu, accountMenuB, "account/logout", &c.Session.Registered)
+	} else {
+		servePage(c, mainMenu, accountMenuA, "account/logout", &c.Session.Registered)
+	}
 	return true
 }
 
@@ -113,11 +162,19 @@ func servePage(c *ServiceContext, menu, submenu []*MenuItem, name string, data i
 		SubMenu     []*MenuItem
 	}
 
+	menuLock.RLock()
+
 	pageinfo.Title = name
 	pageinfo.Style = c.Session.Style
-	pageinfo.Menu = menu
 	pageinfo.HaveSubMenu = submenu != nil
-	pageinfo.SubMenu = submenu
+
+	pageinfo.Menu = make([]*MenuItem, len(menu))
+	copy(pageinfo.Menu, menu)
+
+	pageinfo.SubMenu = make([]*MenuItem, len(submenu))
+	copy(pageinfo.SubMenu, submenu)
+
+	menuLock.RUnlock()
 
 	target := "/"
 	if name != "home" {
@@ -142,7 +199,7 @@ func servePage(c *ServiceContext, menu, submenu []*MenuItem, name string, data i
 	serveTemplate(&buf, name, data)
 	serveTemplate(&buf, "footer", nil)
 
-	c.Write(buf.Bytes())
+	c.Write(postProcess(buf.Bytes()))
 }
 
 func serveTemplate(w io.Writer, name string, data interface{}) bool {

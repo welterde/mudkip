@@ -1,0 +1,6 @@
+<h3>Login</h3>
+{.section @}
+<p>You are already logged in.</p>
+{.or}
+<p>Please specify your account details</p>
+{.end}
