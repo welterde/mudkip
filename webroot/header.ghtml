@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html>
+ <head>
+  <meta http-equiv="content-type" content="text/html;charset=utf-8" />
+  <meta name="description" content="MUDkip online MUD game server" />
+  <meta name="keywords" content="mudkip, mud, rpg, game, online game, role playing" />
+  <!--[if IE 7]><link rel="stylesheet" type="text/css" href="/themes/{.section Style}{@}{.end}/ie7.css" /><![endif]-->
+  <!--[if IE 8]><link rel="stylesheet" type="text/css" href="/themes/{.section Style}{@}{.end}/ie8.css" /><![endif]-->
+  <link rel="stylesheet" type="text/css" href="/themes/{.section Style}{@}{.end}/style.css" />
+  <link rel="shortcut icon" href="/favicon.ico" type="image/x-icon" />
+  <link rel="icon" href="/favicon.ico" type="image/x-icon" />
+  <title>MUDkip :: {.section Title}{@}{.end}</title>
+ </head>
+ <body>
+  <div id="body">
+   <div id="header">
+    <a id="top"></a>
+    <h1 class="logo">MUDkip</h1>
+   </div>
+   <div id="border">
+    <div id="menu">
+     <ul>
+     {.repeated section Menu}
+      <li><a href="{Url|html}" title="{Title|html}"{.section Selected} class="selected"{.end}>{Name}</a></li>
+     {.end}
+     </ul>
+     {.section HaveSubMenu}
+     <div id="submenu">
+      <ul>
+      {.repeated section SubMenu}
+       <li><a href="{Url|html}" title="{Title|html}"{.section Selected} class="selected"{.end}>{Name}</a></li>
+      {.end}
+      </ul>
+     </div>
+     {.end}
+    </div>
+    <div id="content">

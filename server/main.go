@@ -4,13 +4,27 @@ import "os"
 import "fmt"
 import "os/signal"
 
-var context *Context
+var methods *ServiceMethodList
+var templates *TemplateCache
+var context *ServerContext
 
 func main() {
-	cfg := getConfig()
-	context = NewContext(cfg)
+	config := getConfig()
+	context = NewServerContext(config)
+	methods = NewServiceMethodList()
+	templates = NewTemplateCache()
 
-	go Run(cfg)
+	if err := templates.Load(config.WebRoot); err != nil {
+		fmt.Fprintf(os.Stderr, "[e] %v\n", err)
+		os.Exit(1)
+	}
+
+	if err := BindApi(methods); err != nil {
+		fmt.Fprintf(os.Stderr, "[e] %v\n", err)
+		os.Exit(1)
+	}
+
+	go Run(config)
 
 loop:
 	for {
@@ -24,7 +38,6 @@ loop:
 			}
 		}
 	}
-
 	os.Exit(0)
 }
 
@@ -51,7 +64,24 @@ func getConfig() (cfg *Config) {
 
 		os.Exit(0)
 	}
+	if len(cfg.ListenAddr) == 0 {
+		fmt.Fprint(os.Stderr, "[e] No listen address has been specified in the configuration file.\n")
+		os.Exit(1)
+	}
 
+	if cfg.Secure && (len(cfg.ServerCert) == 0 || len(cfg.ServerKey) == 0) {
+		fmt.Fprint(os.Stderr, "[e] When running as a secure server, you must specify valid "+
+			"servercert and serverkey values. These should point to files containing the "+
+			"respective certificate and key.\n")
+		os.Exit(1)
+	}
+
+	if len(cfg.CookieSalt) == 0 {
+		fmt.Fprint(os.Stderr, "[e] It is highly recommended to set a valid cookiesalt value in "+
+			"the configuration file. This salt is used to (de/en)crypt cookies. It should be an "+
+			"arbitrary length, random string of characters.\n")
+		os.Exit(1)
+	}
 	return
 }
 

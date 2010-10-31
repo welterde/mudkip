@@ -1,0 +1,15 @@
+<p>This is an overview of all the pages available on this site.</p>
+
+<ul>
+{.repeated section @}
+ <li><a href="{Url}" title="{Title}">{Name}</a>
+  {.section Menu}
+    <ul>
+    {.repeated section Menu}
+     <li><a href="{Url}" title="{Title}">{Name}</a></li>
+    {.end}
+    </ul>
+  {.end}
+ </li>
+{.end}
+</ul>

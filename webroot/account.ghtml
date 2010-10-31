@@ -1,0 +1,15 @@
+<h3>Account overview</h3>
+{.section Registered}
+<dl>
+ {.section User}
+ <dt>Username:</dt><dd>{Username}</dd>
+ <dt>Member since:</dt><dd>{RegisterDate}</dd>
+ {.end}
+</dl>
+
+{.or}
+<p>You are not logged in. Please
+<a href="/account/register" title="Click to register a new account">register</a> or 
+<a href="/account/login" title="Click to login to an existing account">login</a> 
+to view your account details.</p>
+{.end}

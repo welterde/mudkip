@@ -1,0 +1,6 @@
+<h3>Logout</h3>
+{.section @}
+
+{.or}
+<p>You are not logged in.</p>
+{.end}

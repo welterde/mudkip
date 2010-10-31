@@ -1,0 +1,9 @@
+<h3>Edit account</h3>
+{.section @}
+
+{.or}
+<p>You are not logged in. Please
+<a href="/account/register" title="Click to register a new account">register</a> or 
+<a href="/account/login" title="Click to login to an existing account">login</a> 
+to view your account details.</p>
+{.end}

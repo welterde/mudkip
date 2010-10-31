@@ -17,5 +17,3 @@ test:
 	make -C lib test
 	make -C data/$(DATASTORE) test
 
-format:
-	gofmt -w .
